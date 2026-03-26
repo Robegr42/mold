@@ -1,64 +1,57 @@
-# GenSIE 2026 Public Starter Kit
+# 🧱 M.O.L.D.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
-[![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](./Dockerfile)
+**Micro-model Object Language Decoder**
 
-**GenSIE (General-purpose Schema-guided Information Extraction)** is a shared task at [IberLEF 2026](https://sites.google.com/view/iberlef-2026). This repository provides the official starter kit for participants.
+> Dynamic JSON extraction on the fly. Your schema changes, M.O.L.D. adapts.
 
-## 🚀 Quick Start
+## 📖 Overview
 
-### 1. Installation
-We recommend using [**uv**](https://github.com/astral-sh/uv) for fast dependency management:
+**M.O.L.D.** is a lightweight Python solution designed to tame the chaos of unstructured text using Small Language Models (SLMs). It allows you to extract information into JSON format, guaranteeing that the output fits your real-time needs, even when the data schema is completely dynamic or unknown beforehand.
 
-```bash
-git clone <repository-url>
-cd gensie
-uv sync --group dev
-```
+## ✨ Key Features
 
-### 2. Configuration
-Create a `.env` file to configure your inference backend:
+* **Zero Fine-Tuning:** Skip the expensive and time-consuming training pipelines. M.O.L.D. works out of the box with capable SLMs.
+* **Dynamic Schema Resolution:** Handle unknown or user-defined schemas at runtime without breaking your application logic.
+* **Type-Safe Outputs:** Native integration with Python data validation tools ensures that what you extract is  what you expect.
+
+<!-- ## 🚀 Installation
+
+Install M.O.L.D. via pip:
 
 ```bash
-OPENAI_API_KEY="your-api-key"
-OPENAI_BASE_URL="http://localhost:1234/v1" # Optional: for local LLMs
+pip install mold-ai
+
 ```
 
-### 3. Serving your Agent
-Start the FastAPI server:
-```bash
-uv run gensie serve --port 8000
-```
+## 💻 Quick Start
 
-### 4. Running Benchmarks
-Evaluate your agent against the 40 starter instances:
-```bash
-uv run gensie eval --data data/starter/ --url http://localhost:8000 --pipeline baseline --model gpt-4o-mini
-```
+*(This section should contain a minimal, self-contained Python script showing how easy it is to use the library. Example below:)*
 
-## 🛠️ How to Participate
+```python
+from mold import MoldExtractor
+from pydantic import BaseModel, Field
 
-1.  **Inherit from `GenSIEAgent`**: Implement your extraction logic in `src/gensie/`.
-2.  **Register your Pipelines**: Configure up to 3 pipelines in `OfficialParticipant` (see `src/gensie/baseline.py`).
-3.  **Submit**: Open a [**Competition Submission Issue**](https://github.com/gia-uh/gensie/issues/new?template=submission.md) to register your team and repository.
-4.  **Dockerize**: Use the provided `Dockerfile` and `docker-compose.yml` for testing and final submission.
+# 1. Initialize M.O.L.D. with your preferred SLM
+extractor = MoldExtractor(model="mistral-nemo-12b")
 
-```bash
-docker compose up --build
-```
+# 2. Define a dynamic or runtime-specific schema
+class UserProfile(BaseModel):
+    name: str = Field(description="The full name of the person")
+    skills: list[str] = Field(description="List of technical skills mentioned")
 
-## 📊 Dataset & Metrics
+text_input = "Hey, I'm Alex. I've been coding in Python for 5 years and recently started exploring Streamlit and MongoDB."
 
-The kit includes **40 silver-generated instances** for initial testing. Official metrics use **Flattened Schema Scoring** (Micro-F1), which combines exact matches for rigid fields and semantic similarity for free-text fields.
+# 3. Extract! M.O.L.D. forces the text into your schema
+result = extractor.parse(text=text_input, schema=UserProfile)
 
-## 📜 Documentation
+print(result.json(indent=2))
 
-For more details, see our guides:
-*   🚀 [**Starter Kit Guide**](./docs/starter-kit.md)
-*   📂 [**Submission Guidelines**](./docs/submission.md)
-*   📊 [**Task Description**](./docs/description.md)
+``` -->
 
-## ⚖️ License
+## 🧩 Integrations & Ecosystem
 
-This starter kit is licensed under the **MIT License**.
+M.O.L.D. is designed to play nicely with your existing data science and web stacks. Whether you are building background data-cleaning pipelines, feeding a MongoDB database, or creating rapid interactive web apps with Streamlit, M.O.L.D. provides the structured data backbone you need.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the `LICENSE` file for details.
