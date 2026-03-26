@@ -68,8 +68,8 @@ class OfficialParticipant(Participant):
 
     def get_info(self) -> ParticipantInfo:
         return ParticipantInfo(
-            team_name="GenSIE Baseline Team",
-            institution="Official",
+            team_name="MOLD Team",
+            institution="University of Havana",
             pipelines=[
                 PipelineInfo(
                     name="baseline",
