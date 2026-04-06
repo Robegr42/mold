@@ -1,0 +1,53 @@
+entries:
+  - timestamp: 2026-04-06T12:00:00Z
+    type: commit
+    message: "feat(opencode): add opencode-core framework"
+    files:
+      - .opencode/.gitignore
+      - .opencode/AGENT.md
+      - .opencode/CHANGELOG.md
+      - .opencode/LICENSE
+      - .opencode/README.md
+      - .opencode/agents/analyze.md
+      - .opencode/agents/create.md
+      - .opencode/agents/critic.md
+      - .opencode/agents/design.md
+      - .opencode/agents/drafter.md
+      - .opencode/agents/investigator.md
+      - .opencode/agents/scout.md
+      - .opencode/agents/tester.md
+      - .opencode/bin/note.py
+      - .opencode/bun.lock
+      - .opencode/commands/analyze.md
+      - .opencode/commands/audit.md
+      - .opencode/commands/build.md
+      - .opencode/commands/commit.md
+      - .opencode/commands/create.md
+      - .opencode/commands/design.md
+      - .opencode/commands/draft.md
+      - .opencode/commands/fix.md
+      - .opencode/commands/help.md
+      - .opencode/commands/investigate.md
+      - .opencode/commands/note.md
+      - .opencode/commands/onboard.md
+      - .opencode/commands/plan.md
+      - .opencode/commands/publish.md
+      - .opencode/commands/research.md
+      - .opencode/commands/review.md
+      - .opencode/commands/sandbox.md
+      - .opencode/commands/scaffold.md
+      - .opencode/commands/todo.md
+      - .opencode/opencode.json
+      - .opencode/package-lock.json
+      - .opencode/package.json
+      - .opencode/plugins/literate-commands.js
+      - .opencode/plugins/sandbox.js
+      - .opencode/sandbox/dockerfile
+      - .opencode/sandbox/sandbox.sh
+      - .opencode/skills/editor/SKILL.md
+      - .opencode/skills/editor/subsections/content-review.md
+      - .opencode/skills/editor/subsections/general-review.md
+      - .opencode/skills/editor/subsections/structural-review.md
+      - .opencode/skills/editor/subsections/style-review.md
+      - .opencode/skills/literate-commands/SKILL.md
+      - .playground/.gitignore
