@@ -4,6 +4,11 @@ from typing import Any, Dict
 from openai import OpenAI
 from gensie.agent import GenSIEAgent, Participant, ParticipantInfo, PipelineInfo
 from gensie.task import Task
+from dotenv import load_dotenv
+from logging import getLogger
+
+load_dotenv()
+logger = getLogger("gensie")
 
 
 class BasicAgent(GenSIEAgent):
@@ -30,7 +35,10 @@ class BasicAgent(GenSIEAgent):
         response = self.client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": "You are a precise data extraction agent."},
+                {
+                    "role": "system",
+                    "content": "You are a precise data extraction agent.",
+                },
                 {"role": "user", "content": prompt},
             ],
             response_format={
@@ -50,6 +58,9 @@ class BasicAgent(GenSIEAgent):
         except (json.JSONDecodeError, AttributeError, IndexError) as e:
             # Fallback for unexpected API errors
             return {"error": f"Failed to parse model response: {str(e)}"}
+        except Exception as e:
+            logger.error(str(e))
+            return {"error": str(e)}
 
 
 class OfficialParticipant(Participant):
@@ -73,11 +84,11 @@ class OfficialParticipant(Participant):
             pipelines=[
                 PipelineInfo(
                     name="baseline",
-                    description="Standard OpenAI agent using structured outputs."
+                    description="Standard OpenAI agent using structured outputs.",
                 ),
                 # Add descriptions for your other pipelines here:
                 # PipelineInfo(name="pipeline2", description="My advanced RAG agent"),
-            ]
+            ],
         )
 
     def get_agent(self, pipeline_name: str) -> GenSIEAgent:
