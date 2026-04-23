@@ -1,0 +1,19 @@
+entries:
+  - timestamp: 2026-04-23T14:31:17-04:00
+    type: commit
+    message: "chore(project): initialize project infrastructure and add extraction strategies doc"
+    files:
+      - .opencode/sandbox/mold.dockerfile
+      - Makefile
+      - pyproject.toml
+      - structured_extraction_strategies.md
+      - uv.lock
+  - timestamp: 2026-04-23T15:00:00Z
+    type: commit
+    message: "docs(plans): add project task tracking and advanced extraction strategies"
+    files:
+      - .opencode/sandbox/mold.dockerfile
+      - .knowledge/plans/sandbox_setup.md
+      - .knowledge/plans/end-anchored-templates.md
+      - .knowledge/plans/prompt-optimization-opro.md
+      - TASK.md

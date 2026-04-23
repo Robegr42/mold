@@ -23,6 +23,10 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     gnupg \
     lsb-release \
+    software-properties-common \
+    make \
+    build-essential \
+    jq \
     && rm -rf /var/lib/apt/lists/*
 
 # ============================================================
@@ -38,8 +42,7 @@ RUN add-apt-repository ppa:deadsnakes/ppa -y && \
 # ============================================================
 # uv - Package manager
 # ============================================================
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-ENV PATH="/root/.local/bin:$PATH"
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # ============================================================
 # Project workspace
