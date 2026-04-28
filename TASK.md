@@ -8,8 +8,8 @@ This file tracks the progress of the M.O.L.D. project. Each task is linked to it
     - Plan: [.knowledge/plans/sandbox_setup.md](.knowledge/plans/sandbox_setup.md)
 
 ## 🏗 Core Development
-- [ ] **Implement End-Anchored Templates**
-    - Status: ⏳ Pending
+- [x] **Implement End-Anchored Templates**
+    - Status: ✅ Completed
     - Plan: [.knowledge/plans/end-anchored-templates.md](.knowledge/plans/end-anchored-templates.md)
 - [ ] **Implement Prompt Optimization (OPRO)**
     - Status: ⏳ Pending
