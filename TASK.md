@@ -17,7 +17,7 @@ This file tracks the progress of the M.O.L.D. project.
     - Plan: [plans/speculative-constrained-decoding.md](plans/speculative-constrained-decoding.md)
 
 ## 🐛 Bug Fixes
-- [/] **Fix `json_object` response format compatibility in `EndAnchoredAgent`**
-    - Status: 🏃 In Progress (@apiad)
+- [x] **Fix `json_object` response format compatibility in `EndAnchoredAgent`**
+    - Status: ✅ Done
     - Issue: Some models/servers do not support `json_object` and require `json_schema` or `text`.
 
