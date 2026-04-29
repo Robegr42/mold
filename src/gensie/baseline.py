@@ -100,9 +100,14 @@ class EndAnchoredAgent(GenSIEAgent):
                 },
                 {"role": "user", "content": prompt},
             ],
-            # We don't use response_format=json_schema here to test the
-            # effectiveness of the prompting strategy alone, or we could use type="json_object"
-            response_format={"type": "json_object"},
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "extraction",
+                    "schema": task.target_schema,
+                    "strict": True,
+                },
+            },
         )
 
         try:
