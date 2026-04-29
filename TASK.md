@@ -6,8 +6,8 @@ This file tracks the progress of the M.O.L.D. project.
 - [ ] **Initial Planning**
     - Status: ⏳ Pending
     - Plan: [plans/initial_strategy.md](plans/initial_strategy.md)
-- [ ] **Implement Reasoning-Guided Extraction (Thinking-First)**
-    - Status: ⏳ Pending
+- [x] **Implement Reasoning-Guided Extraction (Thinking-First)**
+    - Status: ✅ Done
     - Plan: [plans/thinking-first-strategy.md](plans/thinking-first-strategy.md)
 - [ ] **Implement Grammar-Constrained Decoding (FST-FSA/PDA)**
     - Status: ⏳ Pending
