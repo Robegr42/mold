@@ -20,7 +20,7 @@ Implement a task using a strict, agent-delegated Test-Commit-Revert (TCR) protoc
    - Run `make test` and ensure all tests pass. If any fail, notify the user and stop.
 2. **Task Setup:**
    - Identify the target task from arguments or context.
-   - Mark it as `[/] In Progress (@apiad)` in `TASKS.md`.
+   - Mark it as `[/] In Progress` in `TASKS.md`.
    - Generate a descriptive kebab-case branch name (e.g., `feature/task-description`).
    - Create and switch to the branch: `git checkout -b <branch-name>`.
 3. **The TCR Loop (Delegation):**
