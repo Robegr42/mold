@@ -12,6 +12,9 @@ This file tracks the progress of the M.O.L.D. project.
 - [/] **Implement Grammar-Constrained Decoding (FST-FSA/PDA)**
     - Status: 🚧 In Progress (@dguerrerom)
     - Plan: [plans/grammar-constrained-fst.md](plans/grammar-constrained-fst.md)
+- [ ] **Implement Grammar-Constrained Decoding (FST-FSA/PDA) v2**
+    - Status: ⏳ Pending
+    - Plan: [plans/grammar-constrained-v2.md](plans/grammar-constrained-v2.md)
 - [ ] **Implement Speculative Constrained Decoding**
     - Status: ⏳ Pending
     - Plan: [plans/speculative-constrained-decoding.md](plans/speculative-constrained-decoding.md)
