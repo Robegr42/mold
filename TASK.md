@@ -9,9 +9,6 @@ This file tracks the progress of the M.O.L.D. project.
 - [x] **Implement Reasoning-Guided Extraction (Thinking-First)**
     - Status: ✅ Done
     - Plan: [plans/thinking-first-strategy.md](plans/thinking-first-strategy.md)
-- [ ] **Implement Speculative Constrained Decoding**
-    - Status: ⏳ Pending
-    - Plan: [plans/speculative-constrained-decoding.md](plans/speculative-constrained-decoding.md)
 
 ## 🐛 Bug Fixes
 - [x] **Fix `json_object` response format compatibility in `EndAnchoredAgent`**
