@@ -3,6 +3,9 @@
 This file tracks the progress of the M.O.L.D. project.
 
 ## 🛠 Active Tasks
+- [x] **Implement End-Anchored Template & Delimiter Separation**
+    - Status: ✅ Done
+    - Plan: [plans/end-anchored-strategy.md](plans/end-anchored-strategy.md)
 - [ ] **Initial Planning**
     - Status: ⏳ Pending
     - Plan: [plans/initial_strategy.md](plans/initial_strategy.md)
