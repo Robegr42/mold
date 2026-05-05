@@ -11,9 +11,29 @@ from gensie.utils.prompts import (
 )
 from dotenv import load_dotenv
 from logging import getLogger
+from gensie.utils.schema import compress_schema_to_ts
 
 load_dotenv()
 logger = getLogger("gensie")
+
+
+class InvariantPromptMixin:
+    """
+    Mixin that applies core architectural invariants to an agent's prompt:
+    1. TypeScript compressed schema format
+    2. Extract-or-Null rule
+    3. Dialect Awareness rule
+    """
+    def apply_invariants(self, base_prompt: str, target_schema: dict) -> str:
+        ts_schema = compress_schema_to_ts(target_schema)
+        
+        invariants = (
+            f"\n\n--- EXTRACTION INVARIANTS ---\n"
+            f"1. Target Schema (TypeScript Interface):\n```typescript\n{ts_schema}\n```\n"
+            f"2. Strict Extract-or-Null Rule: Do not infer or guess. If information is absent, return `null`.\n"
+            f"3. Dialect Rule: Respect Iberian/Latin American synonyms when extracting terms."
+        )
+        return base_prompt + invariants
 
 
 class BasicAgent(GenSIEAgent):
