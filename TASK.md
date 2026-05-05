@@ -6,7 +6,10 @@ This file tracks the progress of the M.O.L.D. project.
 - [x] **Implement End-Anchored Template & Delimiter Separation**
     - Status: ✅ Done
     - Plan: [plans/end-anchored-strategy.md](plans/end-anchored-strategy.md)
-- [/] **Refactor Agent Architecture (Phase 1: Foundational Invariants)**
+- [x] **Refactor Agent Architecture (Phase 1: Foundational Invariants)**
+    - Status: ✅ Done
+    - Plan: [plans/final_refactoring_plan.md](plans/final_refactoring_plan.md)
+- [/] **Refactor Agent Architecture (Phase 2.1: TwoPassAgent)**
     - Status: 🚧 In Progress
     - Plan: [plans/final_refactoring_plan.md](plans/final_refactoring_plan.md)
 - [ ] **Initial Planning**

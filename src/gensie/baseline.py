@@ -205,6 +205,90 @@ class ThinkingAgent(GenSIEAgent):
             }
 
 
+class TwoPassAgent(GenSIEAgent, InvariantPromptMixin):
+    """
+    Agent that uses a two-pass strategy:
+    1. Unconstrained analysis step in Spanish.
+    2. Strict extraction using JSON Schema, with a fallback to JSON Object.
+    """
+
+    def __init__(self):
+        self.client = OpenAI(
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+        )
+
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        # Pass 1: Analysis in Spanish
+        pass1_prompt = (
+            f"Instruction: {task.instruction}\n\n"
+            f"Input Text: {task.input_text}\n\n"
+            f"Analyze the text step-by-step to fulfill the instruction."
+        )
+        
+        response1 = self.client.chat.completions.create(
+            model=model,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant. Analyze the following text step-by-step in Spanish to identify relevant information.",
+                },
+                {"role": "user", "content": pass1_prompt},
+            ],
+        )
+        
+        analysis = response1.choices[0].message.content
+
+        # Pass 2: Extraction
+        base_pass2_prompt = (
+            f"Instruction: {task.instruction}\n\n"
+            f"Input Text: {task.input_text}\n\n"
+            f"Analysis: {analysis}\n\n"
+            f"Extract the requested information."
+        )
+        
+        # Apply invariants
+        final_prompt = self.apply_invariants(base_pass2_prompt, task.target_schema)
+        
+        messages2 = [
+            {
+                "role": "system",
+                "content": "You are a precise data extraction agent. Extract the required information into valid JSON.",
+            },
+            {"role": "user", "content": final_prompt},
+        ]
+        
+        # Attempt 1 for Pass 2: json_schema
+        try:
+            response2 = self.client.chat.completions.create(
+                model=model,
+                messages=messages2,
+                response_format={
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": "extraction",
+                        "schema": task.target_schema,
+                        "strict": True,
+                    },
+                },
+            )
+            content = response2.choices[0].message.content
+            return json.loads(content)
+        except Exception as e:
+            # Fallback to json_object
+            try:
+                response3 = self.client.chat.completions.create(
+                    model=model,
+                    messages=messages2,
+                    response_format={"type": "json_object"},
+                )
+                content = response3.choices[0].message.content
+                return json.loads(content)
+            except Exception as fallback_err:
+                logger.error(f"Fallback extraction failed: {str(fallback_err)}")
+                return {"error": f"Failed fallback extraction: {str(fallback_err)}"}
+
+
 class OfficialParticipant(Participant):
     """
     Standard entry point for the competition.
