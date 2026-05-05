@@ -289,6 +289,65 @@ class TwoPassAgent(GenSIEAgent, InvariantPromptMixin):
                 return {"error": f"Failed fallback extraction: {str(fallback_err)}"}
 
 
+class GroundedAgent(GenSIEAgent, InvariantPromptMixin):
+    """
+    Agent that acts as a skeptical auditor, mandating source quotes to authorize extraction.
+    """
+
+    def __init__(self):
+        self.client = OpenAI(
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+        )
+
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        base_prompt = (
+            f"You are a skeptical auditor. You must rely ONLY on the provided text.\n"
+            f"A source quote MUST exist to authorize any extraction.\n\n"
+            f"Instruction: {task.instruction}\n\n"
+            f"Input Text: {task.input_text}\n\n"
+            f"Extract the requested information."
+        )
+        
+        final_prompt = self.apply_invariants(base_prompt, task.target_schema)
+        
+        messages = [
+            {
+                "role": "system",
+                "content": "You are a precise data extraction agent and a skeptical auditor. Mandate source quotes for every field.",
+            },
+            {"role": "user", "content": final_prompt},
+        ]
+        
+        try:
+            response = self.client.chat.completions.create(
+                model=model,
+                messages=messages,
+                response_format={
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": "extraction",
+                        "schema": task.target_schema,
+                        "strict": True,
+                    },
+                },
+            )
+            content = response.choices[0].message.content
+            return json.loads(content)
+        except Exception as e:
+            try:
+                response_fb = self.client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    response_format={"type": "json_object"},
+                )
+                content = response_fb.choices[0].message.content
+                return json.loads(content)
+            except Exception as fallback_err:
+                logger.error(f"Fallback extraction failed: {str(fallback_err)}")
+                return {"error": f"Failed fallback extraction: {str(fallback_err)}"}
+
+
 class OfficialParticipant(Participant):
     """
     Standard entry point for the competition.
