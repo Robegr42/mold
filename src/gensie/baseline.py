@@ -348,6 +348,96 @@ class GroundedAgent(GenSIEAgent, InvariantPromptMixin):
                 return {"error": f"Failed fallback extraction: {str(fallback_err)}"}
 
 
+class AuditorAgent(GenSIEAgent, InvariantPromptMixin):
+    """
+    Agent that uses a self-correction loop to strike hallucinations.
+    1. Pass 1 (Draft): Generate a preliminary JSON draft.
+    2. Pass 2 (Audit): Pass the Draft and the Source text to the model to audit it.
+    """
+
+    def __init__(self):
+        self.client = OpenAI(
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+        )
+
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        """
+        Executes a two-pass extraction: first a draft, then an adversarial audit.
+        """
+        # Pass 1: Draft
+        pass1_prompt = (
+            f"Instruction: {task.instruction}\n\n"
+            f"Input Text: {task.input_text}\n\n"
+            f"Generate a preliminary JSON draft of the extraction."
+        )
+
+        response1 = self.client.chat.completions.create(
+            model=model,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a precise data extraction agent. Generate a preliminary JSON draft.",
+                },
+                {"role": "user", "content": pass1_prompt},
+            ],
+            response_format={"type": "json_object"},
+        )
+
+        draft = response1.choices[0].message.content
+
+        # Pass 2: Audit
+        audit_prompt = (
+            f"Input Text: {task.input_text}\n\n"
+            f"Draft: {draft}\n\n"
+            f"Audit the draft by comparing it against the source text. "
+            f"Replace any unverified claim with null."
+        )
+
+        # Apply invariants strictly to the Pass 2 audit step
+        final_prompt = self.apply_invariants(audit_prompt, task.target_schema)
+
+        messages2 = [
+            {
+                "role": "system",
+                "content": "You are an adversarial inspector holding a red pen. "
+                "Audit the following draft against the source text. "
+                "Strike any information that is not explicitly supported by the text by replacing it with null.",
+            },
+            {"role": "user", "content": final_prompt},
+        ]
+
+        # Attempt 1 for Pass 2: json_schema
+        try:
+            response2 = self.client.chat.completions.create(
+                model=model,
+                messages=messages2,
+                response_format={
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": "audit_extraction",
+                        "schema": task.target_schema,
+                        "strict": True,
+                    },
+                },
+            )
+            content = response2.choices[0].message.content
+            return json.loads(content)
+        except Exception as e:
+            # Fallback to json_object
+            try:
+                response3 = self.client.chat.completions.create(
+                    model=model,
+                    messages=messages2,
+                    response_format={"type": "json_object"},
+                )
+                content = response3.choices[0].message.content
+                return json.loads(content)
+            except Exception as fallback_err:
+                logger.error(f"Fallback audit failed: {str(fallback_err)}")
+                return {"error": f"Failed fallback audit: {str(fallback_err)}"}
+
+
 class OfficialParticipant(Participant):
     """
     Standard entry point for the competition.
@@ -355,11 +445,11 @@ class OfficialParticipant(Participant):
     """
 
     def __init__(self):
-        # Default pipeline using the reference BasicAgent
+        # Using the new hardened agents
         self.pipelines = {
-            "baseline": BasicAgent(),
-            "end-anchored": EndAnchoredAgent(),
-            "reasoning-guided": ThinkingAgent(),
+            "two-pass": TwoPassAgent(),
+            "grounded": GroundedAgent(),
+            "auditor": AuditorAgent(),
         }
 
     def get_info(self) -> ParticipantInfo:
@@ -368,22 +458,22 @@ class OfficialParticipant(Participant):
             institution="University of Havana",
             pipelines=[
                 PipelineInfo(
-                    name="baseline",
-                    description="Standard OpenAI agent using structured outputs.",
+                    name="two-pass",
+                    description="Strategy that decouples reasoning in Spanish from strict JSON extraction.",
                 ),
                 PipelineInfo(
-                    name="end-anchored",
-                    description="Agent using end-anchored templates and visual delimiters to improve long-context extraction.",
+                    name="grounded",
+                    description="Evidence-based agent that mandates source quotes to authorize extraction.",
                 ),
                 PipelineInfo(
-                    name="reasoning-guided",
-                    description="Strategy using <think> and <answer> tags to perform Chain-of-Thought before extraction.",
+                    name="auditor",
+                    description="Self-correction loop with an adversarial audit to strike hallucinations.",
                 ),
             ],
         )
 
     def get_agent(self, pipeline_name: str) -> GenSIEAgent:
         if pipeline_name not in self.pipelines:
-            # Fallback to default if pipeline not found, or raise error
-            return self.pipelines["baseline"]
+            # Fallback to grounded if pipeline not found
+            return self.pipelines["grounded"]
         return self.pipelines[pipeline_name]

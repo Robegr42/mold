@@ -12,7 +12,10 @@ This file tracks the progress of the M.O.L.D. project.
 - [x] **Refactor Agent Architecture (Phase 2.1: TwoPassAgent)**
     - Status: ✅ Done
     - Plan: [plans/final_refactoring_plan.md](plans/final_refactoring_plan.md)
-- [/] **Refactor Agent Architecture (Phase 2.2: GroundedAgent)**
+- [x] **Refactor Agent Architecture (Phase 2.2: GroundedAgent)**
+    - Status: ✅ Done
+    - Plan: [plans/final_refactoring_plan.md](plans/final_refactoring_plan.md)
+- [/] **Refactor Agent Architecture (Phase 2.3: AuditorAgent)**
     - Status: 🚧 In Progress
     - Plan: [plans/final_refactoring_plan.md](plans/final_refactoring_plan.md)
 - [ ] **Initial Planning**
