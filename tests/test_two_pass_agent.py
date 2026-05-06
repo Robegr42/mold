@@ -80,7 +80,7 @@ def test_two_pass_agent_fallback_on_api_error(agent, sample_task):
     assert agent.client.chat.completions.create.call_count == 3
     
     call_args_3 = agent.client.chat.completions.create.call_args_list[2][1]
-    assert call_args_3["response_format"]["type"] == "json_object"
+    assert call_args_3["response_format"]["type"] == "text"
 
 def test_two_pass_agent_fallback_on_json_error(agent, sample_task):
     mock_response_1 = MagicMock()
@@ -105,4 +105,4 @@ def test_two_pass_agent_fallback_on_json_error(agent, sample_task):
     assert agent.client.chat.completions.create.call_count == 3
     
     call_args_3 = agent.client.chat.completions.create.call_args_list[2][1]
-    assert call_args_3["response_format"]["type"] == "json_object"
+    assert call_args_3["response_format"]["type"] == "text"

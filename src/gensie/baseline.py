@@ -213,12 +213,12 @@ class TwoPassAgent(GenSIEAgent, InvariantPromptMixin):
             content = response2.choices[0].message.content
             return json.loads(content)
         except Exception as e:
-            # Fallback to json_object
+            # Fallback to text
             try:
                 response3 = self.client.chat.completions.create(
                     model=model,
                     messages=messages2,
-                    response_format={"type": "json_object"},
+                    response_format={"type": "text"},
                 )
                 content = response3.choices[0].message.content
                 return json.loads(content)
@@ -277,7 +277,7 @@ class GroundedAgent(GenSIEAgent, InvariantPromptMixin):
                 response_fb = self.client.chat.completions.create(
                     model=model,
                     messages=messages,
-                    response_format={"type": "json_object"},
+                    response_format={"type": "text"},
                 )
                 content = response_fb.choices[0].message.content
                 return json.loads(content)
@@ -310,19 +310,40 @@ class AuditorAgent(GenSIEAgent, InvariantPromptMixin):
             f"Generate a preliminary JSON draft of the extraction."
         )
 
-        response1 = self.client.chat.completions.create(
-            model=model,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are a precise data extraction agent. Generate a preliminary JSON draft.",
+        try:
+            response1 = self.client.chat.completions.create(
+                model=model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are a precise data extraction agent. Generate a preliminary JSON draft.",
+                    },
+                    {"role": "user", "content": pass1_prompt},
+                ],
+                response_format={
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": "extraction_draft",
+                        "schema": task.target_schema,
+                        "strict": True,
+                    },
                 },
-                {"role": "user", "content": pass1_prompt},
-            ],
-            response_format={"type": "json_object"},
-        )
-
-        draft = response1.choices[0].message.content
+            )
+            draft = response1.choices[0].message.content
+        except Exception:
+            # Fallback to text
+            response1 = self.client.chat.completions.create(
+                model=model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are a precise data extraction agent. Generate a preliminary JSON draft. Respond ONLY with valid JSON.",
+                    },
+                    {"role": "user", "content": pass1_prompt},
+                ],
+                response_format={"type": "text"},
+            )
+            draft = response1.choices[0].message.content
 
         # Pass 2: Audit
         audit_prompt = (
@@ -362,12 +383,12 @@ class AuditorAgent(GenSIEAgent, InvariantPromptMixin):
             content = response2.choices[0].message.content
             return json.loads(content)
         except Exception as e:
-            # Fallback to json_object
+            # Fallback to text
             try:
                 response3 = self.client.chat.completions.create(
                     model=model,
                     messages=messages2,
-                    response_format={"type": "json_object"},
+                    response_format={"type": "text"},
                 )
                 content = response3.choices[0].message.content
                 return json.loads(content)

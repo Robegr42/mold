@@ -65,7 +65,7 @@ def test_grounded_agent_runs_single_pass_and_applies_invariants(mock_openai, sam
         assert call_kwargs['response_format']['type'] == 'json_schema'
 
 @patch('gensie.baseline.OpenAI')
-def test_grounded_agent_fallback_to_json_object(mock_openai, sample_task):
+def test_grounded_agent_fallback_to_text(mock_openai, sample_task):
     mock_client = MagicMock()
     mock_openai.return_value = mock_client
     
@@ -86,4 +86,4 @@ def test_grounded_agent_fallback_to_json_object(mock_openai, sample_task):
     second_call_kwargs = mock_client.chat.completions.create.call_args_list[1][1]
     
     assert first_call_kwargs['response_format']['type'] == 'json_schema'
-    assert second_call_kwargs['response_format']['type'] == 'json_object'
+    assert second_call_kwargs['response_format']['type'] == 'text'

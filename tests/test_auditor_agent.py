@@ -56,7 +56,7 @@ def test_auditor_agent_success(agent, sample_task):
     
     # First pass: Draft
     call_args_1 = agent.client.chat.completions.create.call_args_list[0][1]
-    assert call_args_1["response_format"]["type"] in ("json_object", "json_schema")
+    assert call_args_1["response_format"]["type"] == "json_schema"
     
     # Second pass: Invariants applied, json_schema, adversarial inspector
     call_args_2 = agent.client.chat.completions.create.call_args_list[1][1]
@@ -88,4 +88,4 @@ def test_auditor_agent_fallback_on_api_error(agent, sample_task):
     assert agent.client.chat.completions.create.call_count == 3
     
     call_args_3 = agent.client.chat.completions.create.call_args_list[2][1]
-    assert call_args_3["response_format"]["type"] == "json_object"
+    assert call_args_3["response_format"]["type"] == "text"
