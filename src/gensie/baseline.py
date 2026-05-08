@@ -78,7 +78,11 @@ class BasicAgent(GenSIEAgent):
         # Parse the structured JSON response
         try:
             content = response.choices[0].message.content
-            return json.loads(content)
+            result = json.loads(content)
+            # Inject token usage
+            if hasattr(response, "usage") and response.usage:
+                result["_tokens"] = response.usage.total_tokens
+            return result
         except (json.JSONDecodeError, AttributeError, IndexError) as e:
             # Fallback for unexpected API errors
             return {"error": f"Failed to parse model response: {str(e)}"}
@@ -131,7 +135,10 @@ class EndAnchoredAgent(GenSIEAgent):
 
         try:
             content = response.choices[0].message.content
-            return json.loads(content)
+            result = json.loads(content)
+            if hasattr(response, "usage") and response.usage:
+                result["_tokens"] = response.usage.total_tokens
+            return result
         except (json.JSONDecodeError, AttributeError, IndexError) as e:
             return {
                 "error": f"Failed to parse model response: {str(e)}",
@@ -157,6 +164,7 @@ class TwoPassAgent(GenSIEAgent, InvariantPromptMixin):
         )
 
     def run(self, task: Task, model: str) -> Dict[str, Any]:
+        total_tokens = 0
         # Pass 1: Analysis in Spanish
         pass1_prompt = (
             f"Instruction: {task.instruction}\n\n"
@@ -175,6 +183,9 @@ class TwoPassAgent(GenSIEAgent, InvariantPromptMixin):
             ],
         )
         
+        if hasattr(response1, "usage") and response1.usage:
+            total_tokens += response1.usage.total_tokens
+
         analysis = response1.choices[0].message.content
 
         # Pass 2: Extraction
@@ -210,8 +221,12 @@ class TwoPassAgent(GenSIEAgent, InvariantPromptMixin):
                     },
                 },
             )
+            if hasattr(response2, "usage") and response2.usage:
+                total_tokens += response2.usage.total_tokens
             content = response2.choices[0].message.content
-            return json.loads(content)
+            result = json.loads(content)
+            result["_tokens"] = total_tokens
+            return result
         except Exception as e:
             # Fallback to text
             try:
@@ -220,11 +235,15 @@ class TwoPassAgent(GenSIEAgent, InvariantPromptMixin):
                     messages=messages2,
                     response_format={"type": "text"},
                 )
+                if hasattr(response3, "usage") and response3.usage:
+                    total_tokens += response3.usage.total_tokens
                 content = response3.choices[0].message.content
-                return json.loads(content)
+                result = json.loads(content)
+                result["_tokens"] = total_tokens
+                return result
             except Exception as fallback_err:
                 logger.error(f"Fallback extraction failed: {str(fallback_err)}")
-                return {"error": f"Failed fallback extraction: {str(fallback_err)}"}
+                return {"error": f"Failed fallback extraction: {str(fallback_err)}", "_tokens": total_tokens}
 
 
 class GroundedAgent(GenSIEAgent, InvariantPromptMixin):
@@ -239,6 +258,7 @@ class GroundedAgent(GenSIEAgent, InvariantPromptMixin):
         )
 
     def run(self, task: Task, model: str) -> Dict[str, Any]:
+        total_tokens = 0
         base_prompt = (
             f"You are a skeptical auditor. You must rely ONLY on the provided text.\n"
             f"A source quote MUST exist to authorize any extraction.\n\n"
@@ -270,8 +290,12 @@ class GroundedAgent(GenSIEAgent, InvariantPromptMixin):
                     },
                 },
             )
+            if hasattr(response, "usage") and response.usage:
+                total_tokens += response.usage.total_tokens
             content = response.choices[0].message.content
-            return json.loads(content)
+            result = json.loads(content)
+            result["_tokens"] = total_tokens
+            return result
         except Exception as e:
             try:
                 response_fb = self.client.chat.completions.create(
@@ -279,11 +303,15 @@ class GroundedAgent(GenSIEAgent, InvariantPromptMixin):
                     messages=messages,
                     response_format={"type": "text"},
                 )
+                if hasattr(response_fb, "usage") and response_fb.usage:
+                    total_tokens += response_fb.usage.total_tokens
                 content = response_fb.choices[0].message.content
-                return json.loads(content)
+                result = json.loads(content)
+                result["_tokens"] = total_tokens
+                return result
             except Exception as fallback_err:
                 logger.error(f"Fallback extraction failed: {str(fallback_err)}")
-                return {"error": f"Failed fallback extraction: {str(fallback_err)}"}
+                return {"error": f"Failed fallback extraction: {str(fallback_err)}", "_tokens": total_tokens}
 
 
 class AuditorAgent(GenSIEAgent, InvariantPromptMixin):
@@ -303,6 +331,7 @@ class AuditorAgent(GenSIEAgent, InvariantPromptMixin):
         """
         Executes a two-pass extraction: first a draft, then an adversarial audit.
         """
+        total_tokens = 0
         # Pass 1: Draft
         pass1_prompt = (
             f"Instruction: {task.instruction}\n\n"
@@ -329,7 +358,10 @@ class AuditorAgent(GenSIEAgent, InvariantPromptMixin):
                     },
                 },
             )
-            draft = response1.choices[0].message.content
+            if hasattr(response1, "usage") and response1.usage:
+                total_tokens += response1.usage.total_tokens
+            draft_content = response1.choices[0].message.content
+            draft = json.loads(draft_content)
         except Exception:
             # Fallback to text
             response1 = self.client.chat.completions.create(
@@ -343,7 +375,10 @@ class AuditorAgent(GenSIEAgent, InvariantPromptMixin):
                 ],
                 response_format={"type": "text"},
             )
-            draft = response1.choices[0].message.content
+            if hasattr(response1, "usage") and response1.usage:
+                total_tokens += response1.usage.total_tokens
+            draft_content = response1.choices[0].message.content
+            draft = json.loads(draft_content)
 
         # Pass 2: Audit
         audit_prompt = (
@@ -380,8 +415,12 @@ class AuditorAgent(GenSIEAgent, InvariantPromptMixin):
                     },
                 },
             )
+            if hasattr(response2, "usage") and response2.usage:
+                total_tokens += response2.usage.total_tokens
             content = response2.choices[0].message.content
-            return json.loads(content)
+            result = json.loads(content)
+            result["_tokens"] = total_tokens
+            return result
         except Exception as e:
             # Fallback to text
             try:
@@ -390,11 +429,15 @@ class AuditorAgent(GenSIEAgent, InvariantPromptMixin):
                     messages=messages2,
                     response_format={"type": "text"},
                 )
+                if hasattr(response3, "usage") and response3.usage:
+                    total_tokens += response3.usage.total_tokens
                 content = response3.choices[0].message.content
-                return json.loads(content)
+                result = json.loads(content)
+                result["_tokens"] = total_tokens
+                return result
             except Exception as fallback_err:
                 logger.error(f"Fallback audit failed: {str(fallback_err)}")
-                return {"error": f"Failed fallback audit: {str(fallback_err)}"}
+                return {"error": f"Failed fallback audit: {str(fallback_err)}", "_tokens": total_tokens}
 
 
 class OfficialParticipant(Participant):
