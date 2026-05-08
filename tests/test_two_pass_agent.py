@@ -44,6 +44,7 @@ def test_two_pass_agent_success(agent, sample_task):
     
     result = agent.run(sample_task, model="test-model")
     
+    result.pop("_tokens", None)
     assert result == {"name": "Juan"}
     assert agent.client.chat.completions.create.call_count == 2
     
@@ -76,6 +77,7 @@ def test_two_pass_agent_fallback_on_api_error(agent, sample_task):
     
     result = agent.run(sample_task, model="test-model")
     
+    result.pop("_tokens", None)
     assert result == {"name": "Juan"}
     assert agent.client.chat.completions.create.call_count == 3
     
@@ -101,6 +103,7 @@ def test_two_pass_agent_fallback_on_json_error(agent, sample_task):
     
     result = agent.run(sample_task, model="test-model")
     
+    result.pop("_tokens", None)
     assert result == {"name": "Juan"}
     assert agent.client.chat.completions.create.call_count == 3
     

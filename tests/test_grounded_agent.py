@@ -45,6 +45,7 @@ def test_grounded_agent_runs_single_pass_and_applies_invariants(mock_openai, sam
         result = agent.run(sample_task, "test-model")
         
         # Verify result
+        result.pop("_tokens", None)
         assert result == {"name": "John", "quote": "Hello world"}
         
         # Verify single pass (1 completion call)
@@ -79,6 +80,7 @@ def test_grounded_agent_fallback_to_text(mock_openai, sample_task):
     agent = GroundedAgent()
     result = agent.run(sample_task, "test-model")
     
+    result.pop("_tokens", None)
     assert result == {"name": "John", "quote": "Hello world"}
     assert mock_client.chat.completions.create.call_count == 2
     

@@ -51,6 +51,7 @@ def test_auditor_agent_success(agent, sample_task):
     
     result = agent.run(sample_task, model="test-model")
     
+    result.pop("_tokens", None)
     assert result == {"name": "John", "age": None}
     assert agent.client.chat.completions.create.call_count == 2
     
@@ -84,6 +85,7 @@ def test_auditor_agent_fallback_on_api_error(agent, sample_task):
     
     result = agent.run(sample_task, model="test-model")
     
+    result.pop("_tokens", None)
     assert result == {"name": "John", "age": None}
     assert agent.client.chat.completions.create.call_count == 3
     
