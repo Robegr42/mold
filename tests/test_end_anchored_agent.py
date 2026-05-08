@@ -37,3 +37,9 @@ def test_end_anchored_agent_uses_json_schema(mock_openai):
     assert kwargs["response_format"]["type"] == "json_schema"
     assert kwargs["response_format"]["json_schema"]["schema"] == task.target_schema
     assert kwargs["response_format"]["json_schema"]["strict"] is True
+    
+    # Verify invariants are in the user prompt
+    user_prompt = kwargs["messages"][1]["content"]
+    assert "--- EXTRACTION INVARIANTS ---" in user_prompt
+    assert "TypeScript Interface" in user_prompt
+    assert "Strict Extract-or-Null Rule" in user_prompt

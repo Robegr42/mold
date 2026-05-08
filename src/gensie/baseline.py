@@ -92,7 +92,7 @@ class BasicAgent(GenSIEAgent):
             return {"error": str(e)}
 
 
-class EndAnchoredAgent(GenSIEAgent):
+class EndAnchoredAgent(GenSIEAgent, InvariantPromptMixin):
     """
     Agent implementing the End-Anchored Template & Delimiter Separation strategy.
     """
@@ -108,11 +108,13 @@ class EndAnchoredAgent(GenSIEAgent):
         Executes the extraction using a specifically formatted prompt
         that places a blank JSON template at the end.
         """
-        prompt = format_end_anchored_prompt(
+        base_prompt = format_end_anchored_prompt(
             instruction=task.instruction,
             schema=task.target_schema,
             input_text=task.input_text,
         )
+        
+        prompt = self.apply_invariants(base_prompt, task.target_schema)
 
         response = self.client.chat.completions.create(
             model=model,
@@ -151,7 +153,7 @@ class EndAnchoredAgent(GenSIEAgent):
 
 
 
-class TwoPassAgent(GenSIEAgent, InvariantPromptMixin):
+class TwoPassAgent(GenSIEAgent):
     """
     Agent that uses a two-pass strategy:
     1. Unconstrained analysis step in Spanish.
@@ -167,9 +169,13 @@ class TwoPassAgent(GenSIEAgent, InvariantPromptMixin):
     def run(self, task: Task, model: str) -> Dict[str, Any]:
         total_tokens = 0
         # Pass 1: Analysis in Spanish
+        # Manually integrate TS schema and Dialect Awareness into Pass 1
+        ts_schema = compress_schema_to_ts(task.target_schema)
         pass1_prompt = (
             f"Instruction: {task.instruction}\n\n"
             f"Input Text: {task.input_text}\n\n"
+            f"Target Schema (TypeScript Interface):\n```typescript\n{ts_schema}\n```\n"
+            f"Dialect Awareness: Respect Iberian/Latin American synonyms.\n\n"
             f"Analyze the text step-by-step to fulfill the instruction."
         )
         
@@ -190,15 +196,13 @@ class TwoPassAgent(GenSIEAgent, InvariantPromptMixin):
         analysis = response1.choices[0].message.content
 
         # Pass 2: Extraction
-        base_pass2_prompt = (
+        # Focus purely on extraction based on the reasoning from Pass 1
+        final_prompt = (
             f"Instruction: {task.instruction}\n\n"
             f"Input Text: {task.input_text}\n\n"
             f"Analysis: {analysis}\n\n"
             f"Extract the requested information."
         )
-        
-        # Apply invariants
-        final_prompt = self.apply_invariants(base_pass2_prompt, task.target_schema)
         
         messages2 = [
             {

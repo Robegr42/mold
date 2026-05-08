@@ -31,7 +31,7 @@ def test_two_pass_agent_inheritance():
         pytest.fail("TwoPassAgent is not implemented")
     agent = TwoPassAgent()
     assert isinstance(agent, GenSIEAgent)
-    assert isinstance(agent, InvariantPromptMixin)
+    assert not isinstance(agent, InvariantPromptMixin)
 
 def test_two_pass_agent_success(agent, sample_task):
     mock_response_1 = MagicMock()
@@ -48,17 +48,21 @@ def test_two_pass_agent_success(agent, sample_task):
     assert result == {"name": "Juan"}
     assert agent.client.chat.completions.create.call_count == 2
     
-    # First pass: Unconstrained, step-by-step Spanish
+    # First pass: Unconstrained, step-by-step Spanish, with TypeScript schema and dialect awareness
     call_args_1 = agent.client.chat.completions.create.call_args_list[0][1]
     system_prompt_1 = call_args_1["messages"][0]["content"].lower()
     assert "spanish" in system_prompt_1 or "español" in system_prompt_1
+    
+    user_prompt_1 = call_args_1["messages"][1]["content"]
+    assert "TypeScript" in user_prompt_1
+    assert "Dialect Awareness" in user_prompt_1
     assert "response_format" not in call_args_1
     
-    # Second pass: Invariants applied, json_schema
+    # Second pass: Pure extraction, no EXTRACTION INVARIANTS block
     call_args_2 = agent.client.chat.completions.create.call_args_list[1][1]
     assert call_args_2["response_format"]["type"] == "json_schema"
     user_prompt_2 = call_args_2["messages"][1]["content"]
-    assert "EXTRACTION INVARIANTS" in user_prompt_2
+    assert "EXTRACTION INVARIANTS" not in user_prompt_2
     assert "Analysis: The text is in Spanish" in user_prompt_2
 
 def test_two_pass_agent_fallback_on_api_error(agent, sample_task):
