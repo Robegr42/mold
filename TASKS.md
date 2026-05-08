@@ -3,9 +3,6 @@
 This file tracks the progress of the M.O.L.D. project.
 
 ## 🛠 Active Tasks
-- [x] **Implement Lexicon-Grounded Agent**
-    - Status: ✅ Done
-    - Plan: [research/new_agent_proposals/lexicon_grounded.md](research/new_agent_proposals/lexicon_grounded.md)
 - [x] **Implement End-Anchored Template & Delimiter Separation**
     - Status: ✅ Done
     - Plan: [plans/end-anchored-strategy.md](plans/end-anchored-strategy.md)
