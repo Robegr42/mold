@@ -397,6 +397,37 @@ class AuditorAgent(GenSIEAgent, InvariantPromptMixin):
                 return {"error": f"Failed fallback audit: {str(fallback_err)}"}
 
 
+class LexiconGroundedAgent(GenSIEAgent, InvariantPromptMixin):
+    """
+    Agent that uses a curated lexicon of domain-specific terms to ground the extraction.
+    Inherits from GenSIEAgent and InvariantPromptMixin to apply core invariants.
+    """
+
+    def __init__(self):
+        """
+        Initializes the LexiconGroundedAgent with an OpenAI client configured
+        via environment variables.
+        """
+        self.client = OpenAI(
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+        )
+
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        """
+        Executes the lexicon-grounded extraction logic.
+        (Placeholder implementation)
+
+        Args:
+            task: The Task object containing input text, instructions, and target schema.
+            model: The model identifier to use for extraction.
+
+        Returns:
+            A dictionary with the extracted data following the target schema.
+        """
+        return {"error": "Not implemented"}
+
+
 class OfficialParticipant(Participant):
     """
     Standard entry point for the competition.
