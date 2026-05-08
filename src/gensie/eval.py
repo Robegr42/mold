@@ -294,3 +294,40 @@ class Evaluator:
         )
 
         return {"precision": precision, "recall": recall, "f1": f1}
+
+    def get_incorrect_fields(
+        self, gold: Any, system: Any, schema: Dict[str, Any]
+    ) -> List[str]:
+        """
+        Identifies fields that were missing, incorrect, or hallucinated.
+        Returns a list of strings describing the errors.
+        """
+        errors = []
+        g_flat = flatten_json(gold, expand_lists=True)
+        s_flat = flatten_json(system, expand_lists=True)
+
+        all_keys = set(g_flat.keys()).union(set(s_flat.keys()))
+        root_schema = schema
+
+        for key in sorted(all_keys):
+            if key.startswith("_"):  # Ignore metadata like _tokens
+                continue
+
+            if key not in g_flat:
+                errors.append(f"Hallucinated: {key}")
+                continue
+
+            if key not in s_flat:
+                errors.append(f"Missing: {key}")
+                continue
+
+            g_val = g_flat[key]
+            s_val = s_flat[key]
+
+            is_rigid = self.get_field_type_info(schema, key, root_schema)
+            sim = self.compute_value_similarity(g_val, s_val, is_rigid)
+
+            if sim < 0.95:  # Consider "incorrect" if similarity is low
+                errors.append(f"Incorrect: {key} (sim={sim:.2f})")
+
+        return errors
