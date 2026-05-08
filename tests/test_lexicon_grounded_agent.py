@@ -1,5 +1,8 @@
 import pytest
+import json
+from unittest.mock import MagicMock, patch
 from gensie.baseline import LexiconGroundedAgent
+from gensie.task import Task
 
 def test_lexicon_grounded_agent_instantiation():
     """
@@ -98,7 +101,6 @@ def test_lexicon_grounded_agent_generate_prompt():
     """
     Verifies that _generate_prompt includes the necessary rules and follows the expected structure.
     """
-    from gensie.task import Task
     agent = LexiconGroundedAgent()
     task = Task(
         id="test_001",
@@ -129,3 +131,70 @@ def test_lexicon_grounded_agent_generate_prompt():
     # Check that invariants were applied (e.g., TS schema present)
     assert "Interface" in system_content
     assert "verbatim_quote: string" in system_content
+
+def test_lexicon_grounded_agent_parse_result():
+    """
+    Verifies that _parse_result correctly strips verbatim_quote wrappers.
+    """
+    agent = LexiconGroundedAgent()
+    
+    # Nested structure with verbatim_quote
+    raw_result = {
+        "person": {
+            "name": {"verbatim_quote": "John Doe", "value": "John Doe"},
+            "age": {"verbatim_quote": "30 years old", "value": 30}
+        },
+        "tags": [
+            {"verbatim_quote": "developer", "value": "developer"},
+            {"verbatim_quote": "hacker", "value": "hacker"}
+        ],
+        "_tokens": {"prompt_tokens": 100, "completion_tokens": 50}
+    }
+    
+    expected = {
+        "person": {
+            "name": "John Doe",
+            "age": 30
+        },
+        "tags": ["developer", "hacker"],
+        "_tokens": {"prompt_tokens": 100, "completion_tokens": 50}
+    }
+    
+    parsed = agent._parse_result(raw_result)
+    assert parsed == expected
+
+@patch('gensie.baseline.OpenAI')
+def test_lexicon_grounded_agent_run(mock_openai):
+    """
+    Verifies that run executes correctly, handles tokens, and parses results.
+    """
+    mock_client = MagicMock()
+    mock_openai.return_value = mock_client
+    
+    mock_response = MagicMock()
+    mock_response.choices = [MagicMock()]
+    mock_response.choices[0].message.content = json.dumps({
+        "name": {"verbatim_quote": "John", "value": "John"}
+    })
+    mock_response.usage = MagicMock()
+    mock_response.usage.prompt_tokens = 10
+    mock_response.usage.completion_tokens = 5
+    mock_client.chat.completions.create.return_value = mock_response
+
+    task = Task(
+        id="test_001",
+        instruction="Extract name",
+        input_text="John is here",
+        target_schema={
+            "type": "object",
+            "properties": {"name": {"type": "string"}}
+        }
+    )
+    
+    agent = LexiconGroundedAgent()
+    result = agent.run(task, "gpt-4o")
+    
+    assert result["name"] == "John"
+    assert "_tokens" in result
+    assert result["_tokens"]["prompt_tokens"] == 10
+    assert result["_tokens"]["completion_tokens"] == 5

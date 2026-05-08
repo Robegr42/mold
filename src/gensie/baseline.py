@@ -546,10 +546,33 @@ class LexiconGroundedAgent(GenSIEAgent, InvariantPromptMixin):
             {"role": "user", "content": user_content},
         ]
 
+    def _parse_result(self, result: Any) -> Any:
+        """
+        Recursively strips the 'verbatim_quote' wrappers and returns the clean data.
+
+        Args:
+            result: The raw model response (as a dict or list).
+
+        Returns:
+            The parsed result matching the original target schema.
+        """
+        if isinstance(result, dict):
+            # Check if it's a quote-first leaf
+            if "verbatim_quote" in result and "value" in result:
+                return result["value"]
+
+            # Recurse through dictionaries
+            return {k: self._parse_result(v) for k, v in result.items()}
+
+        if isinstance(result, list):
+            # Recurse through lists
+            return [self._parse_result(item) for item in result]
+
+        return result
+
     def run(self, task: Task, model: str) -> Dict[str, Any]:
         """
         Executes the lexicon-grounded extraction logic.
-        (Placeholder implementation)
 
         Args:
             task: The Task object containing input text, instructions, and target schema.
@@ -558,7 +581,60 @@ class LexiconGroundedAgent(GenSIEAgent, InvariantPromptMixin):
         Returns:
             A dictionary with the extracted data following the target schema.
         """
-        return {"error": "Not implemented"}
+        messages = self._generate_prompt(task, model)
+
+        # Transform schema for response_format
+        augmented_schema = self._augment_schema(task.target_schema)
+        transformed_schema = self._transform_to_quote_first_schema(augmented_schema)
+
+        try:
+            response = self.client.chat.completions.create(
+                model=model,
+                messages=messages,
+                response_format={
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": "lexicon_grounded_extraction",
+                        "schema": transformed_schema,
+                        "strict": True,
+                    },
+                },
+            )
+            content = response.choices[0].message.content
+            result = json.loads(content)
+
+            # Inject tokens
+            if hasattr(response, "usage") and response.usage:
+                result["_tokens"] = {
+                    "prompt_tokens": response.usage.prompt_tokens,
+                    "completion_tokens": response.usage.completion_tokens,
+                }
+
+            return self._parse_result(result)
+
+        except Exception as e:
+            logger.warning(f"Failed json_schema extraction for LexiconGroundedAgent: {str(e)}")
+            try:
+                # Fallback to text
+                response_fb = self.client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    response_format={"type": "text"},
+                )
+                content = response_fb.choices[0].message.content
+                result = json.loads(content)
+
+                # Inject tokens
+                if hasattr(response_fb, "usage") and response_fb.usage:
+                    result["_tokens"] = {
+                        "prompt_tokens": response_fb.usage.prompt_tokens,
+                        "completion_tokens": response_fb.usage.completion_tokens,
+                    }
+
+                return self._parse_result(result)
+            except Exception as fallback_err:
+                logger.error(f"Fallback extraction failed for LexiconGroundedAgent: {str(fallback_err)}")
+                return {"error": f"Failed fallback extraction: {str(fallback_err)}"}
 
 
 class OfficialParticipant(Participant):
