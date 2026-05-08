@@ -2,7 +2,7 @@ import os
 import json
 import re
 import copy
-from typing import Any, Dict
+from typing import Any, Dict, List
 from openai import OpenAI
 from gensie.agent import GenSIEAgent, Participant, ParticipantInfo, PipelineInfo
 from gensie.task import Task
@@ -450,6 +450,101 @@ class LexiconGroundedAgent(GenSIEAgent, InvariantPromptMixin):
                     prop_data["description"] = description + hint
 
         return new_schema
+
+    def _transform_to_quote_first_schema(self, schema: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Transforms a standard JSON schema into a 'Quote-First' schema where
+        every leaf property is replaced by an object containing a verbatim
+        quote and the original value.
+
+        Args:
+            schema: The original JSON schema.
+
+        Returns:
+            The transformed JSON schema.
+        """
+        if not isinstance(schema, dict):
+            return schema
+
+        # Base case: if it's a primitive type, transform it
+        primitive_types = ["string", "number", "integer", "boolean"]
+        if schema.get("type") in primitive_types:
+            new_schema = {
+                "type": "object",
+                "properties": {
+                    "verbatim_quote": {"type": "string"},
+                    "value": {"type": schema["type"]}
+                },
+                "required": ["verbatim_quote", "value"],
+                "additionalProperties": False
+            }
+            if "enum" in schema:
+                new_schema["properties"]["value"]["enum"] = schema["enum"]
+            if "description" in schema:
+                new_schema["description"] = schema["description"]
+            return new_schema
+
+        # Recursive case: object
+        if schema.get("type") == "object" and "properties" in schema:
+            new_schema = copy.deepcopy(schema)
+            for prop_name, prop_data in new_schema["properties"].items():
+                new_schema["properties"][prop_name] = self._transform_to_quote_first_schema(prop_data)
+            return new_schema
+
+        # Recursive case: array
+        if schema.get("type") == "array" and "items" in schema:
+            new_schema = copy.deepcopy(schema)
+            new_schema["items"] = self._transform_to_quote_first_schema(new_schema["items"])
+            return new_schema
+
+        return copy.deepcopy(schema)
+
+    def _generate_prompt(self, task: Task, model: str) -> List[Dict[str, str]]:
+        """
+        Generates the prompt for the LexiconGroundedAgent following the
+        Quote-First and Dialectal Hint strategies.
+
+        Args:
+            task: The Task object.
+            model: The model identifier.
+
+        Returns:
+            A list of messages for the chat completion.
+        """
+        augmented_schema = self._augment_schema(task.target_schema)
+        transformed_schema = self._transform_to_quote_first_schema(augmented_schema)
+
+        system_role = (
+            "You are a High-Precision Extraction Engine. Your task is to extract structured data "
+            "from the provided TEXT into the specified JSON SCHEMA."
+        )
+
+        extraction_rules = (
+            "### EXTRACTION RULES (STRICT ADHERENCE REQUIRED)\n"
+            "1. **QUOTE-FIRST RULE**: For EVERY field in the JSON, you must first provide a `verbatim_quote` "
+            "from the text that justifies the extraction, followed by the `value`. "
+            "Ensure that `verbatim_quote` comes BEFORE `value` in every object. This is your evidence.\n"
+            "2. **ZERO TOLERANCE**: For Boolean fields, use ONLY `true` or `false`. For Enum fields, use ONLY the provided options.\n"
+            "3. **NULL HANDLING**: If information is missing, set `verbatim_quote` to null and `value` to null.\n"
+            "4. **LANGUAGE BRIDGE**: Use the dialectal hints in the schema to map Spanish terms to English Enum values."
+        )
+
+        base_prompt = f"{system_role}\n\n{extraction_rules}"
+
+        # Apply invariants (this will include the TS schema and null rule)
+        final_system_prompt = self.apply_invariants(base_prompt, transformed_schema)
+
+        user_content = (
+            f"### INSTRUCTION\n{task.instruction}\n\n"
+            f"### TEXT\n{task.input_text}\n\n"
+            f"### RESPONSE FORMAT\nReturn ONLY valid JSON. "
+            f"Ensure that 'verbatim_quote' comes BEFORE 'value' in every object."
+        )
+
+        return [
+            {"role": "system", "content": final_system_prompt},
+            {"role": "user", "content": user_content},
+        ]
 
     def run(self, task: Task, model: str) -> Dict[str, Any]:
         """
