@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import copy
 from typing import Any, Dict
 from openai import OpenAI
 from gensie.agent import GenSIEAgent, Participant, ParticipantInfo, PipelineInfo
@@ -412,6 +413,43 @@ class LexiconGroundedAgent(GenSIEAgent, InvariantPromptMixin):
             base_url=os.getenv("OPENAI_BASE_URL"),
             api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
         )
+
+    def _augment_schema(self, schema: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Augments the JSON schema with dialectal hints in property descriptions.
+
+        Args:
+            schema: The original JSON schema.
+
+        Returns:
+            The augmented JSON schema.
+        """
+        new_schema = copy.deepcopy(schema)
+
+        if "properties" not in new_schema:
+            return new_schema
+
+        for prop_name, prop_data in new_schema["properties"].items():
+            if not isinstance(prop_data, dict):
+                continue
+
+            description = prop_data.get("description", "")
+
+            # Add enum hints
+            if "enum" in prop_data:
+                enum_values = prop_data["enum"]
+                hint = f" (Dialectal Hints: {enum_values})"
+                if hint not in description:
+                    prop_data["description"] = description + hint
+                    description = prop_data["description"]
+
+            # Add boolean hints
+            elif prop_data.get("type") == "boolean":
+                hint = " (Hints: 'sí/propietario' -> true, 'no/inquilino' -> false)"
+                if hint not in description:
+                    prop_data["description"] = description + hint
+
+        return new_schema
 
     def run(self, task: Task, model: str) -> Dict[str, Any]:
         """
