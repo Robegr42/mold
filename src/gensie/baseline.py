@@ -651,6 +651,7 @@ class OfficialParticipant(Participant):
             "auditor": AuditorAgent(),
             "basic": BasicAgent(),
             "end-anchored": EndAnchoredAgent(),
+            "lexicon-grounded": LexiconGroundedAgent(),
         }
 
     def get_info(self) -> ParticipantInfo:
@@ -677,6 +678,10 @@ class OfficialParticipant(Participant):
                 PipelineInfo(
                     name="end-anchored",
                     description="Strategy that places a blank JSON template at the end of the prompt.",
+                ),
+                PipelineInfo(
+                    name="lexicon-grounded",
+                    description="Single-pass agent that enforces grounding via Quote-First sequencing and dialectal hints.",
                 ),
             ],
         )

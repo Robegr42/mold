@@ -198,3 +198,24 @@ def test_lexicon_grounded_agent_run(mock_openai):
     assert "_tokens" in result
     assert result["_tokens"]["prompt_tokens"] == 10
     assert result["_tokens"]["completion_tokens"] == 5
+
+def test_lexicon_grounded_registration():
+    """
+    Verifies that LexiconGroundedAgent is registered in OfficialParticipant.
+    """
+    from gensie.baseline import OfficialParticipant, LexiconGroundedAgent
+    
+    participant = OfficialParticipant()
+    
+    # Check pipelines
+    assert "lexicon-grounded" in participant.pipelines
+    assert isinstance(participant.pipelines["lexicon-grounded"], LexiconGroundedAgent)
+    
+    # Check info
+    info = participant.get_info()
+    pipeline_names = [p.name for p in info.pipelines]
+    assert "lexicon-grounded" in pipeline_names
+    
+    # Find the lexicon-grounded info
+    lg_info = next(p for p in info.pipelines if p.name == "lexicon-grounded")
+    assert lg_info.description == "Single-pass agent that enforces grounding via Quote-First sequencing and dialectal hints."
