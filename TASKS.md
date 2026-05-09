@@ -3,8 +3,8 @@
 This file tracks the progress of the M.O.L.D. project.
 
 ## 🛠 Active Tasks
-- [/] **Optimize Prompt Invariants across Agents**
-    - Status: 🏃 In Progress
+- [x] **Optimize Prompt Invariants across Agents**
+    - Status: ✅ Done
     - Plan: [research/invariants_impact_report.md](research/invariants_impact_report.md)
 - [x] **Implement End-Anchored Template & Delimiter Separation**
     - Status: ✅ Done
