@@ -1,0 +1,855 @@
+{
+  "participant": {
+    "team_name": "MOLD Team",
+    "institution": "University of Havana",
+    "pipelines": [
+      {
+        "name": "two-pass",
+        "description": "Strategy that decouples reasoning in Spanish from strict JSON extraction."
+      },
+      {
+        "name": "grounded",
+        "description": "Evidence-based agent that mandates source quotes to authorize extraction."
+      },
+      {
+        "name": "auditor",
+        "description": "Self-correction loop with an adversarial audit to strike hallucinations."
+      },
+      {
+        "name": "baseline",
+        "description": "Reference implementation using OpenAI Structured Outputs."
+      },
+      {
+        "name": "end-anchored",
+        "description": "Strategy that places a blank JSON template at the end of the prompt."
+      }
+    ]
+  },
+  "config": {
+    "model": "llama-3.2-3b-instruct",
+    "pipeline": "two-pass-dialect",
+    "data_source": "/home/danilo/vscode/mold/data/starter"
+  },
+  "metrics": {
+    "precision": 0.6396053694867951,
+    "recall": 0.4733802452133908,
+    "f1": 0.5440798922257803
+  },
+  "tasks": [
+    {
+      "task_id": "technical_extraction_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.7516942704779601,
+      "tokens": 1877,
+      "time_s": 10.035779476165771,
+      "errors": [
+        "Incorrect: answer (sim=0.75)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.854417788265149,
+      "tokens": 1056,
+      "time_s": 5.72120213508606,
+      "errors": [
+        "Incorrect: question (sim=0.85)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.8935277652237983,
+      "tokens": 1181,
+      "time_s": 6.673783302307129,
+      "errors": [
+        "Incorrect: is_explicit (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_005",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 2.4243617964296993,
+      "tokens": 1836,
+      "time_s": 11.639442205429077,
+      "errors": [
+        "Incorrect: cited_articles.0 (sim=0.64)",
+        "Hallucinated: cited_articles.1",
+        "Incorrect: evidence_quotes.0 (sim=0.46)",
+        "Hallucinated: evidence_quotes.1",
+        "Incorrect: is_applicable (sim=0.00)",
+        "Incorrect: question (sim=0.74)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_entities_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.5110776622028642,
+      "tokens": 1215,
+      "time_s": 6.50972580909729,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.0.text (sim=0.73)",
+        "Incorrect: entities.1.text (sim=0.73)",
+        "Incorrect: entities.2.label (sim=0.00)",
+        "Incorrect: entities.2.text (sim=0.37)",
+        "Missing: entities.3.label",
+        "Missing: entities.3.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_entities_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.21781446731024792,
+      "tokens": 1101,
+      "time_s": 5.1714441776275635,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.79)",
+        "Missing: entities.2.label",
+        "Missing: entities.2.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_extraction_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.5329196627245786,
+      "tokens": 2340,
+      "time_s": 4.647765159606934,
+      "errors": [
+        "Incorrect: answer (sim=0.53)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.0997791270019577,
+      "tokens": 2274,
+      "time_s": 9.78281021118164,
+      "errors": [
+        "Incorrect: cons.0 (sim=0.48)",
+        "Missing: director",
+        "Incorrect: key_verdict (sim=0.53)",
+        "Missing: main_cast.0",
+        "Missing: main_cast.1",
+        "Incorrect: pros.0 (sim=0.38)",
+        "Incorrect: pros.1 (sim=0.58)",
+        "Missing: pros.2",
+        "Missing: pros.3",
+        "Incorrect: sentiment (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_006",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.150103046808448,
+      "tokens": 1623,
+      "time_s": 6.6770546436309814,
+      "errors": [
+        "Incorrect: app_category (sim=0.00)",
+        "Incorrect: current_ceo_name (sim=0.00)",
+        "Missing: exact_release_date",
+        "Hallucinated: features.0",
+        "Hallucinated: features.1",
+        "Incorrect: license (sim=0.74)",
+        "Incorrect: primary_developer (sim=0.41)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_extraction_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.5665155980605244,
+      "tokens": 796,
+      "time_s": 2.0914387702941895,
+      "errors": [
+        "Incorrect: answer (sim=0.57)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.127860789325881,
+      "tokens": 2266,
+      "time_s": 12.30411410331726,
+      "errors": [
+        "Incorrect: cited_articles.0 (sim=0.84)",
+        "Incorrect: evidence_quotes.0 (sim=0.80)",
+        "Incorrect: question (sim=0.73)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_004",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 2.65131232634404,
+      "tokens": 2030,
+      "time_s": 9.180736541748047,
+      "errors": [
+        "Incorrect: cons.0 (sim=0.59)",
+        "Incorrect: cons.1 (sim=0.63)",
+        "Missing: cons.2",
+        "Missing: cons.3",
+        "Missing: director",
+        "Incorrect: key_verdict (sim=0.40)",
+        "Missing: main_cast.0",
+        "Missing: main_cast.1",
+        "Incorrect: medium (sim=0.00)",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2",
+        "Missing: pros.3",
+        "Hallucinated: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_005",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 2.4898139682957097,
+      "tokens": 2523,
+      "time_s": 9.705082416534424,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: cons.1",
+        "Incorrect: director (sim=0.00)",
+        "Incorrect: key_verdict (sim=0.49)",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2",
+        "Hallucinated: rating",
+        "Hallucinated: release_year",
+        "Incorrect: sentiment (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 1.0,
+      "tokens": 1168,
+      "time_s": 6.398613929748535,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_entities_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.2122929060798497,
+      "tokens": 1599,
+      "time_s": 7.37564754486084,
+      "errors": [
+        "Incorrect: entities.0.text (sim=0.32)",
+        "Incorrect: entities.1.text (sim=0.31)",
+        "Missing: entities.10.label",
+        "Missing: entities.10.text",
+        "Incorrect: entities.2.text (sim=0.32)",
+        "Incorrect: entities.3.label (sim=0.00)",
+        "Incorrect: entities.3.text (sim=0.36)",
+        "Missing: entities.4.label",
+        "Missing: entities.4.text",
+        "Missing: entities.5.label",
+        "Missing: entities.5.text",
+        "Missing: entities.6.label",
+        "Missing: entities.6.text",
+        "Missing: entities.7.label",
+        "Missing: entities.7.text",
+        "Missing: entities.8.label",
+        "Missing: entities.8.text",
+        "Missing: entities.9.label",
+        "Missing: entities.9.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.0,
+      "tokens": 2258,
+      "time_s": 8.693828821182251,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: cons.1",
+        "Missing: cons.2",
+        "Missing: cons.3",
+        "Missing: director",
+        "Missing: main_cast.0",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_extraction_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.5905766775625697,
+      "tokens": 1244,
+      "time_s": 5.687620162963867,
+      "errors": [
+        "Incorrect: answer (sim=0.59)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_004",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.681153460213339,
+      "tokens": 2035,
+      "time_s": 9.358945846557617,
+      "errors": [
+        "Incorrect: current_ceo_name (sim=0.00)",
+        "Missing: exact_release_date",
+        "Incorrect: features.4 (sim=0.43)",
+        "Hallucinated: features.5",
+        "Missing: latest_stable_version_sha256"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_entities_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.45063261810526556,
+      "tokens": 1291,
+      "time_s": 6.930501222610474,
+      "errors": [
+        "Incorrect: entities.0.text (sim=0.88)",
+        "Incorrect: entities.1.text (sim=0.47)",
+        "Incorrect: entities.2.label (sim=0.00)",
+        "Incorrect: entities.2.text (sim=0.51)",
+        "Missing: entities.3.label",
+        "Missing: entities.3.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.194125570954826,
+      "tokens": 2143,
+      "time_s": 12.118121147155762,
+      "errors": [
+        "Incorrect: official_name (sim=0.86)",
+        "Incorrect: pharmaceutical_format (sim=0.66)",
+        "Incorrect: side_effects.0.probability (sim=0.00)",
+        "Incorrect: side_effects.1.impact (sim=0.00)",
+        "Incorrect: side_effects.1.reaction (sim=0.63)",
+        "Incorrect: standard_doses.0 (sim=0.54)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_extraction_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.7297009653780956,
+      "tokens": 2145,
+      "time_s": 8.357244729995728,
+      "errors": [
+        "Incorrect: answer (sim=0.73)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.8796817661332148,
+      "tokens": 1060,
+      "time_s": 5.035597085952759,
+      "errors": [
+        "Incorrect: answer (sim=0.88)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_entities_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.3051335657730824,
+      "tokens": 1232,
+      "time_s": 4.9489312171936035,
+      "errors": [
+        "Incorrect: entities.0.text (sim=0.28)",
+        "Incorrect: entities.1.text (sim=0.33)",
+        "Missing: entities.2.label",
+        "Missing: entities.2.text",
+        "Missing: entities.3.label",
+        "Missing: entities.3.text",
+        "Missing: entities.4.label",
+        "Missing: entities.4.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_007",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.110020348885189,
+      "tokens": 1437,
+      "time_s": 5.708585262298584,
+      "errors": [
+        "Incorrect: current_ceo_name (sim=0.00)",
+        "Missing: exact_release_date",
+        "Hallucinated: features.0",
+        "Hallucinated: features.1",
+        "Incorrect: latest_stable_version_sha256 (sim=0.00)",
+        "Incorrect: license (sim=0.41)",
+        "Missing: platforms.0",
+        "Missing: platforms.1",
+        "Incorrect: primary_developer (sim=0.70)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.665950800465123,
+      "tokens": 1538,
+      "time_s": 5.4611656665802,
+      "errors": [
+        "Missing: current_ceo_name",
+        "Missing: exact_release_date",
+        "Missing: features.0",
+        "Missing: features.1",
+        "Missing: latest_stable_version_sha256",
+        "Incorrect: license (sim=0.79)",
+        "Missing: platforms.0",
+        "Missing: platforms.1",
+        "Missing: platforms.2",
+        "Missing: platforms.3",
+        "Incorrect: primary_developer (sim=0.88)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.9511137941612273,
+      "tokens": 1947,
+      "time_s": 5.003528118133545,
+      "errors": [
+        "Missing: current_ceo_name",
+        "Missing: exact_release_date",
+        "Missing: features.0",
+        "Missing: latest_stable_version_sha256",
+        "Incorrect: license (sim=0.69)",
+        "Incorrect: platforms.2 (sim=0.77)",
+        "Incorrect: primary_developer (sim=0.32)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_extraction_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.0,
+      "tokens": 0,
+      "time_s": 0.0,
+      "errors": [
+        "Call Failed: timed out..."
+      ],
+      "status": "FAIL"
+    },
+    {
+      "task_id": "cultural_media_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.0,
+      "tokens": 0,
+      "time_s": 0.0,
+      "errors": [
+        "Call Failed: timed out..."
+      ],
+      "status": "FAIL"
+    },
+    {
+      "task_id": "technical_entities_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.0,
+      "tokens": 0,
+      "time_s": 0.0,
+      "errors": [
+        "Call Failed: timed out..."
+      ],
+      "status": "FAIL"
+    },
+    {
+      "task_id": "technical_entities_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.0,
+      "tokens": 0,
+      "time_s": 0.0,
+      "errors": [
+        "Call Failed: timed out..."
+      ],
+      "status": "FAIL"
+    },
+    {
+      "task_id": "legal_legislation_004",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.449240772954291,
+      "tokens": 1213,
+      "time_s": 82.96589231491089,
+      "errors": [
+        "Incorrect: evidence_quotes.0 (sim=0.83)",
+        "Incorrect: question (sim=0.74)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.0,
+      "tokens": 1769,
+      "time_s": 6.74897313117981,
+      "errors": [
+        "Incorrect: app_category (sim=0.00)",
+        "Missing: current_ceo_name",
+        "Missing: exact_release_date",
+        "Missing: features.0",
+        "Missing: features.1",
+        "Missing: latest_stable_version_sha256"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_005",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 1.8604002240828732,
+      "tokens": 1976,
+      "time_s": 6.768828392028809,
+      "errors": [
+        "Incorrect: app_category (sim=0.00)",
+        "Missing: current_ceo_name",
+        "Missing: exact_release_date",
+        "Missing: features.0",
+        "Missing: features.1",
+        "Missing: features.2",
+        "Missing: features.3",
+        "Missing: features.4",
+        "Missing: features.5",
+        "Missing: features.6",
+        "Missing: features.7",
+        "Missing: features.8",
+        "Missing: latest_stable_version_sha256",
+        "Incorrect: license (sim=0.42)",
+        "Incorrect: official_name (sim=0.44)",
+        "Missing: platforms.0",
+        "Missing: platforms.1",
+        "Missing: platforms.2",
+        "Missing: platforms.3",
+        "Missing: platforms.4"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_004",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.8974114405458744,
+      "tokens": 1999,
+      "time_s": 11.714496374130249,
+      "errors": [
+        "Incorrect: official_name (sim=0.86)",
+        "Incorrect: pharmaceutical_format (sim=0.66)",
+        "Incorrect: side_effects.0.impact (sim=0.00)",
+        "Incorrect: side_effects.0.probability (sim=0.00)",
+        "Incorrect: side_effects.0.reaction (sim=0.75)",
+        "Incorrect: side_effects.0.system_organ_class (sim=0.00)",
+        "Incorrect: standard_doses.0 (sim=0.65)",
+        "Hallucinated: standard_doses.1"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_005",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.9481428398535274,
+      "tokens": 4019,
+      "time_s": 50.499103307724,
+      "errors": [
+        "Incorrect: official_name (sim=0.93)",
+        "Incorrect: side_effects.0.probability (sim=0.00)",
+        "Incorrect: side_effects.0.reaction (sim=0.65)",
+        "Incorrect: side_effects.1.impact (sim=0.00)",
+        "Incorrect: side_effects.1.probability (sim=0.00)",
+        "Incorrect: side_effects.1.reaction (sim=0.49)",
+        "Hallucinated: side_effects.10.impact",
+        "Hallucinated: side_effects.10.probability",
+        "Hallucinated: side_effects.10.reaction",
+        "Hallucinated: side_effects.11.impact",
+        "Hallucinated: side_effects.11.probability",
+        "Hallucinated: side_effects.11.reaction",
+        "Hallucinated: side_effects.12.impact",
+        "Hallucinated: side_effects.12.probability",
+        "Hallucinated: side_effects.12.reaction",
+        "Hallucinated: side_effects.13.impact",
+        "Hallucinated: side_effects.13.probability",
+        "Hallucinated: side_effects.13.reaction",
+        "Hallucinated: side_effects.14.impact",
+        "Hallucinated: side_effects.14.probability",
+        "Hallucinated: side_effects.14.reaction",
+        "Hallucinated: side_effects.15.impact",
+        "Hallucinated: side_effects.15.probability",
+        "Hallucinated: side_effects.15.reaction",
+        "Hallucinated: side_effects.16.impact",
+        "Hallucinated: side_effects.16.probability",
+        "Hallucinated: side_effects.16.reaction",
+        "Hallucinated: side_effects.17.impact",
+        "Hallucinated: side_effects.17.probability",
+        "Hallucinated: side_effects.17.reaction",
+        "Hallucinated: side_effects.18.impact",
+        "Hallucinated: side_effects.18.probability",
+        "Hallucinated: side_effects.18.reaction",
+        "Hallucinated: side_effects.19.impact",
+        "Hallucinated: side_effects.19.probability",
+        "Hallucinated: side_effects.19.reaction",
+        "Hallucinated: side_effects.2.impact",
+        "Hallucinated: side_effects.2.probability",
+        "Hallucinated: side_effects.2.reaction",
+        "Hallucinated: side_effects.20.impact",
+        "Hallucinated: side_effects.20.probability",
+        "Hallucinated: side_effects.20.reaction",
+        "Hallucinated: side_effects.21.impact",
+        "Hallucinated: side_effects.21.probability",
+        "Hallucinated: side_effects.21.reaction",
+        "Hallucinated: side_effects.22.impact",
+        "Hallucinated: side_effects.22.probability",
+        "Hallucinated: side_effects.22.reaction",
+        "Hallucinated: side_effects.23.impact",
+        "Hallucinated: side_effects.23.probability",
+        "Hallucinated: side_effects.23.reaction",
+        "Hallucinated: side_effects.24.impact",
+        "Hallucinated: side_effects.24.probability",
+        "Hallucinated: side_effects.24.reaction",
+        "Hallucinated: side_effects.25.impact",
+        "Hallucinated: side_effects.25.probability",
+        "Hallucinated: side_effects.25.reaction",
+        "Hallucinated: side_effects.26.impact",
+        "Hallucinated: side_effects.26.probability",
+        "Hallucinated: side_effects.26.reaction",
+        "Hallucinated: side_effects.27.impact",
+        "Hallucinated: side_effects.27.probability",
+        "Hallucinated: side_effects.27.reaction",
+        "Hallucinated: side_effects.28.impact",
+        "Hallucinated: side_effects.28.probability",
+        "Hallucinated: side_effects.28.reaction",
+        "Hallucinated: side_effects.29.impact",
+        "Hallucinated: side_effects.29.probability",
+        "Hallucinated: side_effects.29.reaction",
+        "Hallucinated: side_effects.3.impact",
+        "Hallucinated: side_effects.3.probability",
+        "Hallucinated: side_effects.3.reaction",
+        "Hallucinated: side_effects.30.impact",
+        "Hallucinated: side_effects.30.probability",
+        "Hallucinated: side_effects.30.reaction",
+        "Hallucinated: side_effects.31.impact",
+        "Hallucinated: side_effects.31.probability",
+        "Hallucinated: side_effects.31.reaction",
+        "Hallucinated: side_effects.32.impact",
+        "Hallucinated: side_effects.32.probability",
+        "Hallucinated: side_effects.32.reaction",
+        "Hallucinated: side_effects.33.impact",
+        "Hallucinated: side_effects.33.probability",
+        "Hallucinated: side_effects.33.reaction",
+        "Hallucinated: side_effects.34.impact",
+        "Hallucinated: side_effects.34.probability",
+        "Hallucinated: side_effects.34.reaction",
+        "Hallucinated: side_effects.35.impact",
+        "Hallucinated: side_effects.35.probability",
+        "Hallucinated: side_effects.35.reaction",
+        "Hallucinated: side_effects.36.impact",
+        "Hallucinated: side_effects.36.probability",
+        "Hallucinated: side_effects.36.reaction",
+        "Hallucinated: side_effects.37.impact",
+        "Hallucinated: side_effects.37.probability",
+        "Hallucinated: side_effects.37.reaction",
+        "Hallucinated: side_effects.38.impact",
+        "Hallucinated: side_effects.38.probability",
+        "Hallucinated: side_effects.38.reaction",
+        "Hallucinated: side_effects.39.impact",
+        "Hallucinated: side_effects.39.probability",
+        "Hallucinated: side_effects.39.reaction",
+        "Hallucinated: side_effects.4.impact",
+        "Hallucinated: side_effects.4.probability",
+        "Hallucinated: side_effects.4.reaction",
+        "Hallucinated: side_effects.40.impact",
+        "Hallucinated: side_effects.40.probability",
+        "Hallucinated: side_effects.40.reaction",
+        "Hallucinated: side_effects.41.impact",
+        "Hallucinated: side_effects.41.probability",
+        "Hallucinated: side_effects.41.reaction",
+        "Hallucinated: side_effects.42.impact",
+        "Hallucinated: side_effects.42.probability",
+        "Hallucinated: side_effects.42.reaction",
+        "Hallucinated: side_effects.43.impact",
+        "Hallucinated: side_effects.43.probability",
+        "Hallucinated: side_effects.43.reaction",
+        "Hallucinated: side_effects.44.impact",
+        "Hallucinated: side_effects.44.probability",
+        "Hallucinated: side_effects.44.reaction",
+        "Hallucinated: side_effects.45.impact",
+        "Hallucinated: side_effects.45.probability",
+        "Hallucinated: side_effects.45.reaction",
+        "Hallucinated: side_effects.46.impact",
+        "Hallucinated: side_effects.46.probability",
+        "Hallucinated: side_effects.46.reaction",
+        "Hallucinated: side_effects.47.impact",
+        "Hallucinated: side_effects.47.probability",
+        "Hallucinated: side_effects.47.reaction",
+        "Hallucinated: side_effects.48.impact",
+        "Hallucinated: side_effects.48.probability",
+        "Hallucinated: side_effects.48.reaction",
+        "Hallucinated: side_effects.49.impact",
+        "Hallucinated: side_effects.49.probability",
+        "Hallucinated: side_effects.49.reaction",
+        "Hallucinated: side_effects.5.impact",
+        "Hallucinated: side_effects.5.probability",
+        "Hallucinated: side_effects.5.reaction",
+        "Hallucinated: side_effects.50.impact",
+        "Hallucinated: side_effects.50.probability",
+        "Hallucinated: side_effects.50.reaction",
+        "Hallucinated: side_effects.51.impact",
+        "Hallucinated: side_effects.51.probability",
+        "Hallucinated: side_effects.51.reaction",
+        "Hallucinated: side_effects.52.impact",
+        "Hallucinated: side_effects.52.probability",
+        "Hallucinated: side_effects.52.reaction",
+        "Hallucinated: side_effects.53.impact",
+        "Hallucinated: side_effects.53.probability",
+        "Hallucinated: side_effects.53.reaction",
+        "Hallucinated: side_effects.54.impact",
+        "Hallucinated: side_effects.54.probability",
+        "Hallucinated: side_effects.54.reaction",
+        "Hallucinated: side_effects.55.impact",
+        "Hallucinated: side_effects.55.probability",
+        "Hallucinated: side_effects.55.reaction",
+        "Hallucinated: side_effects.56.impact",
+        "Hallucinated: side_effects.56.probability",
+        "Hallucinated: side_effects.56.reaction",
+        "Hallucinated: side_effects.57.impact",
+        "Hallucinated: side_effects.57.probability",
+        "Hallucinated: side_effects.57.reaction",
+        "Hallucinated: side_effects.58.impact",
+        "Hallucinated: side_effects.58.probability",
+        "Hallucinated: side_effects.58.reaction",
+        "Hallucinated: side_effects.59.impact",
+        "Hallucinated: side_effects.59.probability",
+        "Hallucinated: side_effects.59.reaction",
+        "Hallucinated: side_effects.6.impact",
+        "Hallucinated: side_effects.6.probability",
+        "Hallucinated: side_effects.6.reaction",
+        "Hallucinated: side_effects.60.impact",
+        "Hallucinated: side_effects.60.probability",
+        "Hallucinated: side_effects.60.reaction",
+        "Hallucinated: side_effects.61.impact",
+        "Hallucinated: side_effects.61.probability",
+        "Hallucinated: side_effects.61.reaction",
+        "Hallucinated: side_effects.7.impact",
+        "Hallucinated: side_effects.7.probability",
+        "Hallucinated: side_effects.7.reaction",
+        "Hallucinated: side_effects.8.impact",
+        "Hallucinated: side_effects.8.probability",
+        "Hallucinated: side_effects.8.reaction",
+        "Hallucinated: side_effects.9.impact",
+        "Hallucinated: side_effects.9.probability",
+        "Hallucinated: side_effects.9.reaction",
+        "Missing: standard_doses.0"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 1.0,
+      "tokens": 1257,
+      "time_s": 6.151687860488892,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 2.886141170961187,
+      "tokens": 2231,
+      "time_s": 11.915165901184082,
+      "errors": [
+        "Incorrect: common_name (sim=0.71)",
+        "Incorrect: official_name (sim=0.43)",
+        "Incorrect: pharmaceutical_format (sim=0.75)",
+        "Missing: side_effects.0.impact",
+        "Missing: side_effects.0.probability",
+        "Missing: side_effects.0.reaction",
+        "Missing: side_effects.0.system_organ_class",
+        "Missing: side_effects.1.impact",
+        "Missing: side_effects.1.probability",
+        "Missing: side_effects.1.reaction",
+        "Missing: side_effects.1.system_organ_class",
+        "Missing: side_effects.2.impact",
+        "Missing: side_effects.2.probability",
+        "Missing: side_effects.2.reaction",
+        "Missing: side_effects.2.system_organ_class",
+        "Missing: side_effects.3.impact",
+        "Missing: side_effects.3.probability",
+        "Missing: side_effects.3.reaction",
+        "Missing: side_effects.3.system_organ_class",
+        "Missing: standard_doses.0"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_extraction_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.483855282040628,
+      "tokens": 2813,
+      "time_s": 8.290583610534668,
+      "errors": [
+        "Incorrect: answer (sim=0.48)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.0548642634824783,
+      "tokens": 2223,
+      "time_s": 13.686144828796387,
+      "errors": [
+        "Incorrect: is_pediatric (sim=0.00)",
+        "Incorrect: official_name (sim=0.40)",
+        "Incorrect: side_effects.0.probability (sim=0.00)",
+        "Hallucinated: side_effects.0.system_organ_class",
+        "Incorrect: side_effects.1.probability (sim=0.00)",
+        "Incorrect: side_effects.1.reaction (sim=0.56)",
+        "Hallucinated: side_effects.1.system_organ_class",
+        "Incorrect: standard_doses.0 (sim=0.76)",
+        "Missing: standard_doses.1"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_entities_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.16666666666666666,
+      "tokens": 1181,
+      "time_s": 5.656152248382568,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.0.text (sim=0.49)",
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.49)",
+        "Missing: entities.2.label",
+        "Missing: entities.2.text",
+        "Missing: entities.3.label",
+        "Missing: entities.3.text",
+        "Missing: entities.4.label",
+        "Missing: entities.4.text"
+      ],
+      "status": "PASS"
+    }
+  ]
+}
