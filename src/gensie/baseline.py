@@ -24,15 +24,29 @@ class InvariantPromptMixin:
     2. Extract-or-Null rule
     3. Dialect Awareness rule
     """
-    def apply_invariants(self, base_prompt: str, target_schema: dict) -> str:
-        ts_schema = compress_schema_to_ts(target_schema)
+    def apply_invariants(
+        self, 
+        base_prompt: str, 
+        target_schema: dict,
+        use_ts: bool = True,
+        use_null: bool = True,
+        use_dialect: bool = True
+    ) -> str:
+        ts_schema = compress_schema_to_ts(target_schema) if use_ts else json.dumps(target_schema, indent=2)
         
-        invariants = (
-            f"\n\n--- EXTRACTION INVARIANTS ---\n"
-            f"1. Target Schema (TypeScript Interface):\n```typescript\n{ts_schema}\n```\n"
-            f"2. Strict Extract-or-Null Rule: Do not infer or guess. If information is absent, return `null`.\n"
-            f"3. Dialect Rule: Respect Iberian/Latin American synonyms when extracting terms."
-        )
+        sections = []
+        if use_ts:
+            sections.append(f"1. Target Schema (TypeScript Interface):\n```typescript\n{ts_schema}\n```")
+        else:
+            sections.append(f"1. Target Schema (JSON Schema):\n```json\n{ts_schema}\n```")
+            
+        if use_null:
+            sections.append(f"2. Strict Extract-or-Null Rule: Do not infer or guess. If information is absent, return `null`.")
+            
+        if use_dialect:
+            sections.append(f"3. Dialect Rule: Respect Iberian/Latin American synonyms when extracting terms.")
+            
+        invariants = "\n\n--- EXTRACTION INVARIANTS ---\n" + "\n".join(sections)
         return base_prompt + invariants
 
 
@@ -97,11 +111,14 @@ class EndAnchoredAgent(GenSIEAgent, InvariantPromptMixin):
     Agent implementing the End-Anchored Template & Delimiter Separation strategy.
     """
 
-    def __init__(self):
+    def __init__(self, use_ts=True, use_null=True, use_dialect=True):
         self.client = OpenAI(
             base_url=os.getenv("OPENAI_BASE_URL"),
             api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
         )
+        self.use_ts = use_ts
+        self.use_null = use_null
+        self.use_dialect = use_dialect
 
     def run(self, task: Task, model: str) -> Dict[str, Any]:
         """
@@ -114,7 +131,13 @@ class EndAnchoredAgent(GenSIEAgent, InvariantPromptMixin):
             input_text=task.input_text,
         )
         
-        prompt = self.apply_invariants(base_prompt, task.target_schema)
+        prompt = self.apply_invariants(
+            base_prompt, 
+            task.target_schema,
+            use_ts=self.use_ts,
+            use_null=self.use_null,
+            use_dialect=self.use_dialect
+        )
 
         response = self.client.chat.completions.create(
             model=model,
@@ -153,30 +176,38 @@ class EndAnchoredAgent(GenSIEAgent, InvariantPromptMixin):
 
 
 
-class TwoPassAgent(GenSIEAgent):
+class TwoPassAgent(GenSIEAgent, InvariantPromptMixin):
     """
     Agent that uses a two-pass strategy:
     1. Unconstrained analysis step in Spanish.
     2. Strict extraction using JSON Schema, with a fallback to JSON Object.
     """
 
-    def __init__(self):
+    def __init__(self, use_ts=True, use_null=True, use_dialect=True):
         self.client = OpenAI(
             base_url=os.getenv("OPENAI_BASE_URL"),
             api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
         )
+        self.use_ts = use_ts
+        self.use_null = use_null
+        self.use_dialect = use_dialect
 
     def run(self, task: Task, model: str) -> Dict[str, Any]:
         total_tokens = 0
         # Pass 1: Analysis in Spanish
-        # Manually integrate TS schema and Dialect Awareness into Pass 1
-        ts_schema = compress_schema_to_ts(task.target_schema)
-        pass1_prompt = (
+        base_pass1_prompt = (
             f"Instruction: {task.instruction}\n\n"
             f"Input Text: {task.input_text}\n\n"
-            f"Target Schema (TypeScript Interface):\n```typescript\n{ts_schema}\n```\n"
-            f"Dialect Awareness: Respect Iberian/Latin American synonyms.\n\n"
             f"Analyze the text step-by-step to fulfill the instruction."
+        )
+        
+        # Apply invariants to Pass 1 to guide the reasoning process
+        pass1_prompt = self.apply_invariants(
+            base_pass1_prompt,
+            task.target_schema,
+            use_ts=self.use_ts,
+            use_null=self.use_null,
+            use_dialect=self.use_dialect
         )
         
         response1 = self.client.chat.completions.create(
@@ -189,6 +220,7 @@ class TwoPassAgent(GenSIEAgent):
                 {"role": "user", "content": pass1_prompt},
             ],
         )
+
         
         if hasattr(response1, "usage") and response1.usage:
             total_tokens += response1.usage.total_tokens
@@ -256,11 +288,14 @@ class GroundedAgent(GenSIEAgent, InvariantPromptMixin):
     Agent that acts as a skeptical auditor, mandating source quotes to authorize extraction.
     """
 
-    def __init__(self):
+    def __init__(self, use_ts=True, use_null=True, use_dialect=True):
         self.client = OpenAI(
             base_url=os.getenv("OPENAI_BASE_URL"),
             api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
         )
+        self.use_ts = use_ts
+        self.use_null = use_null
+        self.use_dialect = use_dialect
 
     def run(self, task: Task, model: str) -> Dict[str, Any]:
         total_tokens = 0
@@ -272,7 +307,13 @@ class GroundedAgent(GenSIEAgent, InvariantPromptMixin):
             f"Extract the requested information."
         )
         
-        final_prompt = self.apply_invariants(base_prompt, task.target_schema)
+        final_prompt = self.apply_invariants(
+            base_prompt, 
+            task.target_schema,
+            use_ts=self.use_ts,
+            use_null=self.use_null,
+            use_dialect=self.use_dialect
+        )
         
         messages = [
             {
@@ -326,11 +367,14 @@ class AuditorAgent(GenSIEAgent, InvariantPromptMixin):
     2. Pass 2 (Audit): Pass the Draft and the Source text to the model to audit it.
     """
 
-    def __init__(self):
+    def __init__(self, use_ts=True, use_null=True, use_dialect=True):
         self.client = OpenAI(
             base_url=os.getenv("OPENAI_BASE_URL"),
             api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
         )
+        self.use_ts = use_ts
+        self.use_null = use_null
+        self.use_dialect = use_dialect
 
     def run(self, task: Task, model: str) -> Dict[str, Any]:
         """
@@ -394,7 +438,13 @@ class AuditorAgent(GenSIEAgent, InvariantPromptMixin):
         )
 
         # Apply invariants strictly to the Pass 2 audit step
-        final_prompt = self.apply_invariants(audit_prompt, task.target_schema)
+        final_prompt = self.apply_invariants(
+            audit_prompt, 
+            task.target_schema,
+            use_ts=self.use_ts,
+            use_null=self.use_null,
+            use_dialect=self.use_dialect
+        )
 
         messages2 = [
             {
@@ -445,6 +495,103 @@ class AuditorAgent(GenSIEAgent, InvariantPromptMixin):
                 return {"error": f"Failed fallback audit: {str(fallback_err)}", "_tokens": total_tokens}
 
 
+class EndAnchoredAgentNI(GenSIEAgent):
+    """End-Anchored Agent without invariants."""
+    def __init__(self):
+        self.client = OpenAI(
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+        )
+
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        prompt = format_end_anchored_prompt(
+            instruction=task.instruction,
+            schema=task.target_schema,
+            input_text=task.input_text,
+        )
+        response = self.client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "You are a precise data extraction agent. Your output must be a valid JSON object following the provided template."},
+                {"role": "user", "content": prompt},
+            ],
+            response_format={"type": "json_schema", "json_schema": {"name": "extraction", "schema": task.target_schema, "strict": True}},
+        )
+        result = json.loads(response.choices[0].message.content)
+        if hasattr(response, "usage") and response.usage:
+            result["_tokens"] = response.usage.total_tokens
+        return result
+
+class GroundedAgentNI(GenSIEAgent):
+    """Grounded Agent without invariants."""
+    def __init__(self):
+        self.client = OpenAI(
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+        )
+
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        prompt = (
+            f"You are a skeptical auditor. You must rely ONLY on the provided text.\n"
+            f"A source quote MUST exist to authorize any extraction.\n\n"
+            f"Instruction: {task.instruction}\n\n"
+            f"Input Text: {task.input_text}\n\n"
+            f"Extract the requested information."
+        )
+        response = self.client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "You are a precise data extraction agent and a skeptical auditor. Mandate source quotes for every field."},
+                {"role": "user", "content": prompt},
+            ],
+            response_format={"type": "json_schema", "json_schema": {"name": "extraction", "schema": task.target_schema, "strict": True}},
+        )
+        result = json.loads(response.choices[0].message.content)
+        if hasattr(response, "usage") and response.usage:
+            result["_tokens"] = response.usage.total_tokens
+        return result
+
+class AuditorAgentNI(GenSIEAgent):
+    """Auditor Agent without invariants."""
+    def __init__(self):
+        self.client = OpenAI(
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+        )
+
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        total_tokens = 0
+        # Pass 1: Draft
+        pass1_prompt = f"Instruction: {task.instruction}\n\nInput Text: {task.input_text}\n\nGenerate a preliminary JSON draft."
+        response1 = self.client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "You are a precise data extraction agent."},
+                {"role": "user", "content": pass1_prompt},
+            ],
+            response_format={"type": "json_schema", "json_schema": {"name": "extraction_draft", "schema": task.target_schema, "strict": True}},
+        )
+        if hasattr(response1, "usage") and response1.usage:
+            total_tokens += response1.usage.total_tokens
+        draft = json.loads(response1.choices[0].message.content)
+
+        # Pass 2: Audit
+        audit_prompt = f"Input Text: {task.input_text}\n\nDraft: {draft}\n\nAudit the draft and strike unverified claims."
+        response2 = self.client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "You are an adversarial inspector holding a red pen."},
+                {"role": "user", "content": audit_prompt},
+            ],
+            response_format={"type": "json_schema", "json_schema": {"name": "audit_extraction", "schema": task.target_schema, "strict": True}},
+        )
+        if hasattr(response2, "usage") and response2.usage:
+            total_tokens += response2.usage.total_tokens
+        result = json.loads(response2.choices[0].message.content)
+        result["_tokens"] = total_tokens
+        return result
+
+
 class OfficialParticipant(Participant):
     """
     Standard entry point for the competition.
@@ -454,11 +601,35 @@ class OfficialParticipant(Participant):
     def __init__(self):
         # Registering both base and hardened agents
         self.pipelines = {
+            # Two-Pass Ablation
             "two-pass": TwoPassAgent(),
+            "two-pass-ni": TwoPassAgent(use_ts=False, use_null=False, use_dialect=False),
+            "two-pass-ts": TwoPassAgent(use_null=False, use_dialect=False),
+            "two-pass-null": TwoPassAgent(use_ts=False, use_dialect=False),
+            "two-pass-dialect": TwoPassAgent(use_ts=False, use_null=False),
+            
+            # Grounded Ablation
             "grounded": GroundedAgent(),
+            "grounded-ni": GroundedAgentNI(),
+            "grounded-ts": GroundedAgent(use_null=False, use_dialect=False),
+            "grounded-null": GroundedAgent(use_ts=False, use_dialect=False),
+            "grounded-dialect": GroundedAgent(use_ts=False, use_null=False),
+            
+            # Auditor Ablation
             "auditor": AuditorAgent(),
+            "auditor-ni": AuditorAgentNI(),
+            "auditor-ts": AuditorAgent(use_null=False, use_dialect=False),
+            "auditor-null": AuditorAgent(use_ts=False, use_dialect=False),
+            "auditor-dialect": AuditorAgent(use_ts=False, use_null=False),
+            
             "basic": BasicAgent(),
+            
+            # End-Anchored Ablation
             "end-anchored": EndAnchoredAgent(),
+            "end-anchored-ni": EndAnchoredAgentNI(),
+            "end-anchored-ts": EndAnchoredAgent(use_null=False, use_dialect=False),
+            "end-anchored-null": EndAnchoredAgent(use_ts=False, use_dialect=False),
+            "end-anchored-dialect": EndAnchoredAgent(use_ts=False, use_null=False),
         }
 
     def get_info(self) -> ParticipantInfo:
