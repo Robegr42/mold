@@ -12,12 +12,25 @@ graph TD
     %% Augmentation Phase
     subgraph AugPhase [1. Augmentation Phase]
         direction TB
-        RAG[RAG Module: Fetch Few-Shot Examples]
-        Architect[Architect Module: Generate Reasoning Hints]
+        
+        subgraph RAG [RAG Module Detail]
+            RAG_Input[Task: Instruction + Text] --> RAG_Emb[SentenceTransformer Embedding]
+            RAG_Emb --> RAG_FAISS[FAISS Vector Search L2]
+            RAG_FAISS --> RAG_TopK[Top-K Retrieval]
+            RAG_TopK --> RAG_Output[Semantic Few-Shot Examples]
+        end
+
+        subgraph Architect [Architect Module Detail]
+            Arch_Input[Task + Target Schema] --> Arch_Analysis[Schema Analysis]
+            Arch_Analysis --> Arch_Distill[Constraint Distillation]
+            Arch_Distill --> Arch_Tips[Strategic Tip Generation]
+            Arch_Tips --> Arch_Output[Reasoning Hints]
+        end
     end
 
     %% Pass 1
-    AugPhase --> Pass1
+    RAG_Output --> Pass1
+    Arch_Output --> Pass1
     Input --> Pass1
 
     subgraph Pass1 [2. Pass 1: Cognitive Analysis]
@@ -51,6 +64,20 @@ graph TD
     style Pass2 fill:#bfb,stroke:#333,stroke-width:2px
     style FinalOutput fill:#fff,stroke:#333,stroke-width:4px
 ```
+
+## Deep Dive: Augmentation Mechanics
+
+### Retrieval-Augmented Generation (RAG)
+The RAG module utilizes a local vector database to provide the SLM with high-quality, relevant context:
+*   **Vectorization**: The `SentenceTransformer` (specifically the `all-MiniLM-L6-v2` model) converts the input task instruction and text into a high-dimensional query vector. This model is chosen for its optimal balance of speed and semantic representation.
+*   **Similarity Search**: `FAISS` (Facebook AI Similarity Search) performs a local L2 distance calculation between the query vector and pre-computed embeddings of the training dataset. This allows for near-instant retrieval of context without external API calls.
+*   **Contextual Injection**: The `Top-K` results (most semantically similar examples) are formatted into the prompt as few-shot examples, demonstrating successful extraction patterns to the model.
+
+### Architect Module
+The `ArchitectModule` acts as a "Schema Expert" that generates strategic hints *before* the main extraction begins:
+*   **Schema Analysis**: It performs a deep dive into the target JSON schema to identify complex structures, data types, and specific validation constraints.
+*   **Constraint Distillation**: It translates technical schema requirements into natural language instructions that are more easily digestible for an SLM.
+*   **Strategic Tip Generation**: It generates proactive reasoning hints (e.g., "Distinguish between physical addresses and mailing addresses") to steer the model's focus toward high-risk or ambiguous extraction areas, effectively pre-calculating a roadmap for the reasoning phase.
 
 ## Component Overview
 
