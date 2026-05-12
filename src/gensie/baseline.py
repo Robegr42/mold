@@ -2,7 +2,13 @@ import os
 import json
 import re
 import copy
-from typing import Any, Dict, List
+import time
+import threading
+import numpy as np
+import faiss
+from typing import Any, Dict, List, Optional
+from concurrent.futures import ThreadPoolExecutor
+from sentence_transformers import SentenceTransformer
 from openai import OpenAI
 from gensie.agent import GenSIEAgent, Participant, ParticipantInfo, PipelineInfo
 from gensie.task import Task
@@ -592,6 +598,431 @@ class AuditorAgentNI(GenSIEAgent):
         return result
 
 
+
+class RAGModule:
+    """Provides dynamic few-shot examples using semantic search (FAISS + MiniLM)."""
+    def __init__(self, data_path: str = "data/dev"):
+        model_path = os.path.abspath("models/all-MiniLM-L6-v2")
+        if not os.path.exists(model_path):
+            raise RuntimeError(f"Required embedding model not found at {model_path}. "
+                             "Please run the model localization script first.")
+        self.model = SentenceTransformer(model_path)
+        self.index = None
+        self.examples = []
+        self._initialize_index(data_path)
+
+    def _initialize_index(self, data_path: str):
+        if not os.path.exists(data_path):
+            logger.warning(f"RAG data path {data_path} not found.")
+            return
+
+        texts = []
+        for filename in os.listdir(data_path):
+            if filename.endswith(".json"):
+                try:
+                    with open(os.path.join(data_path, filename), 'r') as f:
+                        data = json.load(f)
+                        # We embed the instruction and input_text as the key
+                        text = f"Instruction: {data.get('instruction', '')}\nText: {data.get('input_text', '')}"
+                        texts.append(text)
+                        self.examples.append(data)
+                except Exception as e:
+                    logger.error(f"Error loading RAG example {filename}: {e}")
+
+        if texts:
+            embeddings = self.model.encode(texts)
+            dimension = embeddings.shape[1]
+            self.index = faiss.IndexFlatL2(dimension)
+            self.index.add(np.array(embeddings).astype('float32'))
+
+    def get_few_shot_examples(self, task: Task, k: int = 3) -> List[Dict[str, Any]]:
+        if self.index is None or not self.examples:
+            return []
+        
+        query = f"Instruction: {task.instruction}\nText: {task.input_text}"
+        query_embedding = self.model.encode([query])
+        D, I = self.index.search(np.array(query_embedding).astype('float32'), k)
+        
+        return [self.examples[i] for i in I[0] if i < len(self.examples)]
+
+class ArchitectModule:
+    """Generates reasoning hints by analyzing the schema and instruction."""
+    def __init__(self, client: OpenAI):
+        self.client = client
+
+    def get_reasoning_hints(self, task: Task, model: str) -> str:
+        prompt = (
+            f"Analyze the following extraction schema and instruction.\n"
+            f"Instruction: {task.instruction}\n"
+            f"Schema: {json.dumps(task.target_schema, indent=2)}\n\n"
+            f"Provide 3-5 brief, strategic reasoning hints in Spanish to help an extraction agent avoid common mistakes for this specific schema. "
+            f"Focus on field dependencies and grounding."
+        )
+        
+        try:
+            response = self.client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": "You are an expert data architect."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=200
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            logger.error(f"ArchitectModule error: {e}")
+            return "Analice el texto cuidadosamente y asegúrese de que cada campo esté respaldado por evidencia directa."
+
+class ChampionTwoPassEngine:
+    """Core engine running the Two-Pass-NI logic with API-native json_schema."""
+    def __init__(self, client: OpenAI):
+        self.client = client
+
+    def run_pass1(self, task: Task, model: str, hints: str, few_shot: str) -> str:
+        messages = [
+            {
+                "role": "system", 
+                "content": f"You are a strategic analyst. Use these hints: {hints}\n\n{few_shot}"
+            },
+            {
+                "role": "user", 
+                "content": f"Instruction: {task.instruction}\n\nInput Text: {task.input_text}\n\nAnalyze step-by-step in Spanish."
+            }
+        ]
+        
+        # Pass 1 uses a reasoning schema
+        reasoning_schema = {
+            "type": "object",
+            "properties": {
+                "thought_process": {"type": "string"},
+                "evidence_segments": {"type": "array", "items": {"type": "string"}}
+            },
+            "required": ["thought_process", "evidence_segments"]
+        }
+        
+        response = self.client.chat.completions.create(
+            model=model,
+            messages=messages,
+            response_format={"type": "json_schema", "json_schema": {"name": "reasoning", "schema": reasoning_schema, "strict": True}}
+        )
+        return response.choices[0].message.content, response.usage.total_tokens
+
+    def run_pass2(self, task: Task, model: str, analysis: str, few_shot: str) -> Dict[str, Any]:
+        prompt = (
+            f"Instruction: {task.instruction}\n\n"
+            f"Input Text: {task.input_text}\n\n"
+            f"Analysis: {analysis}\n\n"
+            f"Few-Shot Examples:\n{few_shot}\n\n"
+            f"Extract the information strictly according to the schema."
+        )
+        
+        response = self.client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "You are a precise data extraction agent. If information is missing, return null."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_schema", "json_schema": {"name": "extraction", "schema": task.target_schema, "strict": True}}
+        )
+        return json.loads(response.choices[0].message.content), response.usage.total_tokens
+
+class ReActAuditor:
+    """Pluggable verification loop to verify grounding and nullify hallucinations."""
+    def __init__(self, client: OpenAI):
+        self.client = client
+
+    def audit(self, task: Task, model: str, extraction: Dict[str, Any], start_time: float) -> Dict[str, Any]:
+        audited = copy.deepcopy(extraction)
+        keys_to_check = [k for k, v in extraction.items() if v is not None and k != "_tokens"]
+        
+        # Limit to top 5 fields to stay within time budget
+        for key in keys_to_check[:5]:
+            if time.time() - start_time > 50: # Hard limit for safety
+                break
+                
+            value = audited[key]
+            prompt = (
+                f"Text: {task.input_text}\n\n"
+                f"Extracted Field: {key}\n"
+                f"Extracted Value: {value}\n\n"
+                f"Does the text explicitly support this extraction? If yes, provide the quote. If no or inferred, answer 'NULLIFY'."
+            )
+            
+            try:
+                response = self.client.chat.completions.create(
+                    model=model,
+                    messages=[
+                        {"role": "system", "content": "You are a critical auditor. Be strict. Better null than false."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    max_tokens=100
+                )
+                if "NULLIFY" in response.choices[0].message.content.upper():
+                    audited[key] = None
+            except:
+                continue
+                
+        return audited
+
+class ConsensusAggregator:
+    """Medoid selection for ensembling."""
+    def __init__(self):
+        model_path = os.path.abspath("models/all-MiniLM-L6-v2")
+        if not os.path.exists(model_path):
+            raise RuntimeError(f"Required embedding model not found at {model_path}. "
+                             "Please run the model localization script first.")
+        self.model = SentenceTransformer(model_path)
+
+    def aggregate(self, candidates: List[Dict[str, Any]]) -> Dict[str, Any]:
+        if not candidates:
+            return {}
+        if len(candidates) == 1:
+            return candidates[0]
+            
+        json_strs = [json.dumps(c, sort_keys=True) for c in candidates]
+        embeddings = self.model.encode(json_strs)
+        
+        # Calculate similarity matrix
+        sim_matrix = np.dot(embeddings, embeddings.T)
+        # Sum similarities for each candidate
+        sim_sums = sim_matrix.sum(axis=1)
+        # Select medoid
+        medoid_idx = np.argmax(sim_sums)
+        
+        return candidates[medoid_idx]
+
+class ChampionAgent(GenSIEAgent):
+    """The Two-Pass Champion Agent."""
+    def __init__(self):
+        self.client = OpenAI(
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+        )
+        self.rag = RAGModule()
+        self.architect = ArchitectModule(self.client)
+        self.engine = ChampionTwoPassEngine(self.client)
+        self.auditor = ReActAuditor(self.client)
+        self.aggregator = ConsensusAggregator()
+
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        start_time = time.time()
+        total_tokens = 0
+        
+        # 1. Augmentation
+        few_shots = self.rag.get_few_shot_examples(task)
+        fs_str = "\n".join([f"Example: {json.dumps(e)}" for e in few_shots])
+        hints = self.architect.get_reasoning_hints(task, model)
+        
+        # 2. Parallel Ensemble (N=2)
+        def run_single_pipeline():
+            tokens = 0
+            analysis, t1 = self.engine.run_pass1(task, model, hints, fs_str)
+            extraction, t2 = self.engine.run_pass2(task, model, analysis, fs_str)
+            return extraction, t1 + t2
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            futures = [executor.submit(run_single_pipeline) for _ in range(2)]
+            results = []
+            for f in futures:
+                try:
+                    res, tokens = f.result(timeout=45) # Leave room for auditor
+                    results.append(res)
+                    total_tokens += tokens
+                except:
+                    continue
+        
+        if not results:
+            return {"error": "Pipeline timeout or failure", "_tokens": total_tokens}
+            
+        # 3. Consensus
+        winner = self.aggregator.aggregate(results)
+        
+        # 4. Audit
+        final_result = self.auditor.audit(task, model, winner, start_time)
+        final_result["_tokens"] = total_tokens
+        
+        return final_result
+
+class SlimChampionAgent(GenSIEAgent, InvariantPromptMixin):
+    """
+    Streamlined high-accuracy pipeline with RAG and Two-Pass reasoning.
+    Optimized for small models by removing ensembling and auditing friction.
+    """
+    def __init__(self, use_ts=True, use_null=True, use_dialect=True):
+        self.client = OpenAI(
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+        )
+        self.rag = RAGModule()
+        self.architect = ArchitectModule(self.client)
+        self.use_ts = use_ts
+        self.use_null = use_null
+        self.use_dialect = use_dialect
+
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        total_tokens = 0
+        
+        # 1. Augmentation
+        few_shots = self.rag.get_few_shot_examples(task)
+        fs_str = "\n".join([f"Example Input: {e['input_text']}\nExample Output: {json.dumps(e['output'])}" for e in few_shots])
+        hints = self.architect.get_reasoning_hints(task, model)
+        
+        # 2. Pass 1: Unconstrained Analysis in Spanish
+        analysis_prompt = (
+            f"Instruction: {task.instruction}\n\n"
+            f"Input Text: {task.input_text}\n\n"
+            f"Strategic Reasoning Hints: {hints}\n\n"
+            f"Few-Shot Reference Examples:\n{fs_str}\n\n"
+            f"Analyze the text step-by-step in Spanish to identify all relevant information before extraction."
+        )
+        
+        pass1_prompt = self.apply_invariants(
+            analysis_prompt,
+            task.target_schema,
+            use_ts=self.use_ts,
+            use_null=self.use_null,
+            use_dialect=self.use_dialect
+        )
+        
+        response1 = self.client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "You are a strategic analyst. Provide a detailed step-by-step reasoning in Spanish."},
+                {"role": "user", "content": pass1_prompt}
+            ]
+        )
+        
+        if hasattr(response1, "usage") and response1.usage:
+            total_tokens += response1.usage.total_tokens
+        analysis = response1.choices[0].message.content
+
+        # 3. Pass 2: Strict Extraction
+        extraction_prompt = (
+            f"Instruction: {task.instruction}\n\n"
+            f"Input Text: {task.input_text}\n\n"
+            f"Analysis: {analysis}\n\n"
+            f"Extract the information strictly according to the schema."
+        )
+        
+        pass2_prompt = self.apply_invariants(
+            extraction_prompt,
+            task.target_schema,
+            use_ts=self.use_ts,
+            use_null=self.use_null,
+            use_dialect=self.use_dialect
+        )
+        
+        try:
+            response2 = self.client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": "You are a precise data extraction agent. If information is missing, return null."},
+                    {"role": "user", "content": pass2_prompt}
+                ],
+                response_format={"type": "json_schema", "json_schema": {"name": "extraction", "schema": task.target_schema, "strict": True}}
+            )
+            
+            if hasattr(response2, "usage") and response2.usage:
+                total_tokens += response2.usage.total_tokens
+            
+            result = json.loads(response2.choices[0].message.content)
+            result["_tokens"] = total_tokens
+            return result
+        except Exception as e:
+            logger.error(f"SlimChampion Pass 2 failed: {e}")
+            # Final fallback
+            return {"error": f"Extraction failed: {str(e)}", "_tokens": total_tokens}
+
+class StableChampionAgent(GenSIEAgent, InvariantPromptMixin):
+    """
+    Robust high-accuracy pipeline with RAG and Two-Pass reasoning.
+    Optimized as a 'Safe Generalizer' using the optimal Two-Pass invariant (Null Rule only).
+    """
+    def __init__(self):
+        self.client = OpenAI(
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+        )
+        self.rag = RAGModule()
+        self.architect = ArchitectModule(self.client)
+        # Optimal Generalizer Configuration (from research)
+        self.use_ts = False
+        self.use_null = True
+        self.use_dialect = False
+
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        total_tokens = 0
+        
+        # 1. Augmentation
+        few_shots = self.rag.get_few_shot_examples(task)
+        fs_str = "\n".join([f"Example Input: {e['input_text']}\nExample Output: {json.dumps(e['output'])}" for e in few_shots])
+        hints = self.architect.get_reasoning_hints(task, model)
+        
+        # 2. Pass 1: Unconstrained Analysis in Spanish
+        analysis_prompt = (
+            f"Instruction: {task.instruction}\n\n"
+            f"Input Text: {task.input_text}\n\n"
+            f"Strategic Reasoning Hints: {hints}\n\n"
+            f"Few-Shot Reference Examples:\n{fs_str}\n\n"
+            f"Analyze the text step-by-step in Spanish to identify all relevant information before extraction."
+        )
+        
+        pass1_prompt = self.apply_invariants(
+            analysis_prompt,
+            task.target_schema,
+            use_ts=self.use_ts,
+            use_null=self.use_null,
+            use_dialect=self.use_dialect
+        )
+        
+        response1 = self.client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "You are a strategic analyst. Provide a detailed step-by-step reasoning in Spanish."},
+                {"role": "user", "content": pass1_prompt}
+            ]
+        )
+        
+        if hasattr(response1, "usage") and response1.usage:
+            total_tokens += response1.usage.total_tokens
+        analysis = response1.choices[0].message.content
+
+        # 3. Pass 2: Strict Extraction
+        extraction_prompt = (
+            f"Instruction: {task.instruction}\n\n"
+            f"Input Text: {task.input_text}\n\n"
+            f"Analysis: {analysis}\n\n"
+            f"Extract the information strictly according to the schema."
+        )
+        
+        pass2_prompt = self.apply_invariants(
+            extraction_prompt,
+            task.target_schema,
+            use_ts=self.use_ts,
+            use_null=self.use_null,
+            use_dialect=self.use_dialect
+        )
+        
+        try:
+            response2 = self.client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": "You are a precise data extraction agent. If information is missing, return null."},
+                    {"role": "user", "content": pass2_prompt}
+                ],
+                response_format={"type": "json_schema", "json_schema": {"name": "extraction", "schema": task.target_schema, "strict": True}}
+            )
+            
+            if hasattr(response2, "usage") and response2.usage:
+                total_tokens += response2.usage.total_tokens
+            
+            result = json.loads(response2.choices[0].message.content)
+            result["_tokens"] = total_tokens
+            return result
+        except Exception as e:
+            logger.error(f"StableChampion Pass 2 failed: {e}")
+            return {"error": f"Extraction failed: {str(e)}", "_tokens": total_tokens}
+
 class OfficialParticipant(Participant):
     """
     Standard entry point for the competition.
@@ -630,6 +1061,10 @@ class OfficialParticipant(Participant):
             "end-anchored-ts": EndAnchoredAgent(use_null=False, use_dialect=False),
             "end-anchored-null": EndAnchoredAgent(use_ts=False, use_dialect=False),
             "end-anchored-dialect": EndAnchoredAgent(use_ts=False, use_null=False),
+
+            "champion": ChampionAgent(),
+            "slim-champion": SlimChampionAgent(),
+            "stable-champion": StableChampionAgent(),
         }
 
     def get_info(self) -> ParticipantInfo:
@@ -656,6 +1091,18 @@ class OfficialParticipant(Participant):
                 PipelineInfo(
                     name="end-anchored",
                     description="Strategy that places a blank JSON template at the end of the prompt.",
+                ),
+                PipelineInfo(
+                    name="champion",
+                    description="High-accuracy modular pipeline with RAG, Two-Pass reasoning, and ReAct verification.",
+                ),
+                PipelineInfo(
+                    name="slim-champion",
+                    description="Streamlined high-accuracy pipeline with RAG and Two-Pass reasoning, optimized for SLMs.",
+                ),
+                PipelineInfo(
+                    name="stable-champion",
+                    description="Streamlined architecture using the optimal Two-Pass invariant configuration (Null-Rule only).",
                 ),
             ],
         )
