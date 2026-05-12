@@ -24,6 +24,52 @@ def flatten_json(
     return items
 
 
+def gap_closed(f1_system: float, f1_baseline: float) -> float:
+    """Fraction of the baseline-to-perfect F1 gap that a system closes.
+
+    gap_closed = max(0, (F1_system - F1_baseline) / (1 - F1_baseline))
+
+    Clamped at 0 (a system worse than the baseline gets 0). If the baseline is
+    already perfect, the gap is empty: a system that matches it scores 1.0,
+    anything less scores 0.0.
+    """
+    if f1_baseline >= 1.0:
+        return 1.0 if f1_system >= 1.0 else 0.0
+    return max(0.0, (f1_system - f1_baseline) / (1.0 - f1_baseline))
+
+
+def summarize_timing(
+    elapsed_list: List[float], budget_s: float = 60.0
+) -> Dict[str, Any]:
+    """Summarize per-instance wall times against the soft per-instance budget.
+
+    The submission spec treats the 60s timeout as a target *averaged over the
+    test set*: a single instance may overrun if others compensate. This returns
+    the average, the max, how many instances exceeded ``budget_s``, and whether
+    the average stays within budget. The evaluator records these instead of
+    hard-stopping a run at the budget.
+    """
+    n = len(elapsed_list)
+    if n == 0:
+        return {
+            "n": 0,
+            "avg_elapsed_s": 0.0,
+            "max_elapsed_s": 0.0,
+            "over_budget_count": 0,
+            "budget_s": budget_s,
+            "avg_within_budget": True,
+        }
+    avg = sum(elapsed_list) / n
+    return {
+        "n": n,
+        "avg_elapsed_s": avg,
+        "max_elapsed_s": max(elapsed_list),
+        "over_budget_count": sum(1 for t in elapsed_list if t > budget_s),
+        "budget_s": budget_s,
+        "avg_within_budget": avg <= budget_s,
+    }
+
+
 def dot_product(v1: List[float], v2: List[float]) -> float:
     return sum(x * y for x, y in zip(v1, v2))
 
@@ -151,6 +197,11 @@ class Evaluator:
         """
         Scoring logic based on data type.
         """
+        # Null / hallucination check (spec "Case C"): a null is correct only
+        # against another null; null-vs-value scores 0 regardless of field type.
+        if g_val is None or s_val is None:
+            return 1.0 if (g_val is None and s_val is None) else 0.0
+
         if g_val == s_val:
             return 1.0
 
@@ -199,7 +250,9 @@ class Evaluator:
         if curr.get("type") in ["number", "integer", "boolean"]:
             return True
         if curr.get("type") == "string":
-            return False
+            # Dates are rigid (spec "Case A"): formatted date/time strings need
+            # an exact match, not partial semantic credit.
+            return curr.get("format") in ("date", "date-time", "time")
 
         return True
 

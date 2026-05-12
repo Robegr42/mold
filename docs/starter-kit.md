@@ -123,6 +123,21 @@ gensie eval
 !!! note "First Run & Embeddings"
     On its first run, `gensie eval` will automatically download the lightweight `BAAI/bge-small-en-v1.5` embedding model via `fastembed`. This is used for fast semantic similarity calculations on your CPU. The official leaderboard evaluation will use a more robust, heavier model (e.g., `paraphrase-multilingual-mpnet-base-v2`).
 
+!!! note "Timing in the report"
+    `gensie eval` records the wall-clock time per instance and adds a `timing` block to the report (`avg_elapsed_s`, `max_elapsed_s`, `over_budget_count`, `avg_within_budget`). It does **not** hard-stop a run at the 60s target — the budget is a soft average over the test set (see [Submission Guidelines §4](./submission.md#4-resource-quotas--qualification)). Tune `--time-budget-s` / `--request-timeout-s` if needed.
+
+### Ranking against a baseline
+
+Once you have one or more reports (and a baseline report with `--pipeline baseline`), `gensie rank` reproduces the official primary leaderboard — the fraction of the baseline→perfect F1 gap closed, averaged over models:
+
+```bash
+gensie rank results/            # rich tables
+gensie rank results/ --plain    # Markdown
+gensie rank results/examples    # a runnable example with synthetic data
+```
+
+See [Task Description → Evaluation Metrics](./description.md#evaluation-metrics) for what the numbers mean.
+
 ## 5. How to Hack
 
 To start building your own solution:
