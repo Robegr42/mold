@@ -1,0 +1,665 @@
+{
+  "participant": {
+    "team_name": "MOLD Team",
+    "institution": "University of Havana",
+    "pipelines": [
+      {
+        "name": "two-pass",
+        "description": "Strategy that decouples reasoning in Spanish from strict JSON extraction."
+      },
+      {
+        "name": "grounded",
+        "description": "Evidence-based agent that mandates source quotes to authorize extraction."
+      },
+      {
+        "name": "auditor",
+        "description": "Self-correction loop with an adversarial audit to strike hallucinations."
+      },
+      {
+        "name": "baseline",
+        "description": "Reference implementation using OpenAI Structured Outputs."
+      },
+      {
+        "name": "end-anchored",
+        "description": "Strategy that places a blank JSON template at the end of the prompt."
+      },
+      {
+        "name": "champion",
+        "description": "High-accuracy modular pipeline with RAG, Two-Pass reasoning, and ReAct verification."
+      },
+      {
+        "name": "slim-champion",
+        "description": "Streamlined high-accuracy pipeline with RAG and Two-Pass reasoning, optimized for SLMs."
+      },
+      {
+        "name": "stable-champion",
+        "description": "Streamlined architecture using the optimal Two-Pass invariant configuration (Null-Rule only)."
+      }
+    ]
+  },
+  "config": {
+    "model": "llama-3.2-3b-instruct",
+    "pipeline": "stable-champion",
+    "data_source": "/home/danilo/vscode/mold/data/starter"
+  },
+  "metrics": {
+    "precision": 0.7893175755291709,
+    "recall": 0.5975624583102198,
+    "f1": 0.6801836342180637
+  },
+  "tasks": [
+    {
+      "task_id": "technical_extraction_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.5674225470860996,
+      "tokens": 2876,
+      "time_s": 13.237182855606079,
+      "errors": [
+        "Incorrect: answer (sim=0.57)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.6881486047623095,
+      "tokens": 3812,
+      "time_s": 17.72837734222412,
+      "errors": [
+        "Incorrect: question (sim=0.69)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 1.9731135578923102,
+      "tokens": 3546,
+      "time_s": 17.571264505386353,
+      "errors": [
+        "Missing: cited_articles.0",
+        "Incorrect: is_applicable (sim=0.00)",
+        "Incorrect: is_explicit (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_005",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 2.267048834081003,
+      "tokens": 7084,
+      "time_s": 24.313655376434326,
+      "errors": [
+        "Missing: cited_articles.0",
+        "Incorrect: evidence_quotes.0 (sim=0.69)",
+        "Incorrect: is_explicit (sim=0.00)",
+        "Incorrect: question (sim=0.74)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_entities_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.40156721946271323,
+      "tokens": 5998,
+      "time_s": 35.15986776351929,
+      "errors": [
+        "Incorrect: entities.0.text (sim=0.65)",
+        "Incorrect: entities.1.text (sim=0.79)",
+        "Missing: entities.2.label",
+        "Missing: entities.2.text",
+        "Missing: entities.3.label",
+        "Missing: entities.3.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_entities_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.43007010243317173,
+      "tokens": 4878,
+      "time_s": 15.70123291015625,
+      "errors": [
+        "Incorrect: entities.0.text (sim=0.59)",
+        "Incorrect: entities.1.text (sim=0.40)",
+        "Missing: entities.2.label",
+        "Missing: entities.2.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_extraction_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.994242460814407,
+      "tokens": 5190,
+      "time_s": 19.49658203125,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.0,
+      "tokens": 6203,
+      "time_s": 25.871707677841187,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: director",
+        "Missing: main_cast.0",
+        "Missing: main_cast.1",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2",
+        "Missing: pros.3"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_006",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 7.0,
+      "tokens": 4425,
+      "time_s": 20.336776971817017,
+      "errors": [
+        "Incorrect: current_ceo_name (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_extraction_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 1.0,
+      "tokens": 3106,
+      "time_s": 14.336998462677002,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.333635856270657,
+      "tokens": 5438,
+      "time_s": 32.325258016586304,
+      "errors": [
+        "Incorrect: cited_articles.0 (sim=0.84)",
+        "Incorrect: evidence_quotes.0 (sim=0.92)",
+        "Incorrect: question (sim=0.75)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_004",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.0,
+      "tokens": 5948,
+      "time_s": 22.561962127685547,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: cons.1",
+        "Missing: cons.2",
+        "Missing: cons.3",
+        "Incorrect: director (sim=0.00)",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2",
+        "Missing: pros.3",
+        "Hallucinated: rating",
+        "Hallucinated: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_005",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.869725690449393,
+      "tokens": 6490,
+      "time_s": 25.301292896270752,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: cons.1",
+        "Missing: director",
+        "Incorrect: key_verdict (sim=0.87)",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 1.0,
+      "tokens": 5274,
+      "time_s": 19.648437976837158,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_entities_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.45454545454545453,
+      "tokens": 4787,
+      "time_s": 17.734309911727905,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.0.text (sim=0.32)",
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.34)",
+        "Missing: entities.10.label",
+        "Missing: entities.10.text",
+        "Incorrect: entities.2.text (sim=0.32)",
+        "Incorrect: entities.3.label (sim=0.00)",
+        "Incorrect: entities.3.text (sim=0.37)",
+        "Incorrect: entities.4.label (sim=0.00)",
+        "Incorrect: entities.4.text (sim=0.33)",
+        "Missing: entities.5.label",
+        "Missing: entities.5.text",
+        "Missing: entities.6.label",
+        "Missing: entities.6.text",
+        "Missing: entities.7.label",
+        "Missing: entities.7.text",
+        "Missing: entities.8.label",
+        "Missing: entities.8.text",
+        "Missing: entities.9.label",
+        "Missing: entities.9.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.0,
+      "tokens": 6617,
+      "time_s": 29.810382604599,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: cons.1",
+        "Missing: cons.2",
+        "Missing: cons.3",
+        "Missing: director",
+        "Missing: main_cast.0",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_extraction_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 1.0,
+      "tokens": 6435,
+      "time_s": 21.44585108757019,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_004",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.370527241824927,
+      "tokens": 5004,
+      "time_s": 22.50873899459839,
+      "errors": [
+        "Incorrect: features.0 (sim=0.71)",
+        "Incorrect: features.4 (sim=0.48)",
+        "Hallucinated: features.5",
+        "Incorrect: license (sim=0.76)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_entities_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.16963156720909,
+      "tokens": 3922,
+      "time_s": 19.465795040130615,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.0.text (sim=0.42)",
+        "Missing: entities.1.label",
+        "Missing: entities.1.text",
+        "Missing: entities.2.label",
+        "Missing: entities.2.text",
+        "Missing: entities.3.label",
+        "Missing: entities.3.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.25599463082485,
+      "tokens": 7463,
+      "time_s": 34.28186273574829,
+      "errors": [
+        "Incorrect: pharmaceutical_format (sim=0.61)",
+        "Incorrect: side_effects.1.impact (sim=0.00)",
+        "Incorrect: side_effects.1.reaction (sim=0.73)",
+        "Missing: standard_doses.0"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_extraction_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.4954503414799606,
+      "tokens": 4414,
+      "time_s": 16.170042276382446,
+      "errors": [
+        "Incorrect: answer (sim=0.50)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.622970560221526,
+      "tokens": 2875,
+      "time_s": 15.623345851898193,
+      "errors": [
+        "Incorrect: answer (sim=0.62)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_entities_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.7137508018045506,
+      "tokens": 4891,
+      "time_s": 20.139838457107544,
+      "errors": [
+        "Incorrect: entities.3.text (sim=0.29)",
+        "Incorrect: entities.4.label (sim=0.00)",
+        "Incorrect: entities.4.text (sim=0.27)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_007",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 2.7397475674907357,
+      "tokens": 5322,
+      "time_s": 23.957077026367188,
+      "errors": [
+        "Missing: current_ceo_name",
+        "Incorrect: exact_release_date (sim=0.00)",
+        "Missing: latest_stable_version_sha256",
+        "Incorrect: license (sim=0.37)",
+        "Missing: platforms.0",
+        "Missing: platforms.1",
+        "Incorrect: primary_developer (sim=0.37)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.553428366989479,
+      "tokens": 6582,
+      "time_s": 39.36706304550171,
+      "errors": [
+        "Missing: current_ceo_name",
+        "Missing: exact_release_date",
+        "Incorrect: features.1 (sim=0.56)",
+        "Hallucinated: features.2",
+        "Hallucinated: features.3",
+        "Hallucinated: features.4",
+        "Hallucinated: features.5",
+        "Missing: latest_stable_version_sha256",
+        "Incorrect: license (sim=0.79)",
+        "Incorrect: platforms.2 (sim=0.42)",
+        "Incorrect: platforms.3 (sim=0.39)",
+        "Hallucinated: platforms.4",
+        "Hallucinated: platforms.5"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.439732975535407,
+      "tokens": 5070,
+      "time_s": 22.205085277557373,
+      "errors": [
+        "Incorrect: features.0 (sim=0.43)",
+        "Hallucinated: features.1",
+        "Hallucinated: features.2",
+        "Incorrect: license (sim=0.64)",
+        "Missing: platforms.0",
+        "Missing: platforms.1",
+        "Missing: platforms.2",
+        "Missing: platforms.3",
+        "Missing: platforms.4",
+        "Missing: platforms.5",
+        "Missing: platforms.6",
+        "Incorrect: primary_developer (sim=0.68)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_extraction_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.9953585981718346,
+      "tokens": 3353,
+      "time_s": 13.2244131565094,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.0,
+      "tokens": 6432,
+      "time_s": 29.00237727165222,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: cons.1",
+        "Missing: cons.2",
+        "Missing: cons.3",
+        "Missing: director",
+        "Missing: main_cast.0",
+        "Missing: main_cast.1",
+        "Missing: main_cast.2",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2",
+        "Missing: pros.3",
+        "Missing: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_entities_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.5384615384615384,
+      "tokens": 3260,
+      "time_s": 16.838338136672974,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.0.text (sim=0.32)",
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.32)",
+        "Incorrect: entities.2.text (sim=0.47)",
+        "Incorrect: entities.3.text (sim=0.40)",
+        "Missing: entities.4.label",
+        "Missing: entities.4.text",
+        "Missing: entities.5.label",
+        "Missing: entities.5.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_entities_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.5833333333333334,
+      "tokens": 4146,
+      "time_s": 20.085304021835327,
+      "errors": [
+        "Missing: entities.10.label",
+        "Missing: entities.10.text",
+        "Missing: entities.11.label",
+        "Missing: entities.11.text",
+        "Incorrect: entities.6.label (sim=0.00)",
+        "Incorrect: entities.6.text (sim=0.33)",
+        "Missing: entities.7.label",
+        "Missing: entities.7.text",
+        "Missing: entities.8.label",
+        "Missing: entities.8.text",
+        "Missing: entities.9.label",
+        "Missing: entities.9.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_004",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.4793727487767496,
+      "tokens": 4013,
+      "time_s": 21.207902431488037,
+      "errors": [
+        "Missing: cited_articles.0",
+        "Incorrect: evidence_quotes.0 (sim=0.85)",
+        "Incorrect: question (sim=0.74)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.52009205336531,
+      "tokens": 4844,
+      "time_s": 24.575672149658203,
+      "errors": [
+        "Incorrect: features.0 (sim=0.68)",
+        "Incorrect: features.1 (sim=0.69)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_005",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.243067725025237,
+      "tokens": 5344,
+      "time_s": 27.95916199684143,
+      "errors": [
+        "Missing: current_ceo_name",
+        "Missing: exact_release_date",
+        "Incorrect: features.0 (sim=0.44)",
+        "Incorrect: features.1 (sim=0.36)",
+        "Incorrect: features.2 (sim=0.39)",
+        "Incorrect: features.3 (sim=0.36)",
+        "Incorrect: features.4 (sim=0.42)",
+        "Incorrect: features.5 (sim=0.40)",
+        "Missing: features.6",
+        "Missing: features.7",
+        "Missing: features.8",
+        "Missing: latest_stable_version_sha256",
+        "Incorrect: license (sim=0.41)",
+        "Missing: platforms.3",
+        "Missing: platforms.4"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_004",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.541897043496308,
+      "tokens": 8875,
+      "time_s": 52.96101784706116,
+      "errors": [
+        "Incorrect: common_name (sim=0.64)",
+        "Incorrect: pharmaceutical_format (sim=0.61)",
+        "Incorrect: side_effects.0.reaction (sim=0.75)",
+        "Missing: side_effects.0.system_organ_class",
+        "Hallucinated: side_effects.1.impact",
+        "Hallucinated: side_effects.1.probability",
+        "Hallucinated: side_effects.1.reaction",
+        "Missing: standard_doses.0"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_005",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.055550475979912,
+      "tokens": 7983,
+      "time_s": 34.46279501914978,
+      "errors": [
+        "Incorrect: common_name (sim=0.60)",
+        "Incorrect: side_effects.0.probability (sim=0.00)",
+        "Incorrect: side_effects.1.impact (sim=0.00)",
+        "Incorrect: side_effects.1.reaction (sim=0.75)",
+        "Missing: standard_doses.0"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.6534786077466708,
+      "tokens": 5467,
+      "time_s": 23.321706771850586,
+      "errors": [
+        "Incorrect: answer (sim=0.65)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.3333333333333335,
+      "tokens": 9782,
+      "time_s": 41.16616702079773,
+      "errors": [
+        "Incorrect: is_pediatric (sim=0.00)",
+        "Incorrect: side_effects.0.impact (sim=0.00)",
+        "Incorrect: side_effects.0.reaction (sim=0.36)",
+        "Missing: side_effects.0.system_organ_class",
+        "Missing: side_effects.1.system_organ_class",
+        "Missing: side_effects.2.impact",
+        "Missing: side_effects.2.probability",
+        "Missing: side_effects.2.reaction",
+        "Missing: side_effects.2.system_organ_class",
+        "Missing: side_effects.3.impact",
+        "Missing: side_effects.3.probability",
+        "Missing: side_effects.3.reaction",
+        "Missing: side_effects.3.system_organ_class",
+        "Missing: standard_doses.0"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_extraction_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.483855282040628,
+      "tokens": 5773,
+      "time_s": 17.683579206466675,
+      "errors": [
+        "Incorrect: answer (sim=0.48)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.0,
+      "tokens": 0,
+      "time_s": 0.0,
+      "errors": [
+        "Call Failed: timed out..."
+      ],
+      "status": "FAIL"
+    },
+    {
+      "task_id": "technical_entities_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.0,
+      "tokens": 0,
+      "time_s": 0.0,
+      "errors": [
+        "Call Failed: timed out..."
+      ],
+      "status": "FAIL"
+    }
+  ]
+}

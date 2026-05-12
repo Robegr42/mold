@@ -1,0 +1,799 @@
+{
+  "participant": {
+    "team_name": "MOLD Team",
+    "institution": "University of Havana",
+    "pipelines": [
+      {
+        "name": "two-pass",
+        "description": "Strategy that decouples reasoning in Spanish from strict JSON extraction."
+      },
+      {
+        "name": "grounded",
+        "description": "Evidence-based agent that mandates source quotes to authorize extraction."
+      },
+      {
+        "name": "auditor",
+        "description": "Self-correction loop with an adversarial audit to strike hallucinations."
+      },
+      {
+        "name": "baseline",
+        "description": "Reference implementation using OpenAI Structured Outputs."
+      },
+      {
+        "name": "end-anchored",
+        "description": "Strategy that places a blank JSON template at the end of the prompt."
+      },
+      {
+        "name": "champion",
+        "description": "High-accuracy modular pipeline with RAG, Two-Pass reasoning, and ReAct verification."
+      },
+      {
+        "name": "slim-champion",
+        "description": "Streamlined high-accuracy pipeline with RAG and Two-Pass reasoning, optimized for SLMs."
+      },
+      {
+        "name": "stable-champion",
+        "description": "Streamlined architecture using the optimal Two-Pass invariant configuration (Null-Rule only)."
+      }
+    ]
+  },
+  "config": {
+    "model": "qwen/qwen3-1.7b",
+    "pipeline": "stable-champion",
+    "data_source": "/home/danilo/vscode/mold/data/starter"
+  },
+  "metrics": {
+    "precision": 0.8170921606531096,
+    "recall": 0.7109163431671124,
+    "f1": 0.7603153639914132
+  },
+  "tasks": [
+    {
+      "task_id": "technical_extraction_001",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 1.0,
+      "tokens": 2238,
+      "time_s": 5.528674125671387,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_002",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 3.8471546325647634,
+      "tokens": 4346,
+      "time_s": 19.25368094444275,
+      "errors": [
+        "Missing: cited_articles.0",
+        "Incorrect: question (sim=0.85)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_001",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 4.97311355789231,
+      "tokens": 3598,
+      "time_s": 14.972579717636108,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_005",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 3.267048834081003,
+      "tokens": 7669,
+      "time_s": 23.5169198513031,
+      "errors": [
+        "Missing: cited_articles.0",
+        "Incorrect: evidence_quotes.0 (sim=0.69)",
+        "Incorrect: question (sim=0.74)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_entities_002",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 0.3606043571266198,
+      "tokens": 6405,
+      "time_s": 32.684409379959106,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.0.text (sim=0.53)",
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.63)",
+        "Hallucinated: entities.4.label",
+        "Hallucinated: entities.4.text",
+        "Hallucinated: entities.5.label",
+        "Hallucinated: entities.5.text",
+        "Hallucinated: entities.6.label",
+        "Hallucinated: entities.6.text",
+        "Hallucinated: entities.7.label",
+        "Hallucinated: entities.7.text",
+        "Hallucinated: entities.8.label",
+        "Hallucinated: entities.8.text",
+        "Hallucinated: entities.9.label",
+        "Hallucinated: entities.9.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_entities_001",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 0.4820081385620077,
+      "tokens": 6258,
+      "time_s": 25.354587078094482,
+      "errors": [
+        "Incorrect: entities.1.text (sim=0.79)",
+        "Incorrect: entities.2.text (sim=0.36)",
+        "Hallucinated: entities.3.label",
+        "Hallucinated: entities.3.text",
+        "Hallucinated: entities.4.label",
+        "Hallucinated: entities.4.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_extraction_002",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 1.0,
+      "tokens": 4255,
+      "time_s": 6.848647117614746,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_003",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 4.0,
+      "tokens": 6812,
+      "time_s": 26.32204270362854,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: director",
+        "Missing: main_cast.0",
+        "Missing: main_cast.1",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2",
+        "Missing: pros.3"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_006",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 6.0,
+      "tokens": 5228,
+      "time_s": 23.82934880256653,
+      "errors": [
+        "Incorrect: current_ceo_name (sim=0.00)",
+        "Hallucinated: features.0",
+        "Hallucinated: features.1",
+        "Hallucinated: features.2",
+        "Hallucinated: features.3",
+        "Hallucinated: features.4"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_extraction_001",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 1.0,
+      "tokens": 3035,
+      "time_s": 11.638103485107422,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_003",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 4.233082709887565,
+      "tokens": 4701,
+      "time_s": 19.899805545806885,
+      "errors": [
+        "Incorrect: cited_articles.0 (sim=0.83)",
+        "Incorrect: evidence_quotes.0 (sim=0.86)",
+        "Incorrect: question (sim=0.77)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_004",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 3.029559691876694,
+      "tokens": 6741,
+      "time_s": 25.406895637512207,
+      "errors": [
+        "Incorrect: cons.0 (sim=0.46)",
+        "Incorrect: cons.1 (sim=0.59)",
+        "Missing: cons.2",
+        "Missing: cons.3",
+        "Missing: director",
+        "Incorrect: key_verdict (sim=0.51)",
+        "Missing: main_cast.0",
+        "Missing: main_cast.1",
+        "Incorrect: medium (sim=0.00)",
+        "Incorrect: pros.0 (sim=0.49)",
+        "Incorrect: pros.1 (sim=0.41)",
+        "Incorrect: pros.2 (sim=0.46)",
+        "Missing: pros.3"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_005",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 5.456397534722921,
+      "tokens": 7107,
+      "time_s": 26.4736065864563,
+      "errors": [
+        "Incorrect: cons.0 (sim=0.94)",
+        "Missing: cons.1",
+        "Missing: director"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_003",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 1.0,
+      "tokens": 4995,
+      "time_s": 11.420729875564575,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_entities_002",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 0.7142857142857143,
+      "tokens": 7054,
+      "time_s": 36.653533935546875,
+      "errors": [
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.32)",
+        "Incorrect: entities.10.text (sim=0.34)",
+        "Hallucinated: entities.11.label",
+        "Hallucinated: entities.11.text",
+        "Hallucinated: entities.12.label",
+        "Hallucinated: entities.12.text",
+        "Incorrect: entities.2.label (sim=0.00)",
+        "Incorrect: entities.2.text (sim=0.37)",
+        "Incorrect: entities.3.text (sim=0.40)",
+        "Incorrect: entities.4.label (sim=0.00)",
+        "Incorrect: entities.4.text (sim=0.33)",
+        "Incorrect: entities.5.label (sim=0.00)",
+        "Incorrect: entities.5.text (sim=0.43)",
+        "Incorrect: entities.6.text (sim=0.35)",
+        "Incorrect: entities.7.text (sim=0.36)",
+        "Incorrect: entities.8.text (sim=0.37)",
+        "Incorrect: entities.9.text (sim=0.65)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_001",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 4.0,
+      "tokens": 6803,
+      "time_s": 25.47530245780945,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: cons.1",
+        "Missing: cons.2",
+        "Missing: cons.3",
+        "Missing: director",
+        "Missing: main_cast.0",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_extraction_002",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 1.0,
+      "tokens": 6185,
+      "time_s": 13.981887817382812,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_004",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 8.161056166516849,
+      "tokens": 5481,
+      "time_s": 22.118319511413574,
+      "errors": [
+        "Incorrect: features.4 (sim=0.43)",
+        "Hallucinated: features.5",
+        "Incorrect: license (sim=0.49)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_entities_001",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 0.6883877729362727,
+      "tokens": 4573,
+      "time_s": 22.51213550567627,
+      "errors": [
+        "Incorrect: entities.0.text (sim=0.88)",
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.47)",
+        "Incorrect: entities.2.label (sim=0.00)",
+        "Incorrect: entities.2.text (sim=0.46)",
+        "Incorrect: entities.3.text (sim=0.43)",
+        "Hallucinated: entities.4.label",
+        "Hallucinated: entities.4.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_003",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 4.387675801270661,
+      "tokens": 11748,
+      "time_s": 70.12745261192322,
+      "errors": [
+        "Incorrect: side_effects.1.impact (sim=0.00)",
+        "Incorrect: side_effects.1.reaction (sim=0.73)",
+        "Hallucinated: side_effects.10.impact",
+        "Hallucinated: side_effects.10.probability",
+        "Hallucinated: side_effects.10.reaction",
+        "Hallucinated: side_effects.11.impact",
+        "Hallucinated: side_effects.11.probability",
+        "Hallucinated: side_effects.11.reaction",
+        "Hallucinated: side_effects.12.impact",
+        "Hallucinated: side_effects.12.probability",
+        "Hallucinated: side_effects.12.reaction",
+        "Hallucinated: side_effects.2.impact",
+        "Hallucinated: side_effects.2.probability",
+        "Hallucinated: side_effects.2.reaction",
+        "Hallucinated: side_effects.3.impact",
+        "Hallucinated: side_effects.3.probability",
+        "Hallucinated: side_effects.3.reaction",
+        "Hallucinated: side_effects.4.impact",
+        "Hallucinated: side_effects.4.probability",
+        "Hallucinated: side_effects.4.reaction",
+        "Hallucinated: side_effects.5.impact",
+        "Hallucinated: side_effects.5.probability",
+        "Hallucinated: side_effects.5.reaction",
+        "Hallucinated: side_effects.6.impact",
+        "Hallucinated: side_effects.6.probability",
+        "Hallucinated: side_effects.6.reaction",
+        "Hallucinated: side_effects.7.impact",
+        "Hallucinated: side_effects.7.probability",
+        "Hallucinated: side_effects.7.reaction",
+        "Hallucinated: side_effects.8.impact",
+        "Hallucinated: side_effects.8.probability",
+        "Hallucinated: side_effects.8.reaction",
+        "Hallucinated: side_effects.9.impact",
+        "Hallucinated: side_effects.9.probability",
+        "Hallucinated: side_effects.9.reaction",
+        "Incorrect: standard_doses.0 (sim=0.70)",
+        "Hallucinated: standard_doses.1",
+        "Hallucinated: standard_doses.2",
+        "Hallucinated: standard_doses.3"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_extraction_002",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 0.9898875620879121,
+      "tokens": 3768,
+      "time_s": 7.427209377288818,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_002",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 1.0,
+      "tokens": 2398,
+      "time_s": 8.92438793182373,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_entities_001",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 0.8333333333333334,
+      "tokens": 5693,
+      "time_s": 23.74268341064453,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.0.text (sim=0.30)",
+        "Incorrect: entities.1.text (sim=0.33)",
+        "Incorrect: entities.2.label (sim=0.00)",
+        "Incorrect: entities.2.text (sim=0.35)",
+        "Incorrect: entities.3.label (sim=0.00)",
+        "Incorrect: entities.3.text (sim=0.33)",
+        "Incorrect: entities.4.label (sim=0.00)",
+        "Incorrect: entities.4.text (sim=0.31)",
+        "Hallucinated: entities.5.label",
+        "Hallucinated: entities.5.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_007",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 2.672242041837151,
+      "tokens": 5939,
+      "time_s": 25.0627384185791,
+      "errors": [
+        "Missing: current_ceo_name",
+        "Incorrect: exact_release_date (sim=0.00)",
+        "Hallucinated: features.0",
+        "Hallucinated: features.1",
+        "Hallucinated: features.2",
+        "Missing: latest_stable_version_sha256",
+        "Incorrect: license (sim=0.36)",
+        "Missing: platforms.0",
+        "Missing: platforms.1",
+        "Incorrect: primary_developer (sim=0.32)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_001",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 6.824903725311981,
+      "tokens": 5594,
+      "time_s": 21.556278228759766,
+      "errors": [
+        "Incorrect: features.0 (sim=0.42)",
+        "Incorrect: features.1 (sim=0.55)",
+        "Hallucinated: features.2",
+        "Hallucinated: features.3",
+        "Incorrect: license (sim=0.54)",
+        "Missing: platforms.0",
+        "Missing: platforms.1",
+        "Missing: platforms.2",
+        "Missing: platforms.3"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_002",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 6.078215310830977,
+      "tokens": 5524,
+      "time_s": 21.470539093017578,
+      "errors": [
+        "Incorrect: current_ceo_name (sim=0.00)",
+        "Incorrect: features.0 (sim=0.43)",
+        "Hallucinated: features.1",
+        "Hallucinated: features.2",
+        "Incorrect: license (sim=0.64)",
+        "Incorrect: primary_developer (sim=0.32)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_extraction_003",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 1.0,
+      "tokens": 3299,
+      "time_s": 9.788492441177368,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_002",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 8.748656480279584,
+      "tokens": 6988,
+      "time_s": 29.35551428794861,
+      "errors": [
+        "Incorrect: cons.2 (sim=0.85)",
+        "Incorrect: pros.0 (sim=0.88)",
+        "Incorrect: pros.1 (sim=0.73)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_entities_001",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 1.0,
+      "tokens": 4036,
+      "time_s": 21.093531847000122,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_entities_003",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 0.5,
+      "tokens": 5125,
+      "time_s": 24.761722087860107,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.0.text (sim=0.32)",
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.25)",
+        "Missing: entities.10.label",
+        "Missing: entities.10.text",
+        "Missing: entities.11.label",
+        "Missing: entities.11.text",
+        "Incorrect: entities.2.label (sim=0.00)",
+        "Incorrect: entities.2.text (sim=0.30)",
+        "Incorrect: entities.3.text (sim=0.73)",
+        "Incorrect: entities.4.text (sim=0.49)",
+        "Incorrect: entities.5.label (sim=0.00)",
+        "Incorrect: entities.5.text (sim=0.35)",
+        "Missing: entities.6.label",
+        "Missing: entities.6.text",
+        "Missing: entities.7.label",
+        "Missing: entities.7.text",
+        "Missing: entities.8.label",
+        "Missing: entities.8.text",
+        "Missing: entities.9.label",
+        "Missing: entities.9.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_004",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 3.4326428527166875,
+      "tokens": 3069,
+      "time_s": 8.76987338066101,
+      "errors": [
+        "Missing: cited_articles.0",
+        "Incorrect: evidence_quotes.0 (sim=0.85)",
+        "Incorrect: question (sim=0.69)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_003",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 8.494313513918591,
+      "tokens": 4885,
+      "time_s": 19.694599628448486,
+      "errors": [
+        "Incorrect: features.0 (sim=0.63)",
+        "Incorrect: features.1 (sim=0.69)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_005",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 7.642548604211372,
+      "tokens": 5353,
+      "time_s": 22.534674644470215,
+      "errors": [
+        "Incorrect: features.0 (sim=0.44)",
+        "Incorrect: features.1 (sim=0.39)",
+        "Incorrect: features.2 (sim=0.39)",
+        "Incorrect: features.3 (sim=0.36)",
+        "Incorrect: features.4 (sim=0.42)",
+        "Incorrect: features.5 (sim=0.40)",
+        "Missing: features.6",
+        "Missing: features.7",
+        "Missing: features.8",
+        "Incorrect: license (sim=0.41)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_004",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 4.051650993176918,
+      "tokens": 10435,
+      "time_s": 57.1008038520813,
+      "errors": [
+        "Incorrect: side_effects.0.impact (sim=0.00)",
+        "Incorrect: side_effects.0.reaction (sim=0.39)",
+        "Missing: side_effects.0.system_organ_class",
+        "Hallucinated: side_effects.1.impact",
+        "Hallucinated: side_effects.1.probability",
+        "Hallucinated: side_effects.1.reaction",
+        "Hallucinated: side_effects.10.impact",
+        "Hallucinated: side_effects.10.probability",
+        "Hallucinated: side_effects.10.reaction",
+        "Hallucinated: side_effects.11.impact",
+        "Hallucinated: side_effects.11.probability",
+        "Hallucinated: side_effects.11.reaction",
+        "Hallucinated: side_effects.12.impact",
+        "Hallucinated: side_effects.12.probability",
+        "Hallucinated: side_effects.12.reaction",
+        "Hallucinated: side_effects.2.impact",
+        "Hallucinated: side_effects.2.probability",
+        "Hallucinated: side_effects.2.reaction",
+        "Hallucinated: side_effects.3.impact",
+        "Hallucinated: side_effects.3.probability",
+        "Hallucinated: side_effects.3.reaction",
+        "Hallucinated: side_effects.4.impact",
+        "Hallucinated: side_effects.4.probability",
+        "Hallucinated: side_effects.4.reaction",
+        "Hallucinated: side_effects.5.impact",
+        "Hallucinated: side_effects.5.probability",
+        "Hallucinated: side_effects.5.reaction",
+        "Hallucinated: side_effects.6.impact",
+        "Hallucinated: side_effects.6.probability",
+        "Hallucinated: side_effects.6.reaction",
+        "Hallucinated: side_effects.7.impact",
+        "Hallucinated: side_effects.7.probability",
+        "Hallucinated: side_effects.7.reaction",
+        "Hallucinated: side_effects.8.impact",
+        "Hallucinated: side_effects.8.probability",
+        "Hallucinated: side_effects.8.reaction",
+        "Hallucinated: side_effects.9.impact",
+        "Hallucinated: side_effects.9.probability",
+        "Hallucinated: side_effects.9.reaction",
+        "Missing: standard_doses.0"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_005",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 4.158633314292796,
+      "tokens": 10632,
+      "time_s": 53.62799096107483,
+      "errors": [
+        "Incorrect: side_effects.1.reaction (sim=0.75)",
+        "Hallucinated: side_effects.10.impact",
+        "Hallucinated: side_effects.10.probability",
+        "Hallucinated: side_effects.10.reaction",
+        "Hallucinated: side_effects.11.impact",
+        "Hallucinated: side_effects.11.probability",
+        "Hallucinated: side_effects.11.reaction",
+        "Hallucinated: side_effects.2.impact",
+        "Hallucinated: side_effects.2.probability",
+        "Hallucinated: side_effects.2.reaction",
+        "Hallucinated: side_effects.3.impact",
+        "Hallucinated: side_effects.3.probability",
+        "Hallucinated: side_effects.3.reaction",
+        "Hallucinated: side_effects.4.impact",
+        "Hallucinated: side_effects.4.probability",
+        "Hallucinated: side_effects.4.reaction",
+        "Hallucinated: side_effects.5.impact",
+        "Hallucinated: side_effects.5.probability",
+        "Hallucinated: side_effects.5.reaction",
+        "Hallucinated: side_effects.6.impact",
+        "Hallucinated: side_effects.6.probability",
+        "Hallucinated: side_effects.6.reaction",
+        "Hallucinated: side_effects.7.impact",
+        "Hallucinated: side_effects.7.probability",
+        "Hallucinated: side_effects.7.reaction",
+        "Hallucinated: side_effects.8.impact",
+        "Hallucinated: side_effects.8.probability",
+        "Hallucinated: side_effects.8.reaction",
+        "Hallucinated: side_effects.9.impact",
+        "Hallucinated: side_effects.9.probability",
+        "Hallucinated: side_effects.9.reaction",
+        "Missing: standard_doses.0"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_001",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 0.8283250595829489,
+      "tokens": 4574,
+      "time_s": 9.310367822647095,
+      "errors": [
+        "Incorrect: answer (sim=0.83)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_002",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 3.051198730263886,
+      "tokens": 12612,
+      "time_s": 59.77692675590515,
+      "errors": [
+        "Incorrect: is_pediatric (sim=0.00)",
+        "Incorrect: official_name (sim=0.73)",
+        "Incorrect: pharmaceutical_format (sim=0.61)",
+        "Incorrect: side_effects.0.impact (sim=0.00)",
+        "Incorrect: side_effects.0.reaction (sim=0.36)",
+        "Missing: side_effects.0.system_organ_class",
+        "Incorrect: side_effects.1.impact (sim=0.00)",
+        "Incorrect: side_effects.1.reaction (sim=0.57)",
+        "Missing: side_effects.1.system_organ_class",
+        "Hallucinated: side_effects.10.impact",
+        "Hallucinated: side_effects.10.probability",
+        "Hallucinated: side_effects.10.reaction",
+        "Hallucinated: side_effects.11.impact",
+        "Hallucinated: side_effects.11.probability",
+        "Hallucinated: side_effects.11.reaction",
+        "Hallucinated: side_effects.12.impact",
+        "Hallucinated: side_effects.12.probability",
+        "Hallucinated: side_effects.12.reaction",
+        "Incorrect: side_effects.2.impact (sim=0.00)",
+        "Incorrect: side_effects.2.reaction (sim=0.39)",
+        "Missing: side_effects.2.system_organ_class",
+        "Incorrect: side_effects.3.reaction (sim=0.44)",
+        "Missing: side_effects.3.system_organ_class",
+        "Hallucinated: side_effects.4.impact",
+        "Hallucinated: side_effects.4.probability",
+        "Hallucinated: side_effects.4.reaction",
+        "Hallucinated: side_effects.5.impact",
+        "Hallucinated: side_effects.5.probability",
+        "Hallucinated: side_effects.5.reaction",
+        "Hallucinated: side_effects.6.impact",
+        "Hallucinated: side_effects.6.probability",
+        "Hallucinated: side_effects.6.reaction",
+        "Hallucinated: side_effects.7.impact",
+        "Hallucinated: side_effects.7.probability",
+        "Hallucinated: side_effects.7.reaction",
+        "Hallucinated: side_effects.8.impact",
+        "Hallucinated: side_effects.8.probability",
+        "Hallucinated: side_effects.8.reaction",
+        "Hallucinated: side_effects.9.impact",
+        "Hallucinated: side_effects.9.probability",
+        "Hallucinated: side_effects.9.reaction",
+        "Incorrect: standard_doses.0 (sim=0.67)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_extraction_001",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 0.9999999999999999,
+      "tokens": 5619,
+      "time_s": 11.791696786880493,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_001",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 3.9252663070113742,
+      "tokens": 11711,
+      "time_s": 59.66635179519653,
+      "errors": [
+        "Incorrect: common_name (sim=0.73)",
+        "Incorrect: side_effects.1.impact (sim=0.00)",
+        "Incorrect: side_effects.1.reaction (sim=0.73)",
+        "Hallucinated: side_effects.2.impact",
+        "Hallucinated: side_effects.2.probability",
+        "Hallucinated: side_effects.2.reaction",
+        "Hallucinated: side_effects.3.impact",
+        "Hallucinated: side_effects.3.probability",
+        "Hallucinated: side_effects.3.reaction",
+        "Hallucinated: side_effects.4.impact",
+        "Hallucinated: side_effects.4.probability",
+        "Hallucinated: side_effects.4.reaction",
+        "Hallucinated: side_effects.5.impact",
+        "Hallucinated: side_effects.5.probability",
+        "Hallucinated: side_effects.5.reaction",
+        "Hallucinated: side_effects.6.impact",
+        "Hallucinated: side_effects.6.probability",
+        "Hallucinated: side_effects.6.reaction",
+        "Hallucinated: side_effects.7.impact",
+        "Hallucinated: side_effects.7.probability",
+        "Hallucinated: side_effects.7.reaction",
+        "Hallucinated: side_effects.8.impact",
+        "Hallucinated: side_effects.8.probability",
+        "Hallucinated: side_effects.8.reaction",
+        "Missing: standard_doses.0",
+        "Missing: standard_doses.1"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_entities_002",
+      "model": "qwen/qwen3-1.7b",
+      "tps": 1.0,
+      "tokens": 3928,
+      "time_s": 20.683855533599854,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.0.text (sim=0.49)",
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.49)"
+      ],
+      "status": "PASS"
+    }
+  ]
+}

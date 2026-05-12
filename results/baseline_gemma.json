@@ -1,0 +1,699 @@
+{
+  "participant": {
+    "team_name": "MOLD Team",
+    "institution": "University of Havana",
+    "pipelines": [
+      {
+        "name": "two-pass",
+        "description": "Strategy that decouples reasoning in Spanish from strict JSON extraction."
+      },
+      {
+        "name": "grounded",
+        "description": "Evidence-based agent that mandates source quotes to authorize extraction."
+      },
+      {
+        "name": "auditor",
+        "description": "Self-correction loop with an adversarial audit to strike hallucinations."
+      },
+      {
+        "name": "baseline",
+        "description": "Reference implementation using OpenAI Structured Outputs."
+      },
+      {
+        "name": "end-anchored",
+        "description": "Strategy that places a blank JSON template at the end of the prompt."
+      },
+      {
+        "name": "champion",
+        "description": "High-accuracy modular pipeline with RAG, Two-Pass reasoning, and ReAct verification."
+      },
+      {
+        "name": "slim-champion",
+        "description": "Streamlined high-accuracy pipeline with RAG and Two-Pass reasoning, optimized for SLMs."
+      },
+      {
+        "name": "stable-champion",
+        "description": "Streamlined architecture using the optimal Two-Pass invariant configuration (Null-Rule only)."
+      }
+    ]
+  },
+  "config": {
+    "model": "google/gemma-4-e4b",
+    "pipeline": "two-pass-ni",
+    "data_source": "/home/danilo/vscode/mold/data/starter"
+  },
+  "metrics": {
+    "precision": 0.7653769201314212,
+    "recall": 0.6615969987576692,
+    "f1": 0.7097131441218633
+  },
+  "tasks": [
+    {
+      "task_id": "technical_extraction_001",
+      "model": "google/gemma-4-e4b",
+      "tps": 0.5674225470860996,
+      "tokens": 1320,
+      "time_s": 13.317101001739502,
+      "errors": [
+        "Incorrect: answer (sim=0.57)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_002",
+      "model": "google/gemma-4-e4b",
+      "tps": 4.41360144077176,
+      "tokens": 1813,
+      "time_s": 21.11722493171692,
+      "errors": [
+        "Incorrect: cited_articles.0 (sim=0.73)",
+        "Incorrect: question (sim=0.83)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_001",
+      "model": "google/gemma-4-e4b",
+      "tps": 3.9731135578923102,
+      "tokens": 2044,
+      "time_s": 24.33933687210083,
+      "errors": [
+        "Incorrect: is_explicit (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_005",
+      "model": "google/gemma-4-e4b",
+      "tps": 4.2728035611393445,
+      "tokens": 2462,
+      "time_s": 28.992696285247803,
+      "errors": [
+        "Incorrect: evidence_quotes.0 (sim=0.69)",
+        "Incorrect: question (sim=0.74)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_entities_002",
+      "model": "google/gemma-4-e4b",
+      "tps": 0.7587907563493099,
+      "tokens": 2447,
+      "time_s": 30.839969158172607,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.0.text (sim=0.35)",
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.73)",
+        "Incorrect: entities.2.text (sim=0.36)",
+        "Incorrect: entities.3.text (sim=0.56)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_entities_001",
+      "model": "google/gemma-4-e4b",
+      "tps": 0.64367128000617,
+      "tokens": 2753,
+      "time_s": 34.10542869567871,
+      "errors": [
+        "Incorrect: entities.0.text (sim=0.73)",
+        "Incorrect: entities.1.text (sim=0.40)",
+        "Incorrect: entities.2.text (sim=0.37)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_extraction_002",
+      "model": "google/gemma-4-e4b",
+      "tps": 0.6065702735663872,
+      "tokens": 2229,
+      "time_s": 10.50977373123169,
+      "errors": [
+        "Incorrect: answer (sim=0.61)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_003",
+      "model": "google/gemma-4-e4b",
+      "tps": 4.906095189922509,
+      "tokens": 4073,
+      "time_s": 43.89771628379822,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: director",
+        "Incorrect: key_verdict (sim=0.62)",
+        "Incorrect: pros.0 (sim=0.66)",
+        "Incorrect: pros.1 (sim=0.68)",
+        "Missing: pros.2",
+        "Missing: pros.3"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_006",
+      "model": "google/gemma-4-e4b",
+      "tps": 2.028984603647396,
+      "tokens": 2293,
+      "time_s": 20.758902549743652,
+      "errors": [
+        "Incorrect: app_category (sim=0.00)",
+        "Missing: current_ceo_name",
+        "Incorrect: exact_release_date (sim=0.00)",
+        "Missing: latest_stable_version_sha256",
+        "Incorrect: license (sim=0.62)",
+        "Incorrect: primary_developer (sim=0.41)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_extraction_001",
+      "model": "google/gemma-4-e4b",
+      "tps": 1.0,
+      "tokens": 1106,
+      "time_s": 10.270212888717651,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_003",
+      "model": "google/gemma-4-e4b",
+      "tps": 4.124787519346156,
+      "tokens": 2633,
+      "time_s": 28.290457487106323,
+      "errors": [
+        "Incorrect: cited_articles.0 (sim=0.79)",
+        "Incorrect: evidence_quotes.0 (sim=0.86)",
+        "Incorrect: question (sim=0.71)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_004",
+      "model": "google/gemma-4-e4b",
+      "tps": 6.67081723125206,
+      "tokens": 3455,
+      "time_s": 38.6513466835022,
+      "errors": [
+        "Incorrect: cons.0 (sim=0.64)",
+        "Incorrect: cons.1 (sim=0.63)",
+        "Missing: cons.2",
+        "Missing: cons.3",
+        "Incorrect: main_cast.0 (sim=0.31)",
+        "Incorrect: main_cast.1 (sim=0.31)",
+        "Incorrect: pros.1 (sim=0.41)",
+        "Incorrect: pros.2 (sim=0.52)",
+        "Incorrect: pros.3 (sim=0.41)",
+        "Hallucinated: pros.4"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_005",
+      "model": "google/gemma-4-e4b",
+      "tps": 4.341352234234104,
+      "tokens": 3597,
+      "time_s": 33.90433669090271,
+      "errors": [
+        "Incorrect: cons.0 (sim=0.45)",
+        "Incorrect: cons.1 (sim=0.87)",
+        "Missing: director",
+        "Incorrect: key_verdict (sim=0.48)",
+        "Incorrect: pros.0 (sim=0.50)",
+        "Incorrect: pros.1 (sim=0.47)",
+        "Missing: pros.2"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_003",
+      "model": "google/gemma-4-e4b",
+      "tps": 1.0,
+      "tokens": 1044,
+      "time_s": 9.802109241485596,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_entities_002",
+      "model": "google/gemma-4-e4b",
+      "tps": 0.8186813676539968,
+      "tokens": 3724,
+      "time_s": 46.732879877090454,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.0.text (sim=0.33)",
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.36)",
+        "Missing: entities.10.label",
+        "Missing: entities.10.text",
+        "Incorrect: entities.2.label (sim=0.00)",
+        "Incorrect: entities.2.text (sim=0.37)",
+        "Incorrect: entities.3.label (sim=0.00)",
+        "Incorrect: entities.3.text (sim=0.36)",
+        "Incorrect: entities.4.label (sim=0.00)",
+        "Incorrect: entities.4.text (sim=0.35)",
+        "Incorrect: entities.6.text (sim=0.35)",
+        "Incorrect: entities.7.text (sim=0.34)",
+        "Incorrect: entities.8.label (sim=0.00)",
+        "Incorrect: entities.8.text (sim=0.30)",
+        "Incorrect: entities.9.label (sim=0.00)",
+        "Incorrect: entities.9.text (sim=0.40)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_001",
+      "model": "google/gemma-4-e4b",
+      "tps": 7.065295456604074,
+      "tokens": 4166,
+      "time_s": 46.126532316207886,
+      "errors": [
+        "Incorrect: cons.1 (sim=0.44)",
+        "Incorrect: cons.2 (sim=0.48)",
+        "Missing: cons.3",
+        "Incorrect: pros.0 (sim=0.87)",
+        "Missing: pros.2",
+        "Hallucinated: rating"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_extraction_002",
+      "model": "google/gemma-4-e4b",
+      "tps": 1.0,
+      "tokens": 1248,
+      "time_s": 11.230283498764038,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_004",
+      "model": "google/gemma-4-e4b",
+      "tps": 5.078246049361437,
+      "tokens": 3061,
+      "time_s": 31.834066152572632,
+      "errors": [
+        "Missing: exact_release_date",
+        "Incorrect: features.0 (sim=0.69)",
+        "Incorrect: features.4 (sim=0.48)",
+        "Hallucinated: features.5",
+        "Missing: latest_stable_version_sha256",
+        "Incorrect: license (sim=0.59)",
+        "Incorrect: official_name (sim=0.88)",
+        "Missing: platforms.0",
+        "Missing: platforms.1",
+        "Missing: platforms.2",
+        "Missing: platforms.3"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_entities_001",
+      "model": "google/gemma-4-e4b",
+      "tps": 0.6776562241731379,
+      "tokens": 2222,
+      "time_s": 26.36792540550232,
+      "errors": [
+        "Incorrect: entities.0.text (sim=0.88)",
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.51)",
+        "Incorrect: entities.2.label (sim=0.00)",
+        "Incorrect: entities.2.text (sim=0.46)",
+        "Missing: entities.3.label",
+        "Missing: entities.3.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_003",
+      "model": "google/gemma-4-e4b",
+      "tps": 4.4394699763273895,
+      "tokens": 2813,
+      "time_s": 29.482435703277588,
+      "errors": [
+        "Incorrect: official_name (sim=0.86)",
+        "Incorrect: pharmaceutical_format (sim=0.66)",
+        "Incorrect: side_effects.1.impact (sim=0.00)",
+        "Incorrect: side_effects.1.reaction (sim=0.64)",
+        "Incorrect: standard_doses.0 (sim=0.68)",
+        "Hallucinated: standard_doses.1"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_extraction_002",
+      "model": "google/gemma-4-e4b",
+      "tps": 0.6553923257262939,
+      "tokens": 2568,
+      "time_s": 22.23944401741028,
+      "errors": [
+        "Incorrect: answer (sim=0.66)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_002",
+      "model": "google/gemma-4-e4b",
+      "tps": 1.0,
+      "tokens": 1267,
+      "time_s": 12.562900304794312,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_entities_001",
+      "model": "google/gemma-4-e4b",
+      "tps": 0.9961729073654778,
+      "tokens": 2596,
+      "time_s": 30.294822454452515,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.0.text (sim=0.30)",
+        "Incorrect: entities.1.text (sim=0.33)",
+        "Incorrect: entities.2.label (sim=0.00)",
+        "Incorrect: entities.2.text (sim=0.33)",
+        "Incorrect: entities.3.label (sim=0.00)",
+        "Incorrect: entities.3.text (sim=0.30)",
+        "Incorrect: entities.4.label (sim=0.00)",
+        "Incorrect: entities.4.text (sim=0.31)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_007",
+      "model": "google/gemma-4-e4b",
+      "tps": 4.260751949847636,
+      "tokens": 2460,
+      "time_s": 25.237333059310913,
+      "errors": [
+        "Incorrect: app_category (sim=0.00)",
+        "Missing: exact_release_date",
+        "Hallucinated: features.0",
+        "Hallucinated: features.1",
+        "Incorrect: license (sim=0.39)",
+        "Missing: platforms.0",
+        "Missing: platforms.1",
+        "Incorrect: primary_developer (sim=0.88)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_001",
+      "model": "google/gemma-4-e4b",
+      "tps": 7.469512033477634,
+      "tokens": 3320,
+      "time_s": 37.82018327713013,
+      "errors": [
+        "Incorrect: features.0 (sim=0.78)",
+        "Incorrect: features.1 (sim=0.43)",
+        "Incorrect: official_name (sim=0.51)",
+        "Incorrect: platforms.2 (sim=0.42)",
+        "Incorrect: platforms.3 (sim=0.39)",
+        "Hallucinated: platforms.4",
+        "Hallucinated: platforms.5"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_002",
+      "model": "google/gemma-4-e4b",
+      "tps": 3.4399010296359345,
+      "tokens": 3804,
+      "time_s": 37.36594891548157,
+      "errors": [
+        "Incorrect: current_ceo_name (sim=0.00)",
+        "Missing: exact_release_date",
+        "Missing: features.0",
+        "Missing: latest_stable_version_sha256",
+        "Incorrect: license (sim=0.57)",
+        "Missing: platforms.0",
+        "Missing: platforms.1",
+        "Missing: platforms.2",
+        "Missing: platforms.3",
+        "Missing: platforms.4",
+        "Missing: platforms.5",
+        "Missing: platforms.6",
+        "Incorrect: primary_developer (sim=0.87)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_extraction_003",
+      "model": "google/gemma-4-e4b",
+      "tps": 0.8791768047698401,
+      "tokens": 1613,
+      "time_s": 10.444991827011108,
+      "errors": [
+        "Incorrect: answer (sim=0.88)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_002",
+      "model": "google/gemma-4-e4b",
+      "tps": 5.29528244696335,
+      "tokens": 3868,
+      "time_s": 42.46443557739258,
+      "errors": [
+        "Incorrect: cons.0 (sim=0.83)",
+        "Incorrect: cons.1 (sim=0.50)",
+        "Incorrect: cons.2 (sim=0.37)",
+        "Missing: cons.3",
+        "Missing: director",
+        "Incorrect: key_verdict (sim=0.48)",
+        "Missing: main_cast.0",
+        "Missing: main_cast.1",
+        "Missing: main_cast.2",
+        "Incorrect: pros.0 (sim=0.92)",
+        "Incorrect: pros.1 (sim=0.70)",
+        "Incorrect: pros.2 (sim=0.63)",
+        "Missing: pros.3"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_entities_001",
+      "model": "google/gemma-4-e4b",
+      "tps": 0.23076923076923078,
+      "tokens": 2881,
+      "time_s": 35.4642972946167,
+      "errors": [
+        "Incorrect: entities.0.text (sim=0.32)",
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.32)",
+        "Missing: entities.2.label",
+        "Missing: entities.2.text",
+        "Missing: entities.3.label",
+        "Missing: entities.3.text",
+        "Missing: entities.4.label",
+        "Missing: entities.4.text",
+        "Missing: entities.5.label",
+        "Missing: entities.5.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_entities_003",
+      "model": "google/gemma-4-e4b",
+      "tps": 0.4022160324999764,
+      "tokens": 3150,
+      "time_s": 41.71552014350891,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.0.text (sim=0.32)",
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.34)",
+        "Missing: entities.10.label",
+        "Missing: entities.10.text",
+        "Missing: entities.11.label",
+        "Missing: entities.11.text",
+        "Incorrect: entities.2.label (sim=0.00)",
+        "Incorrect: entities.2.text (sim=0.30)",
+        "Incorrect: entities.3.text (sim=0.73)",
+        "Incorrect: entities.4.label (sim=0.00)",
+        "Incorrect: entities.4.text (sim=0.33)",
+        "Missing: entities.5.label",
+        "Missing: entities.5.text",
+        "Missing: entities.6.label",
+        "Missing: entities.6.text",
+        "Missing: entities.7.label",
+        "Missing: entities.7.text",
+        "Missing: entities.8.label",
+        "Missing: entities.8.text",
+        "Missing: entities.9.label",
+        "Missing: entities.9.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_004",
+      "model": "google/gemma-4-e4b",
+      "tps": 2.4626878308125724,
+      "tokens": 1690,
+      "time_s": 17.446666717529297,
+      "errors": [
+        "Missing: cited_articles.0",
+        "Incorrect: evidence_quotes.0 (sim=0.85)",
+        "Incorrect: is_explicit (sim=0.00)",
+        "Incorrect: question (sim=0.72)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_003",
+      "model": "google/gemma-4-e4b",
+      "tps": 5.419799773113342,
+      "tokens": 2734,
+      "time_s": 26.584540605545044,
+      "errors": [
+        "Missing: current_ceo_name",
+        "Missing: exact_release_date",
+        "Incorrect: features.0 (sim=0.77)",
+        "Incorrect: features.1 (sim=0.41)",
+        "Hallucinated: features.2",
+        "Hallucinated: features.3",
+        "Missing: latest_stable_version_sha256"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_005",
+      "model": "google/gemma-4-e4b",
+      "tps": 6.904578081962181,
+      "tokens": 3563,
+      "time_s": 36.747231245040894,
+      "errors": [
+        "Incorrect: exact_release_date (sim=0.00)",
+        "Incorrect: features.0 (sim=0.43)",
+        "Incorrect: features.1 (sim=0.43)",
+        "Incorrect: features.2 (sim=0.38)",
+        "Incorrect: features.3 (sim=0.35)",
+        "Incorrect: features.4 (sim=0.43)",
+        "Incorrect: features.5 (sim=0.39)",
+        "Missing: features.6",
+        "Missing: features.7",
+        "Missing: features.8",
+        "Incorrect: license (sim=0.56)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_004",
+      "model": "google/gemma-4-e4b",
+      "tps": 4.002145172428241,
+      "tokens": 2906,
+      "time_s": 30.77987241744995,
+      "errors": [
+        "Incorrect: official_name (sim=0.71)",
+        "Incorrect: pharmaceutical_format (sim=0.66)",
+        "Incorrect: side_effects.0.impact (sim=0.00)",
+        "Incorrect: side_effects.0.reaction (sim=0.75)",
+        "Incorrect: side_effects.0.system_organ_class (sim=0.00)",
+        "Incorrect: standard_doses.0 (sim=0.78)",
+        "Hallucinated: standard_doses.1"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_005",
+      "model": "google/gemma-4-e4b",
+      "tps": 5.243300375104689,
+      "tokens": 3692,
+      "time_s": 43.347840309143066,
+      "errors": [
+        "Incorrect: official_name (sim=0.70)",
+        "Incorrect: pharmaceutical_format (sim=0.89)",
+        "Incorrect: side_effects.0.impact (sim=0.00)",
+        "Incorrect: side_effects.1.reaction (sim=0.75)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_001",
+      "model": "google/gemma-4-e4b",
+      "tps": 1.0,
+      "tokens": 1356,
+      "time_s": 11.575764894485474,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_002",
+      "model": "google/gemma-4-e4b",
+      "tps": 3.7571116686319503,
+      "tokens": 4328,
+      "time_s": 53.079941511154175,
+      "errors": [
+        "Incorrect: official_name (sim=0.67)",
+        "Incorrect: pharmaceutical_format (sim=0.79)",
+        "Missing: side_effects.0.system_organ_class",
+        "Incorrect: side_effects.1.impact (sim=0.00)",
+        "Missing: side_effects.1.system_organ_class",
+        "Missing: side_effects.2.system_organ_class",
+        "Missing: side_effects.3.system_organ_class",
+        "Hallucinated: side_effects.4.impact",
+        "Hallucinated: side_effects.4.probability",
+        "Hallucinated: side_effects.4.reaction",
+        "Hallucinated: side_effects.5.impact",
+        "Hallucinated: side_effects.5.probability",
+        "Hallucinated: side_effects.5.reaction",
+        "Hallucinated: side_effects.6.impact",
+        "Hallucinated: side_effects.6.probability",
+        "Hallucinated: side_effects.6.reaction",
+        "Hallucinated: side_effects.7.impact",
+        "Hallucinated: side_effects.7.probability",
+        "Hallucinated: side_effects.7.reaction",
+        "Missing: standard_doses.0"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_extraction_001",
+      "model": "google/gemma-4-e4b",
+      "tps": 0.483855282040628,
+      "tokens": 2590,
+      "time_s": 12.829576253890991,
+      "errors": [
+        "Incorrect: answer (sim=0.48)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_001",
+      "model": "google/gemma-4-e4b",
+      "tps": 4.539929292897561,
+      "tokens": 3042,
+      "time_s": 32.17804265022278,
+      "errors": [
+        "Incorrect: official_name (sim=0.93)",
+        "Incorrect: side_effects.1.impact (sim=0.00)",
+        "Incorrect: side_effects.1.reaction (sim=0.56)",
+        "Missing: standard_doses.0",
+        "Missing: standard_doses.1"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_entities_002",
+      "model": "google/gemma-4-e4b",
+      "tps": 0.2727272727272727,
+      "tokens": 2206,
+      "time_s": 25.36109185218811,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.0.text (sim=0.49)",
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.49)",
+        "Missing: entities.2.label",
+        "Missing: entities.2.text",
+        "Missing: entities.3.label",
+        "Missing: entities.3.text",
+        "Missing: entities.4.label",
+        "Missing: entities.4.text"
+      ],
+      "status": "PASS"
+    }
+  ]
+}
