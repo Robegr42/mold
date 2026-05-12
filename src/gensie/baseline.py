@@ -650,12 +650,12 @@ class ArchitectModule:
     def __init__(self, client: OpenAI):
         self.client = client
 
-    def get_reasoning_hints(self, task: Task, model: str) -> str:
+    def get_reasoning_hints(self, task: Task, model: str, lang: str = "Spanish", count: int = 3) -> str:
         prompt = (
             f"Analyze the following extraction schema and instruction.\n"
             f"Instruction: {task.instruction}\n"
             f"Schema: {json.dumps(task.target_schema, indent=2)}\n\n"
-            f"Provide 3-5 brief, strategic reasoning hints in Spanish to help an extraction agent avoid common mistakes for this specific schema. "
+            f"Provide {count} brief, strategic reasoning hints in {lang} to help an extraction agent avoid common mistakes for this specific schema. "
             f"Focus on field dependencies and grounding."
         )
         
@@ -858,22 +858,27 @@ class SlimChampionAgent(GenSIEAgent, InvariantPromptMixin):
         self.use_ts = use_ts
         self.use_null = use_null
         self.use_dialect = use_dialect
+        
+        # Environment-driven configuration for tuning
+        self.rag_k = int(os.getenv("GENSIE_RAG_K", "3"))
+        self.reasoning_lang = os.getenv("GENSIE_REASONING_LANG", "Spanish")
+        self.hint_count = int(os.getenv("GENSIE_HINT_COUNT", "3"))
 
     def run(self, task: Task, model: str) -> Dict[str, Any]:
         total_tokens = 0
         
         # 1. Augmentation
-        few_shots = self.rag.get_few_shot_examples(task)
+        few_shots = self.rag.get_few_shot_examples(task, k=self.rag_k)
         fs_str = "\n".join([f"Example Input: {e['input_text']}\nExample Output: {json.dumps(e['output'])}" for e in few_shots])
-        hints = self.architect.get_reasoning_hints(task, model)
+        hints = self.architect.get_reasoning_hints(task, model, lang=self.reasoning_lang, count=self.hint_count)
         
-        # 2. Pass 1: Unconstrained Analysis in Spanish
+        # 2. Pass 1: Unconstrained Analysis
         analysis_prompt = (
             f"Instruction: {task.instruction}\n\n"
             f"Input Text: {task.input_text}\n\n"
             f"Strategic Reasoning Hints: {hints}\n\n"
             f"Few-Shot Reference Examples:\n{fs_str}\n\n"
-            f"Analyze the text step-by-step in Spanish to identify all relevant information before extraction."
+            f"Analyze the text step-by-step in {self.reasoning_lang} to identify all relevant information before extraction."
         )
         
         pass1_prompt = self.apply_invariants(
@@ -887,7 +892,7 @@ class SlimChampionAgent(GenSIEAgent, InvariantPromptMixin):
         response1 = self.client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": "You are a strategic analyst. Provide a detailed step-by-step reasoning in Spanish."},
+                {"role": "system", "content": f"You are a strategic analyst. Provide a detailed step-by-step reasoning in {self.reasoning_lang}."},
                 {"role": "user", "content": pass1_prompt}
             ]
         )
@@ -949,22 +954,27 @@ class StableChampionAgent(GenSIEAgent, InvariantPromptMixin):
         self.use_ts = False
         self.use_null = True
         self.use_dialect = False
+        
+        # Environment-driven configuration for tuning
+        self.rag_k = int(os.getenv("GENSIE_RAG_K", "3"))
+        self.reasoning_lang = os.getenv("GENSIE_REASONING_LANG", "Spanish")
+        self.hint_count = int(os.getenv("GENSIE_HINT_COUNT", "3"))
 
     def run(self, task: Task, model: str) -> Dict[str, Any]:
         total_tokens = 0
         
         # 1. Augmentation
-        few_shots = self.rag.get_few_shot_examples(task)
+        few_shots = self.rag.get_few_shot_examples(task, k=self.rag_k)
         fs_str = "\n".join([f"Example Input: {e['input_text']}\nExample Output: {json.dumps(e['output'])}" for e in few_shots])
-        hints = self.architect.get_reasoning_hints(task, model)
+        hints = self.architect.get_reasoning_hints(task, model, lang=self.reasoning_lang, count=self.hint_count)
         
-        # 2. Pass 1: Unconstrained Analysis in Spanish
+        # 2. Pass 1: Unconstrained Analysis
         analysis_prompt = (
             f"Instruction: {task.instruction}\n\n"
             f"Input Text: {task.input_text}\n\n"
             f"Strategic Reasoning Hints: {hints}\n\n"
             f"Few-Shot Reference Examples:\n{fs_str}\n\n"
-            f"Analyze the text step-by-step in Spanish to identify all relevant information before extraction."
+            f"Analyze the text step-by-step in {self.reasoning_lang} to identify all relevant information before extraction."
         )
         
         pass1_prompt = self.apply_invariants(
@@ -978,7 +988,7 @@ class StableChampionAgent(GenSIEAgent, InvariantPromptMixin):
         response1 = self.client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": "You are a strategic analyst. Provide a detailed step-by-step reasoning in Spanish."},
+                {"role": "system", "content": f"You are a strategic analyst. Provide a detailed step-by-step reasoning in {self.reasoning_lang}."},
                 {"role": "user", "content": pass1_prompt}
             ]
         )
