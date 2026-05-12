@@ -44,8 +44,8 @@ This file tracks the progress of the M.O.L.D. project.
     - Status: ✅ Done
     - Goal: Produce a mermaid diagram explaining the internal workflow of SlimChampionAgent in an educational manner.
     - Doc: [research/slim_champion_architecture.md](research/slim_champion_architecture.md)
-- [ ] **Enhance SlimChampionAgent Architecture Diagram (Augmentation Phase Detail)**
-    - Status: ⏳ Todo
+- [x] **Enhance SlimChampionAgent Architecture Diagram (Augmentation Phase Detail)**
+    - Status: ✅ Done
     - Goal: Update the mermaid diagram in `research/slim_champion_architecture.md` to show internal module mechanics (FAISS retrieval, hint generation logic) during the augmentation phase.
 - [ ] **Initial Planning**
     - Status: ⏳ Pending
