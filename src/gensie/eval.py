@@ -1,6 +1,6 @@
 import math
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 
 def flatten_json(
@@ -67,6 +67,55 @@ def summarize_timing(
         "over_budget_count": sum(1 for t in elapsed_list if t > budget_s),
         "budget_s": budget_s,
         "avg_within_budget": avg <= budget_s,
+    }
+
+
+def summarize_token_usage(
+    per_instance: List[Optional[Dict[str, int]]],
+    target: int = 32000,
+    soft_multiple: float = 2.0,
+) -> Dict[str, Any]:
+    """Summarize per-instance token usage against the soft 32K-average budget.
+
+    ``per_instance`` items are ``{input, output, total, calls}`` dicts (or ``None``
+    for instances with no usage record). Mirrors :func:`summarize_timing`: the
+    32K target is an average over the test set; an instance may reach
+    ``target * soft_multiple`` (64K) if others compensate; nothing is hard-stopped.
+    """
+    recs = [r for r in per_instance if r is not None]
+    n = len(recs)
+    if n == 0:
+        return {
+            "n": 0,
+            "total_input": 0,
+            "total_output": 0,
+            "total_tokens": 0,
+            "avg_total_per_instance": 0.0,
+            "max_total": 0,
+            "over_target_count": 0,
+            "over_soft_count": 0,
+            "calls_total": 0,
+            "target": target,
+            "avg_within_target": True,
+        }
+    totals = [int(r["total"]) for r in recs]
+    total_input = sum(int(r["input"]) for r in recs)
+    total_output = sum(int(r["output"]) for r in recs)
+    grand_total = sum(totals)
+    avg = grand_total / n
+    soft = target * soft_multiple
+    return {
+        "n": n,
+        "total_input": total_input,
+        "total_output": total_output,
+        "total_tokens": grand_total,
+        "avg_total_per_instance": avg,
+        "max_total": max(totals),
+        "over_target_count": sum(1 for t in totals if t > target),
+        "over_soft_count": sum(1 for t in totals if t > soft),
+        "calls_total": sum(int(r["calls"]) for r in recs),
+        "target": target,
+        "avg_within_target": avg <= target,
     }
 
 
