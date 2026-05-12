@@ -40,9 +40,13 @@ This file tracks the progress of the M.O.L.D. project.
     - Status: ✅ Done
     - Goal: Produce a profound report of the cross-model experiment, selecting the best 3 strategies for generalizing, and identifying the best 3 strategies without RAG.
     - Report: [research/final_experimental_synthesis_report.md](research/final_experimental_synthesis_report.md)
-- [ ] **Create Mermaid Diagram for SlimChampionAgent Architecture**
-    - Status: ⏳ Todo
+- [x] **Create Mermaid Diagram for SlimChampionAgent Architecture**
+    - Status: ✅ Done
     - Goal: Produce a mermaid diagram explaining the internal workflow of SlimChampionAgent in an educational manner.
+    - Doc: [research/slim_champion_architecture.md](research/slim_champion_architecture.md)
+- [ ] **Enhance SlimChampionAgent Architecture Diagram (Augmentation Phase Detail)**
+    - Status: ⏳ Todo
+    - Goal: Update the mermaid diagram in `research/slim_champion_architecture.md` to show internal module mechanics (FAISS retrieval, hint generation logic) during the augmentation phase.
 - [ ] **Initial Planning**
     - Status: ⏳ Pending
     - Plan: [plans/initial_strategy.md](plans/initial_strategy.md)
