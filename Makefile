@@ -2,8 +2,8 @@
 
 # Run tests using pytest
 test:
-	pytest tests/ -v
+	uv run pytest tests/ -v
 
 # Run ruff linter
 lint:
-	ruff check src/ tests/
+	uv run ruff check src/ tests/
