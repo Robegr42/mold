@@ -3,6 +3,13 @@
 This file tracks the progress of the M.O.L.D. project.
 
 ## 🛠 Active Tasks
+- [x] **Implement Two-Pass Champion Pipeline (Modular RAG + ReAct)**
+    - Status: ✅ Done
+    - Plan: [plans/implement-two-pass-champion.md](plans/implement-two-pass-champion.md)
+- [x] **Design & Implement Slim Champion Pipeline (Optimized for SLMs)**
+    - Status: ✅ Done
+    - Plan: [plans/slim_champion_pipeline.md](plans/slim_champion_pipeline.md)
+    - Analysis: [research/champion_pipeline_analysis.md](research/champion_pipeline_analysis.md)
 - [x] **Optimize Prompt Invariants across Agents**
     - Status: ✅ Done
     - Plan: [research/invariants_impact_report.md](research/invariants_impact_report.md)
@@ -21,6 +28,10 @@ This file tracks the progress of the M.O.L.D. project.
 - [x] **Refactor Agent Architecture (Phase 2.3 & 3: AuditorAgent & Integration)**
     - Status: ✅ Done
     - Plan: [plans/final_refactoring_plan.md](plans/final_refactoring_plan.md)
+- [ ] **Cross-Model Stable-Champion Evaluation (Llama, Qwen, Gemma)**
+    - Status: ⏳ Planning Complete
+    - Plan: [plans/cross-model-stable-champion-experiment.md](plans/cross-model-stable-champion-experiment.md)
+    - Research: [research/cross-model-stable-champion_report.md](research/cross-model-stable-champion_report.md)
 - [ ] **Initial Planning**
     - Status: ⏳ Pending
     - Plan: [plans/initial_strategy.md](plans/initial_strategy.md)
