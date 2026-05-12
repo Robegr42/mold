@@ -36,8 +36,8 @@ This file tracks the progress of the M.O.L.D. project.
     - Status: ✅ Done
     - Goal: Create a formatted markdown report aggregating results from all evaluation runs across Qwen, Llama, and Gemma.
     - Report: [research/cross-model-stable-champion_matrix_report.md](research/cross-model-stable-champion_matrix_report.md)
-- [ ] **Generate Final Experimental Synthesis & Generalization Report**
-    - Status: ⏳ Todo
+- [/] **Generate Final Experimental Synthesis & Generalization Report**
+    - Status: 🚧 In Progress
     - Goal: Produce a profound report of the cross-model experiment, selecting the best 3 strategies for generalizing, and identifying the best 3 strategies without RAG.
 - [ ] **Initial Planning**
     - Status: ⏳ Pending
