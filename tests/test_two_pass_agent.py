@@ -31,7 +31,7 @@ def test_two_pass_agent_inheritance():
         pytest.fail("TwoPassAgent is not implemented")
     agent = TwoPassAgent()
     assert isinstance(agent, GenSIEAgent)
-    assert not isinstance(agent, InvariantPromptMixin)
+    assert isinstance(agent, InvariantPromptMixin)
 
 def test_two_pass_agent_success(agent, sample_task):
     mock_response_1 = MagicMock()
@@ -55,7 +55,7 @@ def test_two_pass_agent_success(agent, sample_task):
     
     user_prompt_1 = call_args_1["messages"][1]["content"]
     assert "TypeScript" in user_prompt_1
-    assert "Dialect Awareness" in user_prompt_1
+    assert "Dialect Rule" in user_prompt_1
     assert "response_format" not in call_args_1
     
     # Second pass: Pure extraction, no EXTRACTION INVARIANTS block
