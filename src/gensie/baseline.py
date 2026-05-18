@@ -655,7 +655,7 @@ class GatedRAGModule(RAGModule):
         self, 
         task: Task, 
         k: int = 3, 
-        threshold: float = 0.65
+        threshold: float = 0.55
     ) -> tuple[List[Dict[str, Any]], bool]:
         """
         Retrieves top k examples only if the best match exceeds the threshold.
@@ -713,6 +713,8 @@ class ArchitectModule:
         """
         Synthesizes a realistic training example (text + json) for a given task schema.
         Uses an in-memory cache keyed by the MD5 hash of the schema.
+        
+        Uses 'text' format to avoid complex JSON Schema compatibility issues with $defs nesting.
         """
         schema_str = json.dumps(task.target_schema, sort_keys=True)
         schema_hash = hashlib.md5(schema_str.encode()).hexdigest()
@@ -727,7 +729,7 @@ class ArchitectModule:
             f"2. Task Instruction: {task.instruction}\n\n"
             f"Your goal is to generate a realistic Spanish paragraph ('text') and a corresponding valid JSON object ('json') "
             f"that perfectly matches the schema above based on the information in your generated paragraph.\n\n"
-            f"Respond with a JSON object containing two keys: 'text' (string) and 'json' (object)."
+            f"Respond strictly with a JSON object in a markdown code block containing two keys: 'text' (string) and 'json' (object)."
         )
 
         messages = [
@@ -735,18 +737,38 @@ class ArchitectModule:
             {"role": "user", "content": user_prompt}
         ]
 
+        def parse_json_from_text(text: str) -> Dict[str, Any]:
+            # Strategy 1: Look for markdown code blocks
+            code_block_match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
+            if code_block_match:
+                try:
+                    return json.loads(code_block_match.group(1))
+                except json.JSONDecodeError:
+                    pass
+
+            # Strategy 2: Look for the first { and last }
+            brace_match = re.search(r"(\{.*\})", text, re.DOTALL)
+            if brace_match:
+                try:
+                    return json.loads(brace_match.group(1))
+                except json.JSONDecodeError:
+                    pass
+
+            # Strategy 3: Attempt to parse the raw text
+            return json.loads(text.strip())
+
         content = None
         try:
             # Initial synthesis pass
             response = self.client.chat.completions.create(
                 model=model,
                 messages=messages,
-                response_format={"type": "json_object"}
+                response_format={"type": "text"}
             )
             content = response.choices[0].message.content
-            result = json.loads(content)
+            result = parse_json_from_text(content)
 
-            # Validation
+            # Extra validation to trigger self-correction if keys are missing
             if "text" not in result or "json" not in result:
                 raise KeyError("Missing 'text' or 'json' keys in synthesis result.")
 
@@ -758,18 +780,19 @@ class ArchitectModule:
             # Self-Correction Pass
             correction_messages = messages + [
                 {"role": "assistant", "content": content if content else "Error in generation"},
-                {"role": "user", "content": f"The previous output was invalid or missing keys. Error: {str(e)}. Please try again, ensuring you return a JSON object with 'text' and 'json' keys."}
+                {"role": "user", "content": f"The previous output was invalid or missing keys. Error: {str(e)}. Please try again, ensuring you return a JSON object with 'text' and 'json' keys in a code block."}
             ]
             try:
                 response = self.client.chat.completions.create(
                     model=model,
                     messages=correction_messages,
-                    response_format={"type": "json_object"}
+                    response_format={"type": "text"}
                 )
-                result = json.loads(response.choices[0].message.content)
-                if "text" in result and "json" in result:
-                    self._synthesis_cache[schema_hash] = result
-                    return result
+                result = parse_json_from_text(response.choices[0].message.content)
+                if "text" not in result or "json" not in result:
+                    raise KeyError("Missing 'text' or 'json' keys after correction.")
+                self._synthesis_cache[schema_hash] = result
+                return result
             except Exception as final_e:
                 logger.error(f"Synthesis self-correction failed: {final_e}")
         
@@ -1167,7 +1190,7 @@ class GatedStableChampionAgent(GenSIEAgent, InvariantPromptMixin):
         total_tokens = 0
         
         # 1. Gated Augmentation
-        few_shots, is_relevant = self.rag.get_gated_examples(task, k=self.rag_k, threshold=0.65)
+        few_shots, is_relevant = self.rag.get_gated_examples(task, k=self.rag_k, threshold=0.55)
 
         directive = ""
         if not is_relevant:

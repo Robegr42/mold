@@ -62,6 +62,9 @@ This file tracks the progress of the M.O.L.D. project.
 - [ ] **Implement Synthetic Anchor Agent (Architect Few-Shot)**
     - Status: [/] In Progress
     - Plan: [plans/implement-synthetic-anchor-agent.md](plans/implement-synthetic-anchor-agent.md)
+- [ ] **Implement Audited Synthetic Agent (Double-Gate Architecture)**
+    - Status: ⏳ Pending
+    - Plan: [plans/implement-audited-synthetic-agent.md](plans/implement-audited-synthetic-agent.md)
 
 ## 🐛 Bug Fixes
 - [x] **Fix `json_object` response format compatibility in `EndAnchoredAgent`**

@@ -37,6 +37,9 @@ def test_gated_stable_champion_gated(mock_architect, mock_rag, sample_task):
     
     assert result["name"] == "Juan"
     
+    # Verify RAG call with correct threshold
+    agent.rag.get_gated_examples.assert_called_with(sample_task, k=3, threshold=0.55)
+    
     # Verify Generalization Directive in Pass 1 prompt
     call_args_1 = agent.client.chat.completions.create.call_args_list[0][1]
     analysis_prompt = call_args_1["messages"][1]["content"]
