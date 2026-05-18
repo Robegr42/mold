@@ -51,9 +51,13 @@ This file tracks the progress of the M.O.L.D. project.
     - Status: ⏳ Pending
     - Plan: [plans/initial_strategy.md](plans/initial_strategy.md)
 
-- [/] **Implement Gated Stable-Champion Agent**
-    - Status: [/] In Progress
+- [x] **Implement Gated Stable-Champion Agent**
+    - Status: ✅ Done
     - Plan: [plans/gated-stable-champion-agent.md](plans/gated-stable-champion-agent.md)
+
+- [ ] **Create Gated vs. Stable Experiment Script**
+    - Status: ⏳ Pending
+    - Plan: [plans/run-gated-experiment-script.md](plans/run-gated-experiment-script.md)
 
 ## 🐛 Bug Fixes
 - [x] **Fix `json_object` response format compatibility in `EndAnchoredAgent`**
