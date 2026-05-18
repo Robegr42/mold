@@ -3,6 +3,7 @@ import json
 import re
 import copy
 import time
+import hashlib
 import threading
 import numpy as np
 import faiss
@@ -683,6 +684,7 @@ class ArchitectModule:
     """Generates reasoning hints by analyzing the schema and instruction."""
     def __init__(self, client: OpenAI):
         self.client = client
+        self._synthesis_cache = {}
 
     def get_reasoning_hints(self, task: Task, model: str, lang: str = "Spanish", count: int = 3) -> str:
         prompt = (
@@ -706,6 +708,72 @@ class ArchitectModule:
         except Exception as e:
             logger.error(f"ArchitectModule error: {e}")
             return "Analice el texto cuidadosamente y asegúrese de que cada campo esté respaldado por evidencia directa."
+
+    def synthesize_example(self, task: Task, model: str) -> Optional[Dict[str, Any]]:
+        """
+        Synthesizes a realistic training example (text + json) for a given task schema.
+        Uses an in-memory cache keyed by the MD5 hash of the schema.
+        """
+        schema_str = json.dumps(task.target_schema, sort_keys=True)
+        schema_hash = hashlib.md5(schema_str.encode()).hexdigest()
+
+        if schema_hash in self._synthesis_cache:
+            return self._synthesis_cache[schema_hash]
+
+        system_prompt = "You are a senior data engineer specializing in high-quality synthetic data generation."
+        user_prompt = (
+            f"You are a Teacher model creating a high-quality training example for a data extraction task.\n\n"
+            f"1. Target Schema:\n{json.dumps(task.target_schema, indent=2)}\n\n"
+            f"2. Task Instruction: {task.instruction}\n\n"
+            f"Your goal is to generate a realistic Spanish paragraph ('text') and a corresponding valid JSON object ('json') "
+            f"that perfectly matches the schema above based on the information in your generated paragraph.\n\n"
+            f"Respond with a JSON object containing two keys: 'text' (string) and 'json' (object)."
+        )
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+
+        content = None
+        try:
+            # Initial synthesis pass
+            response = self.client.chat.completions.create(
+                model=model,
+                messages=messages,
+                response_format={"type": "json_object"}
+            )
+            content = response.choices[0].message.content
+            result = json.loads(content)
+
+            # Validation
+            if "text" not in result or "json" not in result:
+                raise KeyError("Missing 'text' or 'json' keys in synthesis result.")
+
+            self._synthesis_cache[schema_hash] = result
+            return result
+
+        except Exception as e:
+            logger.warning(f"Synthesis failed, attempting self-correction: {e}")
+            # Self-Correction Pass
+            correction_messages = messages + [
+                {"role": "assistant", "content": content if content else "Error in generation"},
+                {"role": "user", "content": f"The previous output was invalid or missing keys. Error: {str(e)}. Please try again, ensuring you return a JSON object with 'text' and 'json' keys."}
+            ]
+            try:
+                response = self.client.chat.completions.create(
+                    model=model,
+                    messages=correction_messages,
+                    response_format={"type": "json_object"}
+                )
+                result = json.loads(response.choices[0].message.content)
+                if "text" in result and "json" in result:
+                    self._synthesis_cache[schema_hash] = result
+                    return result
+            except Exception as final_e:
+                logger.error(f"Synthesis self-correction failed: {final_e}")
+        
+        return None
 
 class ChampionTwoPassEngine:
     """Core engine running the Two-Pass-NI logic with API-native json_schema."""

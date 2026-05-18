@@ -60,7 +60,7 @@ This file tracks the progress of the M.O.L.D. project.
     - Plan: [plans/run-gated-experiment-script.md](plans/run-gated-experiment-script.md)
 
 - [ ] **Implement Synthetic Anchor Agent (Architect Few-Shot)**
-    - Status: ⏳ Pending
+    - Status: [/] In Progress
     - Plan: [plans/implement-synthetic-anchor-agent.md](plans/implement-synthetic-anchor-agent.md)
 
 ## 🐛 Bug Fixes
