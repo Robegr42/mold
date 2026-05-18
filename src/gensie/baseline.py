@@ -1558,6 +1558,7 @@ class OfficialParticipant(Participant):
             "stable-champion": StableChampionAgent(),
             "gated-stable-champion": GatedStableChampionAgent(),
             "synthetic-anchor": SyntheticAnchorAgent(),
+            "audited-synthetic": AuditedSyntheticAgent(),
         }
 
     def get_info(self) -> ParticipantInfo:
@@ -1600,6 +1601,10 @@ class OfficialParticipant(Participant):
                 PipelineInfo(
                     name="synthetic-anchor",
                     description="Experimental pipeline that uses synthetic examples from ArchitectModule as few-shot anchors when RAG fails.",
+                ),
+                PipelineInfo(
+                    name="audited-synthetic",
+                    description="Double-gate pipeline (RAG 0.55 + Synthetic Audit 0.70) with structural validation.",
                 ),
             ],
         )
