@@ -51,8 +51,8 @@ This file tracks the progress of the M.O.L.D. project.
     - Status: ⏳ Pending
     - Plan: [plans/initial_strategy.md](plans/initial_strategy.md)
 
-- [ ] **Implement Gated Stable-Champion Agent**
-    - Status: ⏳ Pending
+- [/] **Implement Gated Stable-Champion Agent**
+    - Status: [/] In Progress
     - Plan: [plans/gated-stable-champion-agent.md](plans/gated-stable-champion-agent.md)
 
 ## 🐛 Bug Fixes

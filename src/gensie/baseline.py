@@ -645,6 +645,40 @@ class RAGModule:
         
         return [self.examples[i] for i in I[0] if i < len(self.examples)]
 
+class GatedRAGModule(RAGModule):
+    """
+    Extends RAGModule with a similarity gate.
+    If the best match similarity is below the threshold, it returns no examples.
+    """
+    def get_gated_examples(
+        self, 
+        task: Task, 
+        k: int = 3, 
+        threshold: float = 0.65
+    ) -> tuple[List[Dict[str, Any]], bool]:
+        """
+        Retrieves top k examples only if the best match exceeds the threshold.
+        Similarity is calculated from L2 distance D as: similarity = 1 - (D/2)
+        """
+        if self.index is None or not self.examples:
+            return [], False
+        
+        query = f"Instruction: {task.instruction}\nText: {task.input_text}"
+        query_embedding = self.model.encode([query])
+        D, I = self.index.search(np.array(query_embedding).astype('float32'), k)
+        
+        if len(D[0]) == 0:
+            return [], False
+            
+        best_distance = D[0][0]
+        best_similarity = 1 - (best_distance / 2)
+        
+        if best_similarity < threshold:
+            return [], False
+            
+        examples = [self.examples[i] for i in I[0] if i < len(self.examples)]
+        return examples, True
+
 class ArchitectModule:
     """Generates reasoning hints by analyzing the schema and instruction."""
     def __init__(self, client: OpenAI):
