@@ -8,6 +8,7 @@ import threading
 import numpy as np
 import faiss
 from typing import Any, Dict, List, Optional
+from jsonschema import validate, ValidationError
 from concurrent.futures import ThreadPoolExecutor
 from sentence_transformers import SentenceTransformer
 from openai import OpenAI
@@ -1157,6 +1158,143 @@ class StableChampionAgent(GenSIEAgent, InvariantPromptMixin):
         except Exception as e:
             logger.error(f"StableChampion Pass 2 failed: {e}")
             return {"error": f"Extraction failed: {str(e)}", "_tokens": total_tokens}
+
+
+class AuditedSyntheticAgent(GenSIEAgent, InvariantPromptMixin):
+    """
+    Implements the Double-Gate Architecture:
+    Gate 1: Gated RAG (Threshold 0.55).
+    Gate 2: Audited Synthesis (Structural + Semantic Gate >= 0.70).
+    Fallback: Zero-Shot Generalization.
+    """
+    def __init__(self):
+        self.client = OpenAI(
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+        )
+        self.rag = GatedRAGModule()
+        self.architect = ArchitectModule(self.client)
+        # Optimal Invariants
+        self.use_ts = False
+        self.use_null = True
+        self.use_dialect = False
+
+    def _audit_synthesis(self, task: Task, synthetic: Dict[str, Any]) -> bool:
+        """
+        Validates the synthetic example both structurally and semantically.
+        """
+        # Structural Check
+        try:
+            validate(instance=synthetic['json'], schema=task.target_schema)
+        except ValidationError:
+            logger.warning("Audit failed: Structural validation error in synthetic example.")
+            return False
+
+        # Semantic Check
+        try:
+            input_emb = self.rag.model.encode([task.input_text])[0]
+            synth_emb = self.rag.model.encode([synthetic['text']])[0]
+            
+            # Cosine similarity on normalized vectors
+            norm_input = input_emb / (np.linalg.norm(input_emb) + 1e-9)
+            norm_synth = synth_emb / (np.linalg.norm(synth_emb) + 1e-9)
+            similarity = np.dot(norm_input, norm_synth)
+            
+            logger.info(f"Audit semantic similarity: {similarity:.4f}")
+            return similarity >= 0.70
+        except Exception as e:
+            logger.error(f"Audit semantic check failed: {e}")
+            return False
+
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        """
+        Executes the audited synthesis pipeline.
+        """
+        total_tokens = 0
+        fs_str = ""
+        is_zero_shot = False
+
+        # 1. Gate 1: Gated RAG
+        few_shots, success = self.rag.get_gated_examples(task, k=1, threshold=0.55)
+        
+        if success:
+            fs_str = "\n".join([f"Example Input: {e['input_text']}\nExample Output: {json.dumps(e['output'])}" for e in few_shots])
+        else:
+            # 2. Gate 2: Audited Synthesis
+            synthetic = self.architect.synthesize_example(task, model)
+            if synthetic and self._audit_synthesis(task, synthetic):
+                fs_str = f"Example Input: {synthetic['text']}\nExample Output: {json.dumps(synthetic['json'])}"
+            else:
+                # Pivot to Zero-Shot
+                fs_str = ""
+                is_zero_shot = True
+
+        # 3. Two-Pass logic
+        generalization_directive = "This is a zero-shot extraction. Generalize based on the schema and instructions." if is_zero_shot else ""
+        
+        analysis_prompt = (
+            f"Instruction: {task.instruction}\n\n"
+            f"Input Text: {task.input_text}\n\n"
+            f"Reference Example:\n{fs_str}\n\n"
+            f"{generalization_directive}\n"
+            f"Analyze the text step-by-step in Spanish to identify all relevant information before extraction."
+        )
+
+        pass1_prompt = self.apply_invariants(
+            analysis_prompt,
+            task.target_schema,
+            use_ts=self.use_ts,
+            use_null=self.use_null,
+            use_dialect=self.use_dialect
+        )
+
+        response1 = self.client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "You are a strategic analyst. Provide a detailed step-by-step reasoning in Spanish."},
+                {"role": "user", "content": pass1_prompt}
+            ]
+        )
+        
+        if hasattr(response1, "usage") and response1.usage:
+            total_tokens += response1.usage.total_tokens
+        analysis = response1.choices[0].message.content
+
+        extraction_prompt = (
+            f"Instruction: {task.instruction}\n\n"
+            f"Input Text: {task.input_text}\n\n"
+            f"Analysis: {analysis}\n\n"
+            f"Extract the information strictly according to the schema."
+        )
+        
+        pass2_prompt = self.apply_invariants(
+            extraction_prompt,
+            task.target_schema,
+            use_ts=self.use_ts,
+            use_null=self.use_null,
+            use_dialect=self.use_dialect
+        )
+        
+        try:
+            response2 = self.client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": "You are a precise data extraction agent. If information is missing, return null."},
+                    {"role": "user", "content": pass2_prompt}
+                ],
+                response_format={"type": "json_schema", "json_schema": {"name": "extraction", "schema": task.target_schema, "strict": True}}
+            )
+            
+            if hasattr(response2, "usage") and response2.usage:
+                total_tokens += response2.usage.total_tokens
+            
+            result = json.loads(response2.choices[0].message.content)
+            result["_tokens"] = total_tokens
+            return result
+        except Exception as e:
+            logger.error(f"AuditedSynthetic Pass 2 failed: {e}")
+            return {"error": f"Extraction failed: {str(e)}", "_tokens": total_tokens}
+
 
 class GatedStableChampionAgent(GenSIEAgent, InvariantPromptMixin):
     """
