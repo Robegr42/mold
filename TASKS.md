@@ -55,8 +55,8 @@ This file tracks the progress of the M.O.L.D. project.
     - Status: ✅ Done
     - Plan: [plans/gated-stable-champion-agent.md](plans/gated-stable-champion-agent.md)
 
-- [ ] **Create Gated vs. Stable Experiment Script**
-    - Status: ⏳ Pending
+- [/] **Create Gated vs. Stable Experiment Script**
+    - Status: [/] In Progress
     - Plan: [plans/run-gated-experiment-script.md](plans/run-gated-experiment-script.md)
 
 ## 🐛 Bug Fixes
