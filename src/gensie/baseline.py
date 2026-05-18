@@ -1243,6 +1243,116 @@ class GatedStableChampionAgent(GenSIEAgent, InvariantPromptMixin):
             logger.error(f"GatedStableChampion Pass 2 failed: {e}")
             return {"error": f"Extraction failed: {str(e)}", "_tokens": total_tokens}
 
+class SyntheticAnchorAgent(GenSIEAgent, InvariantPromptMixin):
+    """
+    Agent that uses a synthetic anchor when RAG fails to find relevant examples.
+    """
+    def __init__(self):
+        """Initializes the agent with Gated RAG, Architect module and optimal invariants."""
+        self.client = OpenAI(
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+        )
+        self.rag = GatedRAGModule()
+        self.architect = ArchitectModule(self.client)
+        # Invariants: use_ts=False, use_null=True, use_dialect=False
+        self.use_ts = False
+        self.use_null = True
+        self.use_dialect = False
+        
+        self.rag_k = int(os.getenv("GENSIE_RAG_K", "3"))
+        self.reasoning_lang = os.getenv("GENSIE_REASONING_LANG", "Spanish")
+        self.hint_count = int(os.getenv("GENSIE_HINT_COUNT", "3"))
+
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        """
+        Executes the two-pass extraction logic with a dynamic RAG gate and synthetic fallback.
+        """
+        total_tokens = 0
+        
+        # 1. Gated Augmentation (threshold=0.55)
+        few_shots, is_relevant = self.rag.get_gated_examples(task, k=self.rag_k, threshold=0.55)
+
+        directive = ""
+        fs_str = ""
+        if not is_relevant:
+            synthetic = self.architect.synthesize_example(task, model)
+            if synthetic:
+                fs_str = f"Example Input: {synthetic['text']}\nExample Output: {json.dumps(synthetic['json'])}"
+                directive = "No historical examples found. Use this synthetic example to understand the target schema structure."
+            else:
+                directive = "No relevant examples found. Perform zero-shot extraction relying strictly on the schema definitions and reasoning hints."
+        else:
+            fs_str = "\n".join([f"Example Input: {e['input_text']}\nExample Output: {json.dumps(e['output'])}" for e in few_shots])
+            
+        hints = self.architect.get_reasoning_hints(task, model, lang=self.reasoning_lang, count=self.hint_count)
+        
+        # 2. Pass 1: Analysis
+        analysis_prompt = (
+            f"Instruction: {task.instruction}\n\n"
+            f"Input Text: {task.input_text}\n\n"
+            f"Strategic Reasoning Hints: {hints}\n\n"
+            f"Few-Shot Reference Examples:\n{fs_str}\n\n"
+            f"{directive}\n\n"
+            f"Analyze the text step-by-step in {self.reasoning_lang} to identify all relevant information before extraction."
+        )
+        
+        pass1_prompt = self.apply_invariants(
+            analysis_prompt,
+            task.target_schema,
+            use_ts=self.use_ts,
+            use_null=self.use_null,
+            use_dialect=self.use_dialect
+        )
+        
+        response1 = self.client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": f"You are a strategic analyst. Provide a detailed step-by-step reasoning in {self.reasoning_lang}."},
+                {"role": "user", "content": pass1_prompt}
+            ]
+        )
+        
+        if hasattr(response1, "usage") and response1.usage:
+            total_tokens += response1.usage.total_tokens
+        analysis = response1.choices[0].message.content
+
+        # 3. Pass 2: Strict Extraction
+        extraction_prompt = (
+            f"Instruction: {task.instruction}\n\n"
+            f"Input Text: {task.input_text}\n\n"
+            f"Analysis: {analysis}\n\n"
+            f"Extract the information strictly according to the schema."
+        )
+        
+        pass2_prompt = self.apply_invariants(
+            extraction_prompt,
+            task.target_schema,
+            use_ts=self.use_ts,
+            use_null=self.use_null,
+            use_dialect=self.use_dialect
+        )
+        
+        try:
+            response2 = self.client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": "You are a precise data extraction agent. If information is missing, return null."},
+                    {"role": "user", "content": pass2_prompt}
+                ],
+                response_format={"type": "json_schema", "json_schema": {"name": "extraction", "schema": task.target_schema, "strict": True}}
+            )
+            
+            if hasattr(response2, "usage") and response2.usage:
+                total_tokens += response2.usage.total_tokens
+            
+            result = json.loads(response2.choices[0].message.content)
+            result["_tokens"] = total_tokens
+            return result
+        except Exception as e:
+            logger.error(f"SyntheticAnchor Pass 2 failed: {e}")
+            return {"error": f"Extraction failed: {str(e)}", "_tokens": total_tokens}
+
 class OfficialParticipant(Participant):
     """
     Standard entry point for the competition.
@@ -1286,6 +1396,7 @@ class OfficialParticipant(Participant):
             "slim-champion": SlimChampionAgent(),
             "stable-champion": StableChampionAgent(),
             "gated-stable-champion": GatedStableChampionAgent(),
+            "synthetic-anchor": SyntheticAnchorAgent(),
         }
 
     def get_info(self) -> ParticipantInfo:
@@ -1324,6 +1435,10 @@ class OfficialParticipant(Participant):
                 PipelineInfo(
                     name="stable-champion",
                     description="Streamlined architecture using the optimal Two-Pass invariant configuration (Null-Rule only).",
+                ),
+                PipelineInfo(
+                    name="synthetic-anchor",
+                    description="Experimental pipeline that uses synthetic examples from ArchitectModule as few-shot anchors when RAG fails.",
                 ),
             ],
         )
