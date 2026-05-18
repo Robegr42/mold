@@ -12,6 +12,9 @@ This file tracks the progress of the M.O.L.D. project.
 - [ ] **Implement Grammar-Constrained Decoding (FST-FSA/PDA)**
     - Status: ⏳ Pending
     - Plan: [plans/grammar-constrained-fst.md](plans/grammar-constrained-fst.md)
+- [ ] **Implement Advanced Structured Extraction (CoT + Constrained)**
+    - Status: ⏳ Pending
+    - Plan: [plans/advanced-structured-extraction-cot.md](plans/advanced-structured-extraction-cot.md)
 - [ ] **Implement Speculative Constrained Decoding**
     - Status: ⏳ Pending
     - Plan: [plans/speculative-constrained-decoding.md](plans/speculative-constrained-decoding.md)
