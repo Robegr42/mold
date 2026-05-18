@@ -1100,14 +1100,13 @@ class GatedStableChampionAgent(GenSIEAgent, InvariantPromptMixin):
         
         # 1. Gated Augmentation
         few_shots, is_relevant = self.rag.get_gated_examples(task, k=self.rag_k, threshold=0.65)
-        
+
         directive = ""
         if not is_relevant:
             fs_str = ""
             directive = "No relevant examples found. Perform zero-shot extraction relying strictly on the schema definitions and reasoning hints."
         else:
             fs_str = "\n".join([f"Example Input: {e['input_text']}\nExample Output: {json.dumps(e['output'])}" for e in few_shots])
-        
         hints = self.architect.get_reasoning_hints(task, model, lang=self.reasoning_lang, count=self.hint_count)
         
         # 2. Pass 1: Unconstrained Analysis

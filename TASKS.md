@@ -59,6 +59,10 @@ This file tracks the progress of the M.O.L.D. project.
     - Status: ✅ Done
     - Plan: [plans/run-gated-experiment-script.md](plans/run-gated-experiment-script.md)
 
+- [ ] **Implement Synthetic Anchor Agent (Architect Few-Shot)**
+    - Status: ⏳ Pending
+    - Plan: [plans/implement-synthetic-anchor-agent.md](plans/implement-synthetic-anchor-agent.md)
+
 ## 🐛 Bug Fixes
 - [x] **Fix `json_object` response format compatibility in `EndAnchoredAgent`**
     - Status: ✅ Done
