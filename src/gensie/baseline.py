@@ -25,6 +25,31 @@ load_dotenv()
 logger = getLogger("gensie")
 
 
+def parse_robust_json(text: str) -> Dict[str, Any]:
+    """
+    Robustly extracts JSON from a string using multiple fallback strategies.
+    Useful for models that include conversational noise or markdown blocks.
+    """
+    # Strategy 1: Look for markdown code blocks
+    code_block_match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
+    if code_block_match:
+        try:
+            return json.loads(code_block_match.group(1))
+        except json.JSONDecodeError:
+            pass
+
+    # Strategy 2: Look for the first { and last }
+    brace_match = re.search(r"(\{.*\})", text, re.DOTALL)
+    if brace_match:
+        try:
+            return json.loads(brace_match.group(1))
+        except json.JSONDecodeError:
+            pass
+
+    # Strategy 3: Attempt to parse the raw text
+    return json.loads(text.strip())
+
+
 class InvariantPromptMixin:
     """
     Mixin that applies core architectural invariants to an agent's prompt:
@@ -101,7 +126,7 @@ class BasicAgent(GenSIEAgent):
         # Parse the structured JSON response
         try:
             content = response.choices[0].message.content
-            result = json.loads(content)
+            result = parse_robust_json(content)
             # Inject token usage
             if hasattr(response, "usage") and response.usage:
                 result["_tokens"] = response.usage.total_tokens
@@ -169,7 +194,7 @@ class EndAnchoredAgent(GenSIEAgent, InvariantPromptMixin):
 
         try:
             content = response.choices[0].message.content
-            result = json.loads(content)
+            result = parse_robust_json(content)
             if hasattr(response, "usage") and response.usage:
                 result["_tokens"] = response.usage.total_tokens
             return result
@@ -269,7 +294,7 @@ class TwoPassAgent(GenSIEAgent, InvariantPromptMixin):
             if hasattr(response2, "usage") and response2.usage:
                 total_tokens += response2.usage.total_tokens
             content = response2.choices[0].message.content
-            result = json.loads(content)
+            result = parse_robust_json(content)
             result["_tokens"] = total_tokens
             return result
         except Exception as e:
@@ -283,7 +308,7 @@ class TwoPassAgent(GenSIEAgent, InvariantPromptMixin):
                 if hasattr(response3, "usage") and response3.usage:
                     total_tokens += response3.usage.total_tokens
                 content = response3.choices[0].message.content
-                result = json.loads(content)
+                result = parse_robust_json(content)
                 result["_tokens"] = total_tokens
                 return result
             except Exception as fallback_err:
@@ -347,7 +372,7 @@ class GroundedAgent(GenSIEAgent, InvariantPromptMixin):
             if hasattr(response, "usage") and response.usage:
                 total_tokens += response.usage.total_tokens
             content = response.choices[0].message.content
-            result = json.loads(content)
+            result = parse_robust_json(content)
             result["_tokens"] = total_tokens
             return result
         except Exception as e:
@@ -360,7 +385,7 @@ class GroundedAgent(GenSIEAgent, InvariantPromptMixin):
                 if hasattr(response_fb, "usage") and response_fb.usage:
                     total_tokens += response_fb.usage.total_tokens
                 content = response_fb.choices[0].message.content
-                result = json.loads(content)
+                result = parse_robust_json(content)
                 result["_tokens"] = total_tokens
                 return result
             except Exception as fallback_err:
@@ -418,7 +443,7 @@ class AuditorAgent(GenSIEAgent, InvariantPromptMixin):
             if hasattr(response1, "usage") and response1.usage:
                 total_tokens += response1.usage.total_tokens
             draft_content = response1.choices[0].message.content
-            draft = json.loads(draft_content)
+            draft = parse_robust_json(draft_content)
         except Exception:
             # Fallback to text
             response1 = self.client.chat.completions.create(
@@ -435,7 +460,7 @@ class AuditorAgent(GenSIEAgent, InvariantPromptMixin):
             if hasattr(response1, "usage") and response1.usage:
                 total_tokens += response1.usage.total_tokens
             draft_content = response1.choices[0].message.content
-            draft = json.loads(draft_content)
+            draft = parse_robust_json(draft_content)
 
         # Pass 2: Audit
         audit_prompt = (
@@ -481,7 +506,7 @@ class AuditorAgent(GenSIEAgent, InvariantPromptMixin):
             if hasattr(response2, "usage") and response2.usage:
                 total_tokens += response2.usage.total_tokens
             content = response2.choices[0].message.content
-            result = json.loads(content)
+            result = parse_robust_json(content)
             result["_tokens"] = total_tokens
             return result
         except Exception as e:
@@ -495,7 +520,7 @@ class AuditorAgent(GenSIEAgent, InvariantPromptMixin):
                 if hasattr(response3, "usage") and response3.usage:
                     total_tokens += response3.usage.total_tokens
                 content = response3.choices[0].message.content
-                result = json.loads(content)
+                result = parse_robust_json(content)
                 result["_tokens"] = total_tokens
                 return result
             except Exception as fallback_err:
@@ -525,7 +550,7 @@ class EndAnchoredAgentNI(GenSIEAgent):
             ],
             response_format={"type": "json_schema", "json_schema": {"name": "extraction", "schema": task.target_schema, "strict": True}},
         )
-        result = json.loads(response.choices[0].message.content)
+        result = parse_robust_json(response.choices[0].message.content)
         if hasattr(response, "usage") and response.usage:
             result["_tokens"] = response.usage.total_tokens
         return result
@@ -554,7 +579,7 @@ class GroundedAgentNI(GenSIEAgent):
             ],
             response_format={"type": "json_schema", "json_schema": {"name": "extraction", "schema": task.target_schema, "strict": True}},
         )
-        result = json.loads(response.choices[0].message.content)
+        result = parse_robust_json(response.choices[0].message.content)
         if hasattr(response, "usage") and response.usage:
             result["_tokens"] = response.usage.total_tokens
         return result
@@ -581,7 +606,7 @@ class AuditorAgentNI(GenSIEAgent):
         )
         if hasattr(response1, "usage") and response1.usage:
             total_tokens += response1.usage.total_tokens
-        draft = json.loads(response1.choices[0].message.content)
+        draft = parse_robust_json(response1.choices[0].message.content)
 
         # Pass 2: Audit
         audit_prompt = f"Input Text: {task.input_text}\n\nDraft: {draft}\n\nAudit the draft and strike unverified claims."
@@ -595,7 +620,7 @@ class AuditorAgentNI(GenSIEAgent):
         )
         if hasattr(response2, "usage") and response2.usage:
             total_tokens += response2.usage.total_tokens
-        result = json.loads(response2.choices[0].message.content)
+        result = parse_robust_json(response2.choices[0].message.content)
         result["_tokens"] = total_tokens
         return result
 
@@ -738,26 +763,6 @@ class ArchitectModule:
             {"role": "user", "content": user_prompt}
         ]
 
-        def parse_json_from_text(text: str) -> Dict[str, Any]:
-            # Strategy 1: Look for markdown code blocks
-            code_block_match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
-            if code_block_match:
-                try:
-                    return json.loads(code_block_match.group(1))
-                except json.JSONDecodeError:
-                    pass
-
-            # Strategy 2: Look for the first { and last }
-            brace_match = re.search(r"(\{.*\})", text, re.DOTALL)
-            if brace_match:
-                try:
-                    return json.loads(brace_match.group(1))
-                except json.JSONDecodeError:
-                    pass
-
-            # Strategy 3: Attempt to parse the raw text
-            return json.loads(text.strip())
-
         content = None
         try:
             # Initial synthesis pass
@@ -767,7 +772,7 @@ class ArchitectModule:
                 response_format={"type": "text"}
             )
             content = response.choices[0].message.content
-            result = parse_json_from_text(content)
+            result = parse_robust_json(content)
 
             # Extra validation to trigger self-correction if keys are missing
             if "text" not in result or "json" not in result:
@@ -789,7 +794,7 @@ class ArchitectModule:
                     messages=correction_messages,
                     response_format={"type": "text"}
                 )
-                result = parse_json_from_text(response.choices[0].message.content)
+                result = parse_robust_json(response.choices[0].message.content)
                 if "text" not in result or "json" not in result:
                     raise KeyError("Missing 'text' or 'json' keys after correction.")
                 self._synthesis_cache[schema_hash] = result
@@ -850,7 +855,7 @@ class ChampionTwoPassEngine:
             ],
             response_format={"type": "json_schema", "json_schema": {"name": "extraction", "schema": task.target_schema, "strict": True}}
         )
-        return json.loads(response.choices[0].message.content), response.usage.total_tokens
+        return parse_robust_json(response.choices[0].message.content), response.usage.total_tokens
 
 class ReActAuditor:
     """Pluggable verification loop to verify grounding and nullify hallucinations."""
@@ -1056,7 +1061,7 @@ class SlimChampionAgent(GenSIEAgent, InvariantPromptMixin):
             if hasattr(response2, "usage") and response2.usage:
                 total_tokens += response2.usage.total_tokens
             
-            result = json.loads(response2.choices[0].message.content)
+            result = parse_robust_json(response2.choices[0].message.content)
             result["_tokens"] = total_tokens
             return result
         except Exception as e:
@@ -1152,7 +1157,7 @@ class StableChampionAgent(GenSIEAgent, InvariantPromptMixin):
             if hasattr(response2, "usage") and response2.usage:
                 total_tokens += response2.usage.total_tokens
             
-            result = json.loads(response2.choices[0].message.content)
+            result = parse_robust_json(response2.choices[0].message.content)
             result["_tokens"] = total_tokens
             return result
         except Exception as e:
@@ -1288,7 +1293,7 @@ class AuditedSyntheticAgent(GenSIEAgent, InvariantPromptMixin):
             if hasattr(response2, "usage") and response2.usage:
                 total_tokens += response2.usage.total_tokens
             
-            result = json.loads(response2.choices[0].message.content)
+            result = parse_robust_json(response2.choices[0].message.content)
             result["_tokens"] = total_tokens
             return result
         except Exception as e:
@@ -1397,7 +1402,7 @@ class GatedStableChampionAgent(GenSIEAgent, InvariantPromptMixin):
             if hasattr(response2, "usage") and response2.usage:
                 total_tokens += response2.usage.total_tokens
             
-            result = json.loads(response2.choices[0].message.content)
+            result = parse_robust_json(response2.choices[0].message.content)
             result["_tokens"] = total_tokens
             return result
         except Exception as e:
@@ -1507,7 +1512,7 @@ class SyntheticAnchorAgent(GenSIEAgent, InvariantPromptMixin):
             if hasattr(response2, "usage") and response2.usage:
                 total_tokens += response2.usage.total_tokens
             
-            result = json.loads(response2.choices[0].message.content)
+            result = parse_robust_json(response2.choices[0].message.content)
             result["_tokens"] = total_tokens
             return result
         except Exception as e:
