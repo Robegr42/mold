@@ -6,26 +6,26 @@
 
 ## 🔬 Scientific Abstract
 
-**M.O.L.D.** is a specialized research framework engineered to optimize structured information extraction from unstructured Spanish text using Small Language Models (SLMs < 14B). Developed as a primary response to the [GenSIE 2026 Challenge](./docs/gensie.pdf), the system addresses the critical bottleneck of **Zero-Shot Schema Adherence**—where the target extraction format is only provided at inference time. 
+**M.O.L.D.** is a research-grade framework engineered by the **University of Havana MOLD Team** as a primary response to the [GenSIE 2026 Challenge](./docs/gensie.pdf). The system is architected to optimize structured JSON extraction from general-domain Spanish texts using Small Language Models (SLMs < 14B) in resource-constrained, CPU-only environments.
 
-By rejecting monolithic prompting in favor of a **Bifurcated Inference Architecture**, M.O.L.D. enforces deterministic prompt invariants that strictly prioritize evidence-based grounding over parametric hallucination, directly satisfying the challenge's mandate for **"Extract-or-Null"** logic.
+Addressing the cognitive bottleneck of simultaneous linguistic reasoning and structural serialization, M.O.L.D. implements a **Bifurcated Inference Architecture**. By enforcing deterministic prompt invariants and utilizing **Zero-PyTorch** local embeddings via **FastEmbed**, the framework achieves robust zero-shot schema adherence while strictly maintaining the GenSIE **"Extract-or-Null"** grounding mandate to eliminate parametric hallucinations.
 
 ---
 
 ## 🏗 Architectural Innovations
 
-The framework implements four technical pillars to reduce the model's structural entropy and improve zero-shot reliability:
+The framework anchors its reliability in four technical pillars designed for high-stakes IE tasks:
 
-1.  **TypeScript Schema Compression (TSC):** Condenses complex JSON Schemas into minimal TypeScript interfaces, exploiting the coding-centric pre-training of modern SLMs to reduce token overhead by ~40%.
+1.  **TypeScript Schema Compression (TSC):** We map complex JSON Schemas to condensed TypeScript interfaces, exploiting the coding-centric pre-training of modern SLMs to reduce token entropy and improve structural alignment.
 2.  **Bifurcated Inference Chain:** A two-pass strategy that decouples **Semantic Decomposition** (unstructured Spanish analysis) from **Structural Serialization** (deterministic JSON mapping).
 3.  **Deterministic Invariant Pruning:** Hard-coded prompt constraints enforcing the GenSIE "Null-Rule" for missing data and IberLEF-compliant dialect awareness.
-4.  **Greedy Bipartite Evaluation:** A native implementation of **Flattened Schema Scoring (FSS)** using greedy bipartite matching to ensure list-order invariance.
+4.  **Minimal Hardware Footprint:** Optimized for the GenSIE CPU-only mandate by eliminating heavy deep-learning frameworks (Zero-PyTorch) in favor of **ONNX-based** local embeddings.
 
 ---
 
 ## 🤖 The GenSIE Agent Ecosystem
 
-M.O.L.D. features three distinct agent architectures, each providing a unique trade-off between inference cost and extraction fidelity:
+M.O.L.D. implements three distinct pipelines, each providing a unique trade-off between inference cost and extraction fidelity:
 
 ### 1. **M.I.R.A.** (Minimalist Invariant Reasoning Agent)
 *   **Strategy:** `mira` (Zero-Shot Bifurcated Reasoning)
@@ -55,32 +55,28 @@ uv run gensie serve --port 8000
 
 # Challenge-Specific Evaluation (Per-field Error Profiling)
 uv run gensie eval --data data/starter --pipeline vigil --model qwen/qwen3-1.7b
-
-# Official Ranking (Gap Closed Analysis)
-uv run gensie rank --baseline-pipeline baseline
 ```
 
 ### Containerization (Docker)
-M.O.L.D. is fully containerized to ensure reproducibility and satisfy the GenSIE challenge's isolated environment requirements.
+M.O.L.D. is fully containerized to ensure reproducibility in internet-isolated environments.
 
-#### 1. Build the Image
+#### 1. Build the Submission Image
 ```bash
 docker build -t gensie-agent .
 ```
 
 #### 2. Run the Agent Server
-Expose the FastAPI bridge on port 8000 and configure the inference backend via environment variables.
+The container automatically starts the FastAPI server on port 8000. Inject the official inference backend details via environment variables.
 
 ```bash
 docker run -p 8000:8000 \
-  -e OPENAI_BASE_URL="http://your-inference-server:8000/v1" \
-  -e OPENAI_API_KEY="your-api-key" \
-  gensie-agent serve --host 0.0.0.0
+  -e OPENAI_BASE_URL="http://official-inference-server:8000/v1" \
+  -e OPENAI_API_KEY="official-api-key" \
+  gensie-agent
 ```
 
 #### 3. Development with Docker Compose
-For rapid iteration, use the provided `docker-compose.yml` which mounts the source code in editable mode and enables hot-reloading.
-
+For rapid local iteration with hot-reloading:
 ```bash
 docker compose up
 ```
@@ -90,8 +86,8 @@ docker compose up
 ## 📄 Attribution & Challenge Context
 
 *   **Lead Institution:** University of Havana - MOLD Team.
-*   **Target Task:** [GenSIE @ IberLEF 2026](./docs/gensie.pdf) - General-purpose Schema-guided Information Extraction.
-*   **Metric:** Flattened Schema Scoring (Micro-F1).
+*   **Target Task:** [GenSIE @ IberLEF 2026](./docs/gensie.pdf).
+*   **Metric:** Flattened Schema Scoring (Micro-F1) with Greedy Bipartite Matching.
 *   **License:** MIT.
 
 ---
