@@ -1,6 +1,6 @@
 import math
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 
 def flatten_json(
@@ -22,6 +22,101 @@ def flatten_json(
     else:
         items[parent_key] = data
     return items
+
+
+def gap_closed(f1_system: float, f1_baseline: float) -> float:
+    """Fraction of the baseline-to-perfect F1 gap that a system closes.
+
+    gap_closed = max(0, (F1_system - F1_baseline) / (1 - F1_baseline))
+
+    Clamped at 0 (a system worse than the baseline gets 0). If the baseline is
+    already perfect, the gap is empty: a system that matches it scores 1.0,
+    anything less scores 0.0.
+    """
+    if f1_baseline >= 1.0:
+        return 1.0 if f1_system >= 1.0 else 0.0
+    return max(0.0, (f1_system - f1_baseline) / (1.0 - f1_baseline))
+
+
+def summarize_timing(
+    elapsed_list: List[float], budget_s: float = 60.0
+) -> Dict[str, Any]:
+    """Summarize per-instance wall times against the soft per-instance budget.
+
+    The submission spec treats the 60s timeout as a target *averaged over the
+    test set*: a single instance may overrun if others compensate. This returns
+    the average, the max, how many instances exceeded ``budget_s``, and whether
+    the average stays within budget. The evaluator records these instead of
+    hard-stopping a run at the budget.
+    """
+    n = len(elapsed_list)
+    if n == 0:
+        return {
+            "n": 0,
+            "avg_elapsed_s": 0.0,
+            "max_elapsed_s": 0.0,
+            "over_budget_count": 0,
+            "budget_s": budget_s,
+            "avg_within_budget": True,
+        }
+    avg = sum(elapsed_list) / n
+    return {
+        "n": n,
+        "avg_elapsed_s": avg,
+        "max_elapsed_s": max(elapsed_list),
+        "over_budget_count": sum(1 for t in elapsed_list if t > budget_s),
+        "budget_s": budget_s,
+        "avg_within_budget": avg <= budget_s,
+    }
+
+
+def summarize_token_usage(
+    per_instance: List[Optional[Dict[str, int]]],
+    target: int = 32000,
+    soft_multiple: float = 2.0,
+) -> Dict[str, Any]:
+    """Summarize per-instance token usage against the soft 32K-average budget.
+
+    ``per_instance`` items are ``{input, output, total, calls}`` dicts (or ``None``
+    for instances with no usage record). Mirrors :func:`summarize_timing`: the
+    32K target is an average over the test set; an instance may reach
+    ``target * soft_multiple`` (64K) if others compensate; nothing is hard-stopped.
+    """
+    recs = [r for r in per_instance if r is not None]
+    n = len(recs)
+    if n == 0:
+        return {
+            "n": 0,
+            "total_input": 0,
+            "total_output": 0,
+            "total_tokens": 0,
+            "avg_total_per_instance": 0.0,
+            "max_total": 0,
+            "over_target_count": 0,
+            "over_soft_count": 0,
+            "calls_total": 0,
+            "target": target,
+            "avg_within_target": True,
+        }
+    totals = [int(r["total"]) for r in recs]
+    total_input = sum(int(r["input"]) for r in recs)
+    total_output = sum(int(r["output"]) for r in recs)
+    grand_total = sum(totals)
+    avg = grand_total / n
+    soft = target * soft_multiple
+    return {
+        "n": n,
+        "total_input": total_input,
+        "total_output": total_output,
+        "total_tokens": grand_total,
+        "avg_total_per_instance": avg,
+        "max_total": max(totals),
+        "over_target_count": sum(1 for t in totals if t > target),
+        "over_soft_count": sum(1 for t in totals if t > soft),
+        "calls_total": sum(int(r["calls"]) for r in recs),
+        "target": target,
+        "avg_within_target": avg <= target,
+    }
 
 
 def dot_product(v1: List[float], v2: List[float]) -> float:
@@ -151,6 +246,11 @@ class Evaluator:
         """
         Scoring logic based on data type.
         """
+        # Null / hallucination check (spec "Case C"): a null is correct only
+        # against another null; null-vs-value scores 0 regardless of field type.
+        if g_val is None or s_val is None:
+            return 1.0 if (g_val is None and s_val is None) else 0.0
+
         if g_val == s_val:
             return 1.0
 
@@ -199,7 +299,9 @@ class Evaluator:
         if curr.get("type") in ["number", "integer", "boolean"]:
             return True
         if curr.get("type") == "string":
-            return False
+            # Dates are rigid (spec "Case A"): formatted date/time strings need
+            # an exact match, not partial semantic credit.
+            return curr.get("format") in ("date", "date-time", "time")
 
         return True
 

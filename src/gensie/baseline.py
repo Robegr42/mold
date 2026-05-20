@@ -9,6 +9,7 @@ from gensie.utils.prompts import (
     format_end_anchored_prompt,
     format_thinking_prompt,
 )
+from gensie.usage import UsageTracker
 from dotenv import load_dotenv
 from logging import getLogger
 
@@ -29,11 +30,15 @@ class BasicAgent(GenSIEAgent):
             base_url=os.getenv("OPENAI_BASE_URL"),
             api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
         )
+        # Tallies token usage for the current task; the server reads it to set
+        # the X-GenSIE-Token-Usage response header. Reuse this in your own agent.
+        self.usage = UsageTracker()
 
     def run(self, task: Task, model: str) -> Dict[str, Any]:
         """
         Executes the extraction using OpenAI's response_format for strict schema compliance.
         """
+        self.usage.reset()
         prompt = task.get_input_prompt()
 
         # Call OpenAI with the task's JSON schema
@@ -55,6 +60,7 @@ class BasicAgent(GenSIEAgent):
                 },
             },
         )
+        self.usage.add(getattr(response, "usage", None))
 
         # Parse the structured JSON response
         try:
@@ -78,12 +84,14 @@ class EndAnchoredAgent(GenSIEAgent):
             base_url=os.getenv("OPENAI_BASE_URL"),
             api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
         )
+        self.usage = UsageTracker()
 
     def run(self, task: Task, model: str) -> Dict[str, Any]:
         """
         Executes the extraction using a specifically formatted prompt
         that places a blank JSON template at the end.
         """
+        self.usage.reset()
         prompt = format_end_anchored_prompt(
             instruction=task.instruction,
             schema=task.target_schema,
@@ -109,6 +117,7 @@ class EndAnchoredAgent(GenSIEAgent):
                 },
             },
         )
+        self.usage.add(getattr(response, "usage", None))
 
         try:
             content = response.choices[0].message.content
@@ -133,11 +142,13 @@ class ThinkingAgent(GenSIEAgent):
             base_url=os.getenv("OPENAI_BASE_URL"),
             api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
         )
+        self.usage = UsageTracker()
 
     def run(self, task: Task, model: str) -> Dict[str, Any]:
         """
         Executes extraction by requesting reasoning followed by structured output.
         """
+        self.usage.reset()
         prompt = format_thinking_prompt(
             instruction=task.instruction,
             schema=task.target_schema,
@@ -156,6 +167,7 @@ class ThinkingAgent(GenSIEAgent):
             # Note: We avoid response_format="json_object" because the output
             # contains both reasoning tags and JSON.
         )
+        self.usage.add(getattr(response, "usage", None))
 
         content = response.choices[0].message.content
         return self._parse_response(content)
