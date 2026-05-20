@@ -2,6 +2,7 @@ import typer
 import uvicorn
 import httpx
 import json
+import os
 import time
 from pathlib import Path
 from typing import Optional, Dict, Any, List
@@ -10,7 +11,14 @@ from rich.table import Table
 from rich.progress import track
 from collections import defaultdict
 from gensie.task import Task
-from gensie.eval import Evaluator, flatten_json
+from gensie.eval import (
+    Evaluator,
+    flatten_json,
+    summarize_timing,
+    summarize_token_usage,
+)
+from gensie.ranking import compute_ranking, load_reports
+from gensie.usage import aggregate_rows, parse_usage_header, usage_disagrees, usage_rows
 
 app = typer.Typer(help="GenSIE Developer Tools")
 console = Console()
@@ -37,8 +45,30 @@ def eval(
     output: Optional[Path] = typer.Option(
         None, help="Path to save the JSON evaluation report"
     ),
+    time_budget_s: float = typer.Option(
+        60.0,
+        help="Soft per-instance wall-time budget (target, averaged over the test set)",
+    ),
+    request_timeout_s: float = typer.Option(
+        300.0,
+        help="Hard safety cap per /run request — generous so the run is not stopped at the soft budget",
+    ),
+    usage_log: Optional[Path] = typer.Option(
+        None,
+        help="Path to the inference server's JSONL token-usage log (authoritative token source)",
+    ),
+    usage_log_api_key: Optional[str] = typer.Option(
+        None,
+        help="API key to filter the usage log by (default: $OPENAI_API_KEY; unset -> all rows)",
+    ),
 ):
-    """Evaluates the agent against a local dataset and generates a report."""
+    """Evaluates the agent against a local dataset and generates a report.
+
+    Per-instance wall time and token usage are recorded but never hard-stopped at
+    their soft budgets; the report includes a timing summary and (when a usage log
+    or the ``X-GenSIE-Token-Usage`` header is available) a token-usage summary, so
+    the soft, averaged budgets from the submission spec can be reviewed afterwards.
+    """
     evaluator = Evaluator()
 
     if not data.is_dir():
@@ -49,9 +79,14 @@ def eval(
     if limit:
         json_files = json_files[:limit]
 
+    log_key = usage_log_api_key or os.getenv("OPENAI_API_KEY")
+
     tps_list = []
     gold_counts = []
     system_counts = []
+    elapsed_list: List[float] = []
+    usage_warnings: List[str] = []
+    sources_seen: set = set()
     individual_results: List[Dict[str, Any]] = []
 
     results_table = Table(title=f"Evaluation Results (Pipeline: {pipeline})")
@@ -59,6 +94,8 @@ def eval(
     results_table.add_column("TPS", justify="right")
     results_table.add_column("Gold Keys", justify="right")
     results_table.add_column("System Keys", justify="right")
+    results_table.add_column("Time (s)", justify="right")
+    results_table.add_column("Tokens", justify="right")
     results_table.add_column("Status", justify="center")
 
     params = {"pipeline": pipeline}
@@ -67,7 +104,7 @@ def eval(
 
     participant_info = {"team_name": "Unknown", "institution": "Unknown"}
 
-    with httpx.Client(timeout=60.0) as client:
+    with httpx.Client(timeout=request_timeout_s) as client:
         # 1. Fetch Participant Info
         try:
             info_resp = client.get(f"{url}/info")
@@ -82,6 +119,9 @@ def eval(
         # 2. Process Tasks
         for file_path in track(json_files, description="Processing tasks..."):
             task = None
+            header_usage = None
+            n0 = len(usage_rows(usage_log, log_key)) if usage_log else None
+            t0 = time.perf_counter()
             try:
                 task = Task.load(file_path)
                 # Call agent
@@ -90,6 +130,9 @@ def eval(
                 )
                 resp.raise_for_status()
                 system_output = resp.json()
+                header_usage = parse_usage_header(
+                    resp.headers.get("X-GenSIE-Token-Usage")
+                )
 
                 # Score
                 tps = evaluator.score_instance(
@@ -110,17 +153,46 @@ def eval(
                 console.print(
                     f"[bold red]Error processing {file_path.name}:[/bold red] {e}"
                 )
+            finally:
+                elapsed = time.perf_counter() - t0
+
+            # Attribute token usage to this instance.
+            log_usage = None
+            if usage_log is not None and n0 is not None:
+                log_usage = aggregate_rows(usage_rows(usage_log, log_key)[n0:])
+            label = task.id if task else file_path.name
+            if log_usage is not None:
+                tokens = log_usage
+                source = "usage_log"
+                if header_usage is not None and usage_disagrees(
+                    log_usage["total"], header_usage["total"]
+                ):
+                    usage_warnings.append(
+                        f"{label}: usage log {log_usage['total']} vs agent header "
+                        f"{header_usage['total']} tokens — flagged for review"
+                    )
+            elif header_usage is not None:
+                tokens = header_usage
+                source = "header"
+            else:
+                tokens = None
+                source = "unavailable"
+            sources_seen.add(source)
 
             tps_list.append(tps)
             gold_counts.append(g_count)
             system_counts.append(s_count)
+            elapsed_list.append(elapsed)
 
             if task:
+                over = elapsed > time_budget_s
                 results_table.add_row(
                     task.id,
                     f"{tps:.2f}",
                     str(g_count),
                     str(s_count),
+                    f"[yellow]{elapsed:.1f}[/yellow]" if over else f"{elapsed:.1f}",
+                    f"{tokens['total']}" if tokens else "—",
                     f"[green]{status}[/green]"
                     if status == "PASS"
                     else f"[red]{status}[/red]",
@@ -131,12 +203,21 @@ def eval(
                         "tps": tps,
                         "gold_keys": g_count,
                         "system_keys": s_count,
+                        "elapsed_s": elapsed,
+                        "tokens": tokens,
                         "status": status,
                     }
                 )
 
     # 3. Calculate final metrics
     metrics = evaluator.calculate_metrics(tps_list, gold_counts, system_counts)
+    timing = summarize_timing(elapsed_list, budget_s=time_budget_s)
+    token_usage = summarize_token_usage([r.get("tokens") for r in individual_results])
+    token_usage["source"] = (
+        sources_seen.pop()
+        if len(sources_seen) == 1
+        else ("mixed" if sources_seen else "unavailable")
+    )
 
     console.print(results_table)
 
@@ -145,6 +226,58 @@ def eval(
     summary_table.add_row("Recall", f"{metrics['recall']:.4f}")
     summary_table.add_row("Micro-F1", f"[bold green]{metrics['f1']:.4f}[/bold green]")
     console.print(summary_table)
+
+    timing_table = Table(
+        title=f"Timing (soft budget: {time_budget_s:.0f}s/instance, averaged)",
+        show_header=False,
+    )
+    timing_table.add_row("Avg time / instance", f"{timing['avg_elapsed_s']:.2f}s")
+    timing_table.add_row("Max time / instance", f"{timing['max_elapsed_s']:.2f}s")
+    timing_table.add_row(
+        "Instances over budget", f"{timing['over_budget_count']} / {timing['n']}"
+    )
+    timing_table.add_row(
+        "Average within budget?",
+        "[green]yes[/green]" if timing["avg_within_budget"] else "[red]no[/red]",
+    )
+    console.print(timing_table)
+    if not timing["avg_within_budget"]:
+        console.print(
+            "[yellow]Note:[/yellow] the average exceeds the soft budget — this would be "
+            "reviewed case by case, not auto-penalized."
+        )
+
+    tok_table = Table(
+        title=f"Token usage (soft target: {token_usage['target']}/instance, averaged)",
+        show_header=False,
+    )
+    tok_table.add_row(
+        "Avg tokens / instance", f"{token_usage['avg_total_per_instance']:.0f}"
+    )
+    tok_table.add_row("Max tokens / instance", f"{token_usage['max_total']}")
+    tok_table.add_row(
+        "Over target (>32K)", f"{token_usage['over_target_count']} / {token_usage['n']}"
+    )
+    tok_table.add_row(
+        "Over soft cap (>64K)", f"{token_usage['over_soft_count']} / {token_usage['n']}"
+    )
+    tok_table.add_row(
+        "Total tokens / calls",
+        f"{token_usage['total_tokens']} / {token_usage['calls_total']}",
+    )
+    tok_table.add_row("Source", token_usage["source"])
+    tok_table.add_row(
+        "Average within target?",
+        "[green]yes[/green]" if token_usage["avg_within_target"] else "[red]no[/red]",
+    )
+    console.print(tok_table)
+    if not token_usage["avg_within_target"]:
+        console.print(
+            "[yellow]Note:[/yellow] average token usage exceeds the soft target — "
+            "reviewed case by case, not auto-penalized."
+        )
+    for w in usage_warnings:
+        console.print(f"[yellow]warning:[/yellow] {w}")
 
     # 4. Export JSON Report
     if output:
@@ -156,6 +289,8 @@ def eval(
                 "data_source": str(data.absolute()),
             },
             "metrics": metrics,
+            "timing": timing,
+            "token_usage": token_usage,
             "tasks": individual_results,
         }
         with open(output, "w", encoding="utf-8") as f:
@@ -406,6 +541,158 @@ def leaderboard(
                     table.add_row(str(i), e["team"], e["pipeline"], f"{e['f1']:.4f}")
                 console.print(table)
             console.print("\n")
+
+
+@app.command()
+def rank(
+    results_dir: Path = typer.Argument(
+        Path("results"), help="Directory containing evaluation JSON reports"
+    ),
+    baseline_pipeline: str = typer.Option(
+        "baseline", help="Pipeline name that identifies the official baseline report"
+    ),
+    plain: bool = typer.Option(
+        False, "--plain", help="Output in plain Markdown format"
+    ),
+):
+    """Official primary leaderboard: fraction of the baseline→perfect F1 gap closed, averaged over models.
+
+    Reads `gensie eval --output ...` reports, computes per-model gap_closed for each
+    team's best pipeline, and ranks by the average across models. Also prints the
+    per-model breakdown and a secondary raw-F1 leaderboard.
+    """
+    reports = load_reports(results_dir)
+    if not reports:
+        console.print(
+            f"[yellow]No valid evaluation reports found in {results_dir}.[/yellow]"
+        )
+        raise typer.Exit(1)
+
+    result = compute_ranking(reports, baseline_pipeline=baseline_pipeline)
+
+    if not result["models"]:
+        console.print(
+            "[bold red]No model has both a baseline report and at least one submission — "
+            "cannot rank.[/bold red]"
+        )
+        for w in result["warnings"]:
+            console.print(f"[yellow]warning:[/yellow] {w}")
+        raise typer.Exit(1)
+
+    models = result["models"]
+
+    if plain:
+        print("## Primary leaderboard — gap closed over baseline (avg over models)\n")
+        print(
+            "Baselines: "
+            + ", ".join(f"`{m}` = {b:.4f}" for m, b in result["baselines"].items())
+            + "\n"
+        )
+        header = "| Rank | Team | Avg gap closed | " + " | ".join(models) + " |"
+        print(header)
+        print("|---:|:---|---:|" + "|".join(["---:"] * len(models)) + "|")
+        for i, row in enumerate(result["leaderboard"], 1):
+            cells = []
+            for m in models:
+                pm = row["per_model"].get(m)
+                cells.append(
+                    f"{pm['gap_closed']:.4f} ({pm['pipeline']})" if pm else "—"
+                )
+            print(
+                f"| {i} | {row['team']} | {row['avg_gap_closed']:.4f} | "
+                + " | ".join(cells)
+                + " |"
+            )
+        print()
+        for m in models:
+            print(
+                f"### Per-model: `{m}` (baseline F1 = {result['baselines'][m]:.4f})\n"
+            )
+            print("| Rank | Team | Pipeline | F1 | Gap closed |")
+            print("|---:|:---|:---|---:|---:|")
+            for i, e in enumerate(result["per_model"][m], 1):
+                print(
+                    f"| {i} | {e['team']} | {e['pipeline']} | {e['f1']:.4f} | {e['gap_closed']:.4f} |"
+                )
+            print()
+        print("### Secondary — raw average Micro-F1 (reference only)\n")
+        print("| Rank | Team | Avg F1 | " + " | ".join(models) + " |")
+        print("|---:|:---|---:|" + "|".join(["---:"] * len(models)) + "|")
+        for i, row in enumerate(result["raw_f1_leaderboard"], 1):
+            cells = [
+                f"{row['per_model'][m]['f1']:.4f}" if m in row["per_model"] else "—"
+                for m in models
+            ]
+            print(
+                f"| {i} | {row['team']} | {row['avg_f1']:.4f} | "
+                + " | ".join(cells)
+                + " |"
+            )
+        print()
+        for w in result["warnings"]:
+            print(f"> ⚠️ {w}")
+        return
+
+    console.rule(
+        "[bold green]Primary leaderboard — gap closed over baseline (avg over models)[/bold green]"
+    )
+    console.print(
+        "Baselines: "
+        + ", ".join(
+            f"[cyan]{m}[/cyan] = {b:.4f}" for m, b in result["baselines"].items()
+        )
+    )
+    primary = Table(box=None)
+    primary.add_column("Rank", justify="right", style="cyan")
+    primary.add_column("Team", style="magenta")
+    primary.add_column("Avg gap closed", justify="right", style="bold green")
+    for m in models:
+        primary.add_column(m, justify="right")
+    for i, row in enumerate(result["leaderboard"], 1):
+        cells = []
+        for m in models:
+            pm = row["per_model"].get(m)
+            cells.append(f"{pm['gap_closed']:.4f} ({pm['pipeline']})" if pm else "—")
+        primary.add_row(str(i), row["team"], f"{row['avg_gap_closed']:.4f}", *cells)
+    console.print(primary)
+
+    for m in models:
+        console.rule(
+            f"[bold]Per-model: {m}[/bold]  (baseline F1 = {result['baselines'][m]:.4f})"
+        )
+        t = Table(box=None)
+        t.add_column("Rank", justify="right", style="cyan")
+        t.add_column("Team", style="magenta")
+        t.add_column("Pipeline")
+        t.add_column("F1", justify="right")
+        t.add_column("Gap closed", justify="right", style="bold green")
+        for i, e in enumerate(result["per_model"][m], 1):
+            t.add_row(
+                str(i),
+                e["team"],
+                e["pipeline"],
+                f"{e['f1']:.4f}",
+                f"{e['gap_closed']:.4f}",
+            )
+        console.print(t)
+
+    console.rule("[bold]Secondary — raw average Micro-F1 (reference only)[/bold]")
+    sec = Table(box=None)
+    sec.add_column("Rank", justify="right", style="cyan")
+    sec.add_column("Team", style="magenta")
+    sec.add_column("Avg F1", justify="right", style="bold")
+    for m in models:
+        sec.add_column(m, justify="right")
+    for i, row in enumerate(result["raw_f1_leaderboard"], 1):
+        cells = [
+            f"{row['per_model'][m]['f1']:.4f}" if m in row["per_model"] else "—"
+            for m in models
+        ]
+        sec.add_row(str(i), row["team"], f"{row['avg_f1']:.4f}", *cells)
+    console.print(sec)
+
+    for w in result["warnings"]:
+        console.print(f"[yellow]warning:[/yellow] {w}")
 
 
 if __name__ == "__main__":

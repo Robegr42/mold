@@ -6,7 +6,7 @@ import glob
 # Configuration
 UNIT_PREFIX = "gemini-cron-"
 USER_UNIT_DIR = os.path.expanduser("~/.config/systemd/user/")
-GEMINI_PATH = "/home/apiad/.npm-global/bin/gemini"
+GEMINI_PATH = "/usr/bin/gemini"
 
 
 def get_tasks_from_toml(toml_path):
