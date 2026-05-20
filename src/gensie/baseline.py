@@ -364,7 +364,7 @@ class BasicAgent(GenSIEAgent):
             return {"error": str(e)}
 
 
-class TwoPassAgent(GenSIEAgent, InvariantPromptMixin):
+class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
     """
     Agent that uses a two-pass strategy:
     1. Unconstrained analysis step in Spanish.
@@ -473,7 +473,7 @@ class TwoPassAgent(GenSIEAgent, InvariantPromptMixin):
                 return {"error": f"Failed fallback extraction: {str(fallback_err)}", "_tokens": total_tokens}
 
 
-class AuditedSyntheticAgent(GenSIEAgent, InvariantPromptMixin):
+class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
     """
     Implements the Double-Gate Architecture:
     Gate 1: Gated RAG (Threshold 0.55).
@@ -609,7 +609,7 @@ class AuditedSyntheticAgent(GenSIEAgent, InvariantPromptMixin):
             return {"error": f"Extraction failed: {str(e)}", "_tokens": total_tokens}
 
 
-class GatedStableChampionAgent(GenSIEAgent, InvariantPromptMixin):
+class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
     """
     Experimental pipeline with Gated RAG and Two-Pass reasoning.
     If similarity is low, it falls back to zero-shot with a generalization directive.
@@ -714,7 +714,7 @@ class GatedStableChampionAgent(GenSIEAgent, InvariantPromptMixin):
             result["_tokens"] = total_tokens
             return result
         except Exception as e:
-            logger.error(f"GatedStableChampion Pass 2 failed: {e}")
+            logger.error(f"VIGILAgent Pass 2 failed: {e}")
             return {"error": f"Extraction failed: {str(e)}", "_tokens": total_tokens}
 
 
@@ -727,13 +727,13 @@ class OfficialParticipant(Participant):
     def __init__(self):
         # Registering both base and hardened agents
         self.pipelines = {
-            "basic": BasicAgent(),
+            "baseline": BasicAgent(),
 
-            "two-pass-null": TwoPassAgent(use_ts=False, use_dialect=False),
+            "mira": MIRAAgent(use_ts=False, use_dialect=False),
             
-            "gated-stable-champion": GatedStableChampionAgent(),
+            "vigil": VIGILAgent(),
 
-            "audited-synthetic": AuditedSyntheticAgent(),
+            "arcane": ARCANEAgent(),
         }
 
     def get_info(self) -> ParticipantInfo:
@@ -742,19 +742,19 @@ class OfficialParticipant(Participant):
             institution="University of Havana",
             pipelines=[
                 PipelineInfo(
-                    name="basic",
+                    name="baseline",
                     description="Reference implementation using OpenAI Structured Outputs.",
                 ),
                 PipelineInfo(
-                    name="two-pass-null",
+                    name="mira",
                     description="Strategy that decouples reasoning in Spanish from strict JSON extraction with deterministic null pruning.",
                 ),
                 PipelineInfo(
-                    name="gated-stable-champion",
+                    name="vigil",
                     description="High-accuracy pipeline with Gated RAG, Two-Pass reasoning, and optimal generalizer configuration.",
                 ),
                 PipelineInfo(
-                    name="audited-synthetic",
+                    name="arcane",
                     description="Double-gate pipeline (RAG 0.55 + Synthetic Audit 0.70) with structural validation.",
                 ),
             ],
@@ -762,6 +762,7 @@ class OfficialParticipant(Participant):
 
     def get_agent(self, pipeline_name: str) -> GenSIEAgent:
         if pipeline_name not in self.pipelines:
-            # Fallback to two-pass-null if pipeline not found
-            return self.pipelines["two-pass-null"]
+            # Fallback to mira if pipeline not found
+            return self.pipelines["mira"]
         return self.pipelines[pipeline_name]
+

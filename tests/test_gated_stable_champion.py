@@ -2,7 +2,7 @@ import pytest
 import os
 import json
 from unittest.mock import MagicMock, patch
-from gensie.baseline import GatedStableChampionAgent
+from gensie.baseline import VIGILAgent
 from gensie.task import Task
 
 @pytest.fixture
@@ -16,14 +16,16 @@ def sample_task():
 
 @patch("gensie.baseline.GatedRAGModule")
 @patch("gensie.baseline.ArchitectModule")
-def test_gated_stable_champion_gated(mock_architect, mock_rag, sample_task):
-    agent = GatedStableChampionAgent()
+def test_vigil_agent_gated(mock_architect, mock_rag, sample_task):
+    agent = VIGILAgent()
     
     mock_response_1 = MagicMock()
+    mock_response_1.choices = [MagicMock()]
     mock_response_1.choices[0].message.content = "Analysis: Juan."
     mock_response_1.usage.total_tokens = 10
     
     mock_response_2 = MagicMock()
+    mock_response_2.choices = [MagicMock()]
     mock_response_2.choices[0].message.content = '{"name": "Juan"}'
     mock_response_2.usage.total_tokens = 20
     
@@ -45,21 +47,19 @@ def test_gated_stable_champion_gated(mock_architect, mock_rag, sample_task):
     analysis_prompt = call_args_1["messages"][1]["content"]
     assert "No relevant examples found. Perform zero-shot extraction relying strictly on the schema definitions and reasoning hints." in analysis_prompt
     assert "Few-Shot Reference Examples:" in analysis_prompt
-    # Since fs_str is empty, we expect the label to be there but empty content after it if it follows the same template
-    # Actually, the template in StableChampionAgent was:
-    # f"Few-Shot Reference Examples:\n{fs_str}\n\n"
-    # If fs_str is empty, it will just be "Few-Shot Reference Examples:\n\n\n" or similar.
 
 @patch("gensie.baseline.GatedRAGModule")
 @patch("gensie.baseline.ArchitectModule")
-def test_gated_stable_champion_not_gated(mock_architect, mock_rag, sample_task):
-    agent = GatedStableChampionAgent()
+def test_vigil_agent_not_gated(mock_architect, mock_rag, sample_task):
+    agent = VIGILAgent()
     
     mock_response_1 = MagicMock()
+    mock_response_1.choices = [MagicMock()]
     mock_response_1.choices[0].message.content = "Analysis: Juan."
     mock_response_1.usage.total_tokens = 10
     
     mock_response_2 = MagicMock()
+    mock_response_2.choices = [MagicMock()]
     mock_response_2.choices[0].message.content = '{"name": "Juan"}'
     mock_response_2.usage.total_tokens = 20
     

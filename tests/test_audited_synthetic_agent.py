@@ -3,7 +3,7 @@ import os
 import json
 import numpy as np
 from unittest.mock import MagicMock, patch
-from gensie.baseline import AuditedSyntheticAgent
+from gensie.baseline import ARCANEAgent
 from gensie.task import Task
 from jsonschema import ValidationError
 
@@ -18,11 +18,11 @@ def sample_task():
 
 @patch("gensie.baseline.GatedRAGModule")
 @patch("gensie.baseline.ArchitectModule")
-def test_audited_synthetic_agent_audit_pass(mock_architect_class, mock_rag_class, sample_task):
+def test_arcane_agent_audit_pass(mock_architect_class, mock_rag_class, sample_task):
     mock_rag = mock_rag_class.return_value
     mock_architect = mock_architect_class.return_value
     
-    agent = AuditedSyntheticAgent()
+    agent = ARCANEAgent()
     agent.client = MagicMock()
     
     # RAG fails (threshold not met)
@@ -69,11 +69,11 @@ def test_audited_synthetic_agent_audit_pass(mock_architect_class, mock_rag_class
 
 @patch("gensie.baseline.GatedRAGModule")
 @patch("gensie.baseline.ArchitectModule")
-def test_audited_synthetic_agent_audit_fail_structural(mock_architect_class, mock_rag_class, sample_task):
+def test_arcane_agent_audit_fail_structural(mock_architect_class, mock_rag_class, sample_task):
     mock_rag = mock_rag_class.return_value
     mock_architect = mock_architect_class.return_value
     
-    agent = AuditedSyntheticAgent()
+    agent = ARCANEAgent()
     agent.client = MagicMock()
     
     # RAG fails
@@ -109,11 +109,11 @@ def test_audited_synthetic_agent_audit_fail_structural(mock_architect_class, moc
 
 @patch("gensie.baseline.GatedRAGModule")
 @patch("gensie.baseline.ArchitectModule")
-def test_audited_synthetic_agent_audit_fail_semantic(mock_architect_class, mock_rag_class, sample_task):
+def test_arcane_agent_audit_fail_semantic(mock_architect_class, mock_rag_class, sample_task):
     mock_rag = mock_rag_class.return_value
     mock_architect = mock_architect_class.return_value
     
-    agent = AuditedSyntheticAgent()
+    agent = ARCANEAgent()
     agent.client = MagicMock()
     
     # RAG fails

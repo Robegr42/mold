@@ -7,15 +7,15 @@ import json
 import openai
 
 try:
-    from gensie.baseline import TwoPassAgent
+    from gensie.baseline import MIRAAgent
 except ImportError:
-    TwoPassAgent = None
+    MIRAAgent = None
 
 @pytest.fixture
 def agent():
-    if TwoPassAgent is None:
-        pytest.skip("TwoPassAgent not implemented")
-    return TwoPassAgent()
+    if MIRAAgent is None:
+        pytest.skip("MIRAAgent not implemented")
+    return MIRAAgent()
 
 @pytest.fixture
 def sample_task():
@@ -26,14 +26,14 @@ def sample_task():
         target_schema={"type": "object", "properties": {"name": {"type": "string"}}}
     )
 
-def test_two_pass_agent_inheritance():
-    if TwoPassAgent is None:
-        pytest.fail("TwoPassAgent is not implemented")
-    agent = TwoPassAgent()
+def test_mira_agent_inheritance():
+    if MIRAAgent is None:
+        pytest.fail("MIRAAgent is not implemented")
+    agent = MIRAAgent()
     assert isinstance(agent, GenSIEAgent)
     assert isinstance(agent, InvariantPromptMixin)
 
-def test_two_pass_agent_success(agent, sample_task):
+def test_mira_agent_success(agent, sample_task):
     mock_response_1 = MagicMock()
     mock_response_1.choices[0].message.content = "Analysis: The text is in Spanish and says the name is Juan."
     
@@ -65,7 +65,7 @@ def test_two_pass_agent_success(agent, sample_task):
     assert "EXTRACTION INVARIANTS" not in user_prompt_2
     assert "Analysis: The text is in Spanish" in user_prompt_2
 
-def test_two_pass_agent_fallback_on_api_error(agent, sample_task):
+def test_mira_agent_fallback_on_api_error(agent, sample_task):
     mock_response_1 = MagicMock()
     mock_response_1.choices[0].message.content = "Analysis..."
     
@@ -88,7 +88,7 @@ def test_two_pass_agent_fallback_on_api_error(agent, sample_task):
     call_args_3 = agent.client.chat.completions.create.call_args_list[2][1]
     assert call_args_3["response_format"]["type"] == "text"
 
-def test_two_pass_agent_fallback_on_json_error(agent, sample_task):
+def test_mira_agent_fallback_on_json_error(agent, sample_task):
     mock_response_1 = MagicMock()
     mock_response_1.choices[0].message.content = "Analysis..."
     
