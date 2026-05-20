@@ -6,7 +6,7 @@ import numpy as np
 import faiss
 from typing import Any, Dict, List, Optional
 from jsonschema import validate, ValidationError
-from sentence_transformers import SentenceTransformer
+from fastembed import TextEmbedding
 from openai import OpenAI
 from gensie.agent import GenSIEAgent, Participant, ParticipantInfo, PipelineInfo
 from gensie.task import Task
@@ -123,13 +123,17 @@ class InvariantPromptMixin:
 
 
 class RAGModule:
-    """Provides dynamic few-shot examples using semantic search (FAISS + MiniLM)."""
+    """Provides dynamic few-shot examples using semantic search (FAISS + FastEmbed)."""
     def __init__(self, data_path: str = "data/dev"):
-        model_path = os.path.abspath("models/all-MiniLM-L6-v2")
-        if not os.path.exists(model_path):
-            raise RuntimeError(f"Required embedding model not found at {model_path}. "
-                             "Please run the model localization script first.")
-        self.model = SentenceTransformer(model_path)
+        cache_dir = os.path.abspath("models")
+        # Ensure cache directory exists
+        os.makedirs(cache_dir, exist_ok=True)
+        
+        # We use FastEmbed's implementation of all-MiniLM-L6-v2
+        self.model = TextEmbedding(
+            model_name="sentence-transformers/all-MiniLM-L6-v2",
+            cache_dir=cache_dir
+        )
         self.index = None
         self.examples = []
         self._initialize_index(data_path)
@@ -153,18 +157,23 @@ class RAGModule:
                     logger.error(f"Error loading RAG example {filename}: {e}")
 
         if texts:
-            embeddings = self.model.encode(texts)
+            # FastEmbed's .embed() returns a generator of numpy arrays
+            embeddings = list(self.model.embed(texts))
+            embeddings = np.array(embeddings)
+            
             dimension = embeddings.shape[1]
             self.index = faiss.IndexFlatL2(dimension)
-            self.index.add(np.array(embeddings).astype('float32'))
+            self.index.add(embeddings.astype('float32'))
 
     def get_few_shot_examples(self, task: Task, k: int = 3) -> List[Dict[str, Any]]:
         if self.index is None or not self.examples:
             return []
         
         query = f"Instruction: {task.instruction}\nText: {task.input_text}"
-        query_embedding = self.model.encode([query])
-        D, I = self.index.search(np.array(query_embedding).astype('float32'), k)
+        # .embed() returns a generator, so we take the first item
+        query_embedding = list(self.model.embed([query]))[0]
+        
+        D, I = self.index.search(np.array([query_embedding]).astype('float32'), k)
         
         return [self.examples[i] for i in I[0] if i < len(self.examples)]
 
@@ -188,8 +197,9 @@ class GatedRAGModule(RAGModule):
             return [], False
         
         query = f"Instruction: {task.instruction}\nText: {task.input_text}"
-        query_embedding = self.model.encode([query])
-        D, I = self.index.search(np.array(query_embedding).astype('float32'), k)
+        query_embedding = list(self.model.embed([query]))[0]
+        
+        D, I = self.index.search(np.array([query_embedding]).astype('float32'), k)
         
         if len(D[0]) == 0:
             return [], False
@@ -505,8 +515,8 @@ class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
 
         # Semantic Check
         try:
-            input_emb = self.rag.model.encode([task.input_text])[0]
-            synth_emb = self.rag.model.encode([synthetic['text']])[0]
+            input_emb = list(self.rag.model.embed([task.input_text]))[0]
+            synth_emb = list(self.rag.model.embed([synthetic['text']]))[0]
             
             # Cosine similarity on normalized vectors
             norm_input = input_emb / (np.linalg.norm(input_emb) + 1e-9)
@@ -755,7 +765,7 @@ class OfficialParticipant(Participant):
                 ),
                 PipelineInfo(
                     name="arcane",
-                    description="Double-gate pipeline (RAG 0.55 + Synthetic Audit 0.70) with structural validation.",
+                    description="Double-gate pipeline with structural validation.",
                 ),
             ],
         )

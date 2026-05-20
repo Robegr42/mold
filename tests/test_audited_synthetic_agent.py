@@ -36,8 +36,11 @@ def test_arcane_agent_audit_pass(mock_architect_class, mock_rag_class, sample_ta
     mock_architect.synthesize_example.return_value = synthetic_example
     
     # Mock embeddings for semantic check (similarity >= 0.70)
-    # Cosine similarity of [1, 0] and [1, 0] is 1.0
-    mock_rag.model.encode.side_effect = [np.array([1.0, 0.0]), np.array([1.0, 0.0])]
+    # FastEmbed uses .embed() returning a generator
+    mock_rag.model.embed.side_effect = [
+        (np.array([1.0, 0.0]) for _ in range(1)), # Input emb
+        (np.array([1.0, 0.0]) for _ in range(1))  # Synth emb
+    ]
     
     # Mock Two-Pass logic
     mock_response_1 = MagicMock()
@@ -57,8 +60,8 @@ def test_arcane_agent_audit_pass(mock_architect_class, mock_rag_class, sample_ta
     # Check that architect was called
     mock_architect.synthesize_example.assert_called_once()
     
-    # Check that rag.model.encode was called for both input and synthetic text
-    assert mock_rag.model.encode.call_count == 2
+    # Check that rag.model.embed was called for both input and synthetic text
+    assert mock_rag.model.embed.call_count == 2
 
     # Verify synthetic example was used in fs_str in Pass 1
     call_args_1 = agent.client.chat.completions.create.call_args_list[0][1]
@@ -127,8 +130,11 @@ def test_arcane_agent_audit_fail_semantic(mock_architect_class, mock_rag_class, 
     mock_architect.synthesize_example.return_value = synthetic_example
     
     # Mock embeddings for semantic check (similarity < 0.70)
-    # Orthogonal vectors have similarity 0
-    mock_rag.model.encode.side_effect = [np.array([1.0, 0.0]), np.array([0.0, 1.0])]
+    # FastEmbed uses .embed() returning a generator
+    mock_rag.model.embed.side_effect = [
+        (np.array([1.0, 0.0]) for _ in range(1)), # Input emb
+        (np.array([0.0, 1.0]) for _ in range(1))  # Synth emb
+    ]
     
     # Mock Two-Pass logic
     mock_response_1 = MagicMock()

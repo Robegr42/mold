@@ -6,19 +6,18 @@ from gensie.task import Task
 
 class TestGatedRAGModule(unittest.TestCase):
     def setUp(self):
-        # Mock SentenceTransformer to avoid loading the model
-        with patch('gensie.baseline.SentenceTransformer') as mock_st:
-            self.mock_model = mock_st.return_value
-            self.mock_model.encode.side_effect = lambda x: np.random.rand(len(x), 384)
+        # Mock TextEmbedding to avoid loading the model
+        with patch('gensie.baseline.TextEmbedding') as mock_te:
+            self.mock_model = mock_te.return_value
+            # .embed() returns a generator of numpy arrays
+            self.mock_model.embed.side_effect = lambda x: (np.random.rand(384) for _ in range(len(x)))
             
-            # Mock os.path.exists to return True for the model path
-            with patch('os.path.exists', return_value=True):
-                # Mock _initialize_index to avoid loading data
-                with patch.object(GatedRAGModule, '_initialize_index'):
-                    self.rag = GatedRAGModule()
-                    self.rag.index = MagicMock()
-                    self.rag.examples = [{"id": 0}, {"id": 1}, {"id": 2}, {"id": 3}]
-                    self.rag.model = self.mock_model
+            # Mock _initialize_index to avoid loading data
+            with patch.object(GatedRAGModule, '_initialize_index'):
+                self.rag = GatedRAGModule()
+                self.rag.index = MagicMock()
+                self.rag.examples = [{"id": 0}, {"id": 1}, {"id": 2}, {"id": 3}]
+                self.rag.model = self.mock_model
 
     def test_gated_examples_above_threshold(self):
         # threshold = 0.55
