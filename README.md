@@ -62,7 +62,7 @@ M.O.L.D. is fully containerized to ensure reproducibility in internet-isolated e
 
 #### 1. Build the Submission Image
 ```bash
-docker build -t gensie-agent .
+docker build -t gensie-mold-team .
 ```
 
 #### 2. Run the Agent Server
@@ -72,7 +72,7 @@ The container automatically starts the FastAPI server on port 8000. Inject the o
 docker run -p 8000:8000 \
   -e OPENAI_BASE_URL="http://official-inference-server:8000/v1" \
   -e OPENAI_API_KEY="official-api-key" \
-  gensie-agent
+  gensie-mold-team
 ```
 
 #### 3. Development with Docker Compose

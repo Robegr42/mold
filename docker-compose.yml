@@ -1,6 +1,7 @@
 services:
   agent:
     build: .
+    image: gensie-mold-team
     ports:
       - "8000:8000"
     volumes:
