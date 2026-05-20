@@ -1,76 +1,72 @@
 # 🧱 M.O.L.D. (Micro-model Object Language Decoder)
 
-**Technical Specification: High-Fidelity Schema-Guided Information Extraction for Small Language Models**
+**Official University of Havana Submission for the GenSIE 2026 Challenge (IberLEF)**
+
+> *High-Fidelity Zero-Shot Information Extraction from Spanish Text using Open-Weight Small Language Models.*
 
 ## 🔬 Scientific Abstract
 
-**M.O.L.D.** (GenSIE) is a research framework engineered to optimize the inferential performance of Small Language Models (SLMs < 14B) in zero-shot and low-resource information extraction tasks. Addressing the cognitive bottleneck inherent in simultaneous linguistic reasoning and structural serialization, M.O.L.D. employs a **Multi-Pass Bifurcated Architecture**. By enforcing deterministic prompt invariants and dynamic latent routing, the framework achieves state-of-the-art precision in Spanish-language extraction without requiring parameter-efficient fine-tuning (PEFT).
+**M.O.L.D.** is a specialized research framework engineered to optimize structured information extraction from unstructured Spanish text using Small Language Models (SLMs < 14B). Developed as a primary response to the [GenSIE 2026 Challenge](./docs/gensie.pdf), the system addresses the critical bottleneck of **Zero-Shot Schema Adherence**—where the target extraction format is only provided at inference time. 
+
+By rejecting monolithic prompting in favor of a **Bifurcated Inference Architecture**, M.O.L.D. enforces deterministic prompt invariants that strictly prioritize evidence-based grounding over parametric hallucination, directly satisfying the challenge's mandate for **"Extract-or-Null"** logic.
 
 ---
 
-## 🏗 Architectural Core: Prompt Invariants
+## 🏗 Architectural Innovations
 
-The framework's stability is anchored in four foundational prompting invariants that reduce the model's structural entropy:
+The framework implements four technical pillars to reduce the model's structural entropy and improve zero-shot reliability:
 
-1.  **TypeScript Schema Compression (TSC):** Replaces verbose JSON Schema definitions with condensed TypeScript interfaces, reducing token overhead by up to 40% and aligning with the programming-heavy pre-training of modern SLMs.
-2.  **Bifurcated Inference Strategy:** Decouples the **Semantic Analysis Pass** (unstructured reasoning in Spanish) from the **Structural Extraction Pass** (deterministic JSON mapping).
-3.  **Deterministic Invariant Pruning:** Hard-coded constraints including "Extract-or-Null" gating (penalizing inference over evidence) and "Dialect-Aware Semantic Mapping".
-4.  **Greedy Bipartite Metric Alignment:** Uses an internal evaluation engine that measures similarity via bipartite matching for lists and hybrid semantic/lexical vectors for free text.
+1.  **TypeScript Schema Compression (TSC):** Condenses complex JSON Schemas into minimal TypeScript interfaces, exploiting the coding-centric pre-training of modern SLMs to reduce token overhead by ~40%.
+2.  **Bifurcated Inference Chain:** A two-pass strategy that decouples **Semantic Decomposition** (unstructured Spanish analysis) from **Structural Serialization** (deterministic JSON mapping).
+3.  **Deterministic Invariant Pruning:** Hard-coded prompt constraints enforcing the GenSIE "Null-Rule" for missing data and IberLEF-compliant dialect awareness.
+4.  **Greedy Bipartite Evaluation:** A native implementation of **Flattened Schema Scoring (FSS)** using greedy bipartite matching to ensure list-order invariance.
 
 ---
 
-## 🤖 Agent Roster: Technical Strategies
+## 🤖 The GenSIE Agent Ecosystem
+
+M.O.L.D. features three distinct agent architectures, each providing a unique trade-off between inference cost and extraction fidelity:
 
 ### 1. **M.I.R.A.** (Minimalist Invariant Reasoning Agent)
-*   **Mechanism:** **Bifurcated Zero-Shot Reasoning.**
-*   **Strategy:** Decouples semantic decomposition from structural serialization. It prioritizes **Inference Speed** and **Precision** by utilizing a reasoning pass in Spanish to map entities before the extraction pass enforces a strict `null` fallback for missing data.
-*   **Ideal Use:** High-latency requirements where zero-shot generalization is sufficient.
+*   **Strategy:** `mira` (Zero-Shot Bifurcated Reasoning)
+*   **Mechanism:** Decouples Spanish linguistic reasoning from structural mapping to maximize precision in high-latency zero-shot environments.
 
 ### 2. **V.I.G.I.L.** (Validated In-context Gated Intelligence Layer)
-*   **Mechanism:** **Latent Semantic Routing (LSR).**
-*   **Strategy:** Implements a similarity-gated RAG layer with a strict threshold ($\tau = 0.55$). It dynamically selects semantic anchors only when positive transfer is statistically likely, preventing the "Context Poisoning" often observed in SLMs when exposed to low-similarity few-shot examples.
-*   **Ideal Use:** Datasets with high internal semantic variance.
+*   **Strategy:** `vigil` (Latent Semantic Routing)
+*   **Mechanism:** Employs a $\tau = 0.55$ similarity gate to dynamically select semantic anchors, preventing "Context Poisoning" from low-similarity RAG examples.
 
 ### 3. **A.R.C.A.N.E.** (Audited Reasoning via Cached Anchors & Neural Examples)
-*   **Mechanism:** **Recursive Synthetic Grounding Loop.**
-*   **Strategy:** For Out-of-Distribution (OOD) schemas, the system autonomously bootstraps grounding signals by synthesizing localized few-shot examples. Each synthetic anchor undergoes a **Dual-Layer Audit** (Structural JSON Schema validation + Semantic Embedding Similarity $\ge 0.70$) before integration into the context window.
-*   **Ideal Use:** Novel or extremely niche extraction domains where RAG data is non-existent.
+*   **Strategy:** `arcane` (Recursive Synthetic Grounding)
+*   **Mechanism:** Autonomously bootstraps grounding signals through a dual-layer audit (Structural + Semantic $\ge 0.70$) for adaptation to out-of-distribution (OOD) schemas.
 
 ---
 
-## 📊 Formal Evaluation Framework
+## 💻 Operational Reproduction
 
-The framework provides native tools to compute **Flattened Schema Scoring (FSS)**:
-
-*   **Metric:** Micro-F1 calculated over dot-notation flattened paths.
-*   **Bipartite Matching:** Employs the Hungarian Algorithm (greedy) to resolve list-order invariance.
-*   **Semantic Delta:** Cosine similarity via `fastembed` (BGE-small) weighted with Jaccard lexical overlap.
-*   **Gap Closure:** Measures the percentage of the F1 gap bridged between a baseline and a perfect score ($1.0$).
-
----
-
-## 💻 Implementation & Reproduction
-
-### Environment Bootstrapping
-Requires Python 3.13+ and the `uv` package manager for deterministic dependency resolution.
+M.O.L.D. utilizes [uv](https://github.com/astral-sh/uv) for deterministic dependency management (Python 3.13+).
 
 ```bash
-git clone https://github.com/Robegr42/mold.git && cd mold
-uv sync
-```
+# Bootstrapping environment
+git clone https://github.com/Robegr42/mold.git && cd mold && uv sync
 
-### Operational Commands
-*   **Service Deployment:** `uv run gensie serve` (FastAPI + Uvicorn).
-*   **Recursive Evaluation:** `uv run gensie eval2` (Per-field error profiling + token usage).
-*   **Statistical Ranking:** `uv run gensie rank` (Comparative F1 gap-closed analysis).
+# Service Deployment (FastAPI)
+uv run gensie serve --port 8000
+
+# Challenge-Specific Evaluation (Per-field Error Profiling)
+uv run gensie eval2 --data data/starter --pipeline vigil --model qwen/qwen3-1.7b
+
+# Official Ranking (Gap Closed Analysis)
+uv run gensie rank --baseline-pipeline baseline
+```
 
 ---
 
-## 📄 Research & Attribution
+## 📄 Attribution & Challenge Context
 
 *   **Lead Institution:** University of Havana - MOLD Team.
-*   **Competition:** IberLEF 2026 - GenSIE Challenge.
+*   **Target Task:** [GenSIE @ IberLEF 2026](./docs/gensie.pdf) - General-purpose Schema-guided Information Extraction.
+*   **Metric:** Flattened Schema Scoring (Micro-F1).
 *   **License:** MIT.
 
 ---
-*For in-depth experimental results, including ablation studies on the impact of TSC and LSR, see the [research/](./research/) directory.*
+*For in-depth experimental results and ablation reports, see the [research/](./research/) directory.*
