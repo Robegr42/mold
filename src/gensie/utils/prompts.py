@@ -1,5 +1,4 @@
-import json
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 
 def generate_blank_template(schema: Dict[str, Any]) -> Any:
@@ -37,27 +36,3 @@ def generate_blank_template(schema: Dict[str, Any]) -> Any:
         return False
     else:
         return None
-
-
-def format_end_anchored_prompt(
-    instruction: str, schema: Dict[str, Any], input_text: str, delimiter: str = "###"
-) -> str:
-    """
-    Formats a prompt using the End-Anchored Template strategy.
-    """
-    blank_template = generate_blank_template(schema)
-    template_json = json.dumps(blank_template, indent=2)
-
-    prompt = (
-        f"{delimiter} INSTRUCTIONS\n"
-        f"{instruction}\n\n"
-        f"{delimiter} SCHEMA\n"
-        f"{json.dumps(schema, indent=2)}\n\n"
-        f"{delimiter} CONTEXT\n"
-        f"{input_text}\n\n"
-        f"{delimiter} RESPONSE TEMPLATE\n"
-        f"Please fill the following JSON template based on the CONTEXT above. "
-        f"Provide ONLY the JSON object.\n\n"
-        f"{template_json}"
-    )
-    return prompt
