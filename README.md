@@ -45,6 +45,7 @@ M.O.L.D. features three distinct agent architectures, each providing a unique tr
 
 M.O.L.D. utilizes [uv](https://github.com/astral-sh/uv) for deterministic dependency management (Python 3.13+).
 
+### Local Execution
 ```bash
 # Bootstrapping environment
 git clone https://github.com/Robegr42/mold.git && cd mold && uv sync
@@ -57,6 +58,31 @@ uv run gensie eval2 --data data/starter --pipeline vigil --model qwen/qwen3-1.7b
 
 # Official Ranking (Gap Closed Analysis)
 uv run gensie rank --baseline-pipeline baseline
+```
+
+### Containerization (Docker)
+M.O.L.D. is fully containerized to ensure reproducibility and satisfy the GenSIE challenge's isolated environment requirements.
+
+#### 1. Build the Image
+```bash
+docker build -t gensie-agent .
+```
+
+#### 2. Run the Agent Server
+Expose the FastAPI bridge on port 8000 and configure the inference backend via environment variables.
+
+```bash
+docker run -p 8000:8000 \
+  -e OPENAI_BASE_URL="http://your-inference-server:8000/v1" \
+  -e OPENAI_API_KEY="your-api-key" \
+  gensie-agent serve --host 0.0.0.0
+```
+
+#### 3. Development with Docker Compose
+For rapid iteration, use the provided `docker-compose.yml` which mounts the source code in editable mode and enables hot-reloading.
+
+```bash
+docker compose up
 ```
 
 ---
