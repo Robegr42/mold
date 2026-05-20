@@ -1,67 +1,96 @@
-# 🧱 M.O.L.D.
+# 🧱 M.O.L.D. (Micro-model Object Language Decoder)
 
-**Micro-model Object Language Decoder**
+**GenSIE: General-purpose Schema-guided Information Extraction**
 
 > Dynamic JSON extraction on the fly. Your schema changes, M.O.L.D. adapts.
 
 ## 📖 Overview
 
-**M.O.L.D.** is a lightweight Python solution designed to tame the chaos of unstructured text using Small Language Models (SLMs). It allows you to extract information into JSON format, guaranteeing that the output fits your real-time needs, even when the data schema is completely dynamic or unknown beforehand.
+**M.O.L.D.** is a high-performance framework designed to solve the challenges of structured information extraction from unstructured Spanish text using Small Language Models (SLMs). Developed for the **GenSIE 2026** challenge (IberLEF), it provides a robust agent ecosystem that balances inference speed, schema precision, and autonomous grounding.
 
-## 🤖 The GenSIE Agents
+M.O.L.D. rejects monolithic prompting in favor of specialized multi-pass architectures, utilizing technical invariants like TypeScript schema compression and deterministic "Extract-or-Null" gating to eliminate hallucinations in zero-shot contexts.
 
-The core of M.O.L.D. is the GenSIE agent ecosystem, providing three distinct architectural strategies for high-stakes information extraction:
+## 🤖 The GenSIE Agent Roster
 
-*   **M.I.R.A.** (*Minimalist Invariant Reasoning Agent*): Decoupled two-pass reasoning for maximizing precision via internal linguistic alignment and deterministic invariant pruning.
-*   **V.I.G.I.L.** (*Validated In-context Gated Intelligence Layer*): Gated RAG architecture optimizing Context SNR through latent semantic routing and threshold-gated grounding.
-*   **A.R.C.A.N.E.** (*Audited Reasoning via Cached Anchors & Neural Examples*): Recursive synthetic grounding loop for autonomous performance stabilization in low-resource or novel domains.
+M.O.L.D. features three core agent architectures, each optimized for different operational constraints:
+
+1.  **M.I.R.A.** (*Minimalist Invariant Reasoning Agent*):
+    *   **Strategy:** `mira` (Two-Pass Null-Rule)
+    *   **Focus:** Precision & Speed. Decouples Spanish linguistic reasoning from JSON structural mapping to minimize cognitive load on sub-14B models.
+2.  **V.I.G.I.L.** (*Validated In-context Gated Intelligence Layer*):
+    *   **Strategy:** `vigil` (Gated LSR)
+    *   **Focus:** Grounding & SNR. Employs **Latent Semantic Routing (LSR)** with a $\tau = 0.55$ similarity gate to filter out noisy few-shot examples and maintain high signal-to-noise ratios.
+3.  **A.R.C.A.N.E.** (*Audited Reasoning via Cached Anchors & Neural Examples*):
+    *   **Strategy:** `arcane` (Recursive Double-Gate)
+    *   **Focus:** Robustness & Autonomy. Bootstraps its own grounding signal through a **Recursive Synthetic Grounding** loop, using a dual-layer audit (structural + semantic) to validate anchors in novel domains.
 
 For detailed technical specifications, see [AGENTS.md](./AGENTS.md).
 
-## ✨ Key Features
+## ✨ Key Technical Features
 
-* **Zero Fine-Tuning:** Skip the expensive and time-consuming training pipelines. M.O.L.D. works out of the box with capable SLMs.
-* **Dynamic Schema Resolution:** Handle unknown or user-defined schemas at runtime without breaking your application logic.
-* **Type-Safe Outputs:** Native integration with Python data validation tools ensures that what you extract is  what you expect.
+*   **Two-Pass Inference:** Separates "Analysis" (thinking in Spanish) from "Extraction" (formatting in JSON) to preserve the model's raw inferential heat.
+*   **TypeScript Schema Compression:** Compresses complex JSON Schemas into concise TypeScript interfaces to minimize token consumption and improve structural alignment.
+*   **Double-Gate Gating:** Implements RAG-similarity gates and synthesis-audit gates to protect the model from "Negative Transfer" and hallucinations.
+*   **Deterministic Invariant Pruning:** Hard-coded prompt invariants (Dialect Awareness, Null-Rule) that force the model to prioritize factuality over inference.
+*   **Sophisticated Evaluation:** Native implementation of **Flattened Schema Scoring** with greedy bipartite matching for lists and hybrid semantic/lexical similarity for text.
 
-<!-- ## 🚀 Installation
+## 🚀 Installation
 
-Install M.O.L.D. via pip:
+M.O.L.D. requires Python 3.13+ and utilizes [uv](https://github.com/astral-sh/uv) for lightning-fast dependency management.
 
 ```bash
-pip install mold-ai
+# Clone the repository
+git clone https://github.com/Robegr42/mold.git
+cd mold
 
+# Sync environment
+uv sync
 ```
 
-## 💻 Quick Start
+## 💻 Usage
 
-*(This section should contain a minimal, self-contained Python script showing how easy it is to use the library. Example below:)*
+### 1. Start the Agent Server
+M.O.L.D. exposes its agents via a FastAPI server, ready for evaluation or production integration.
 
-```python
-from mold import MoldExtractor
-from pydantic import BaseModel, Field
+```bash
+uv run gensie serve --port 8000
+```
 
-# 1. Initialize M.O.L.D. with your preferred SLM
-extractor = MoldExtractor(model="mistral-nemo-12b")
+### 2. Run Evaluations
+Use the `gensie eval2` command to run a detailed evaluation against a dataset. This tracks token usage, wall-time, and provides a per-field error breakdown.
 
-# 2. Define a dynamic or runtime-specific schema
-class UserProfile(BaseModel):
-    name: str = Field(description="The full name of the person")
-    skills: list[str] = Field(description="List of technical skills mentioned")
+```bash
+uv run gensie eval2 --data data/starter --pipeline vigil --model qwen/qwen3-1.7b
+```
 
-text_input = "Hey, I'm Alex. I've been coding in Python for 5 years and recently started exploring Streamlit and MongoDB."
+### 3. View the Leaderboard
+Aggregate results from multiple runs into a ranked leaderboard.
 
-# 3. Extract! M.O.L.D. forces the text into your schema
-result = extractor.parse(text=text_input, schema=UserProfile)
+```bash
+uv run gensie leaderboard
+```
 
-print(result.json(indent=2))
+### 4. Official Ranking
+Compute the "Gap Closed" metric relative to the official baseline.
 
-``` -->
+```bash
+uv run gensie rank --baseline-pipeline baseline
+```
 
-## 🧩 Integrations & Ecosystem
+## 🧩 Project Structure
 
-M.O.L.D. is designed to play nicely with your existing data science and web stacks. Whether you are building background data-cleaning pipelines, feeding a MongoDB database, or creating rapid interactive web apps with Streamlit, M.O.L.D. provides the structured data backbone you need.
+*   `src/gensie/`: Core engine implementation.
+    *   `baseline.py`: Agent implementations (**MIRAAgent**, **VIGILAgent**, **ARCANEAgent**).
+    *   `eval.py`: Flattened Schema Scoring logic.
+    *   `cli.py`: Typer-powered developer tools.
+*   `data/`: Standardized datasets (`starter`, `dev`).
+*   `results/`: JSON evaluation reports and leaderboards.
+*   `research/`: Documentation of experimental findings and architectural pivots.
+*   `tests/`: Unit and integration tests for all core agents.
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the `LICENSE` file for details.
+
+---
+*Created by the **MOLD Team** - University of Havana*
