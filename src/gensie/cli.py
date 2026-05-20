@@ -34,7 +34,7 @@ def serve(host: str = "0.0.0.0", port: int = 8000):
 
 
 @app.command()
-def eval(
+def eval_legacy(
     data: Path = typer.Option(..., help="Path to directory containing JSON tasks"),
     url: str = typer.Option("http://localhost:8000", help="Agent service URL"),
     pipeline: str = typer.Option("baseline", help="Name of the pipeline to evaluate"),
@@ -299,7 +299,7 @@ def eval(
 
 
 @app.command()
-def eval2(
+def eval(
     data: Path = typer.Option(..., help="Path to directory containing JSON tasks"),
     url: str = typer.Option("http://localhost:8000", help="Agent service URL"),
     pipeline: str = typer.Option("baseline", help="Name of the pipeline to evaluate"),

@@ -54,7 +54,7 @@ git clone https://github.com/Robegr42/mold.git && cd mold && uv sync
 uv run gensie serve --port 8000
 
 # Challenge-Specific Evaluation (Per-field Error Profiling)
-uv run gensie eval2 --data data/starter --pipeline vigil --model qwen/qwen3-1.7b
+uv run gensie eval --data data/starter --pipeline vigil --model qwen/qwen3-1.7b
 
 # Official Ranking (Gap Closed Analysis)
 uv run gensie rank --baseline-pipeline baseline
