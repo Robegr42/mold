@@ -30,6 +30,9 @@ def parse_robust_json(text: str) -> Dict[str, Any]:
     Robustly extracts JSON from a string using multiple fallback strategies.
     Useful for models that include conversational noise or markdown blocks.
     """
+    if not text or not text.strip():
+        return {}
+
     # Strategy 1: Look for markdown code blocks
     code_block_match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
     if code_block_match:
@@ -47,7 +50,10 @@ def parse_robust_json(text: str) -> Dict[str, Any]:
             pass
 
     # Strategy 3: Attempt to parse the raw text
-    return json.loads(text.strip())
+    try:
+        return json.loads(text.strip())
+    except json.JSONDecodeError:
+        return {}
 
 
 class InvariantPromptMixin:
@@ -126,7 +132,7 @@ class BasicAgent(GenSIEAgent):
         # Parse the structured JSON response
         try:
             content = response.choices[0].message.content
-            result = parse_robust_json(content)
+            result = json.loads(content)
             # Inject token usage
             if hasattr(response, "usage") and response.usage:
                 result["_tokens"] = response.usage.total_tokens

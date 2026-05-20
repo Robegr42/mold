@@ -205,7 +205,7 @@ def eval2(
     params = {"pipeline": pipeline, "model": model}
     participant_info = {"team_name": "Unknown", "institution": "Unknown"}
 
-    with httpx.Client(timeout=120.0) as client:
+    with httpx.Client(timeout=60.0) as client:
         # 1. Fetch Participant Info
         try:
             info_resp = client.get(f"{url}/info")
