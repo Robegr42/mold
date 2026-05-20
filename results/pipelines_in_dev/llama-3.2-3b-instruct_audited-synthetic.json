@@ -1,0 +1,2282 @@
+{
+  "participant": {
+    "team_name": "MOLD Team",
+    "institution": "University of Havana",
+    "pipelines": [
+      {
+        "name": "two-pass",
+        "description": "Strategy that decouples reasoning in Spanish from strict JSON extraction."
+      },
+      {
+        "name": "grounded",
+        "description": "Evidence-based agent that mandates source quotes to authorize extraction."
+      },
+      {
+        "name": "auditor",
+        "description": "Self-correction loop with an adversarial audit to strike hallucinations."
+      },
+      {
+        "name": "baseline",
+        "description": "Reference implementation using OpenAI Structured Outputs."
+      },
+      {
+        "name": "end-anchored",
+        "description": "Strategy that places a blank JSON template at the end of the prompt."
+      },
+      {
+        "name": "champion",
+        "description": "High-accuracy modular pipeline with RAG, Two-Pass reasoning, and ReAct verification."
+      },
+      {
+        "name": "slim-champion",
+        "description": "Streamlined high-accuracy pipeline with RAG and Two-Pass reasoning, optimized for SLMs."
+      },
+      {
+        "name": "stable-champion",
+        "description": "Streamlined architecture using the optimal Two-Pass invariant configuration (Null-Rule only)."
+      },
+      {
+        "name": "synthetic-anchor",
+        "description": "Experimental pipeline that uses synthetic examples from ArchitectModule as few-shot anchors when RAG fails."
+      },
+      {
+        "name": "audited-synthetic",
+        "description": "Double-gate pipeline (RAG 0.55 + Synthetic Audit 0.70) with structural validation."
+      }
+    ]
+  },
+  "config": {
+    "model": "llama-3.2-3b-instruct",
+    "pipeline": "audited-synthetic",
+    "data_source": "/home/danilo/vscode/mold/data/dev"
+  },
+  "metrics": {
+    "precision": 0.8830857457298756,
+    "recall": 0.764766360099697,
+    "f1": 0.8196782575676258
+  },
+  "tasks": [
+    {
+      "task_id": "stem_astronomy_detailed_011",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.0,
+      "tokens": 5069,
+      "time_s": 15.976119995117188,
+      "errors": [
+        "Incorrect: discovery_date (sim=0.00)",
+        "Missing: mass_kg",
+        "Incorrect: semi_major_axis_au (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_007",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.0,
+      "tokens": 5640,
+      "time_s": 20.792521476745605,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_009",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.0,
+      "tokens": 5155,
+      "time_s": 19.40763807296753,
+      "errors": [
+        "Missing: platforms.0",
+        "Missing: platforms.1",
+        "Missing: platforms.2",
+        "Missing: platforms.3",
+        "Missing: platforms.4",
+        "Missing: platforms.5",
+        "Missing: platforms.6"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_010",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 7.3089861822830855,
+      "tokens": 3398,
+      "time_s": 10.067461967468262,
+      "errors": [
+        "Incorrect: features.1 (sim=0.69)",
+        "Incorrect: license (sim=0.58)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_006",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.653432534360086,
+      "tokens": 5279,
+      "time_s": 22.50201177597046,
+      "errors": [
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.65)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_007",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.958456032607995,
+      "tokens": 4185,
+      "time_s": 17.71440577507019,
+      "errors": [
+        "Missing: date"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_extraction_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.5674225470860996,
+      "tokens": 2534,
+      "time_s": 11.990975618362427,
+      "errors": [
+        "Incorrect: answer (sim=0.57)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_009",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.805181136764867,
+      "tokens": 4095,
+      "time_s": 17.65547204017639,
+      "errors": [
+        "Missing: date",
+        "Incorrect: summary (sim=0.82)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_monuments_1",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.0,
+      "tokens": 2861,
+      "time_s": 13.375766515731812,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.431953525955221,
+      "tokens": 3299,
+      "time_s": 14.804170846939087,
+      "errors": [
+        "Missing: genres.0",
+        "Missing: genres.1",
+        "Incorrect: key_themes.0 (sim=0.51)",
+        "Hallucinated: key_themes.2"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.7768671785707895,
+      "tokens": 14414,
+      "time_s": 44.53148889541626,
+      "errors": [
+        "Incorrect: affected_articles.0 (sim=0.63)",
+        "Incorrect: affected_articles.1 (sim=0.63)",
+        "Incorrect: official_title (sim=0.78)",
+        "Missing: sanction_date"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_018",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.0,
+      "tokens": 6208,
+      "time_s": 21.533944368362427,
+      "errors": [
+        "Incorrect: discovery_date (sim=0.00)",
+        "Incorrect: orbital_period_days (sim=0.00)",
+        "Missing: semi_major_axis_au"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 1.7582753846770607,
+      "tokens": 8108,
+      "time_s": 24.861326932907104,
+      "errors": [
+        "Missing: affected_articles.1",
+        "Missing: affected_articles.2",
+        "Missing: affected_articles.3",
+        "Incorrect: jurisdiction (sim=0.00)",
+        "Incorrect: law_range (sim=0.00)",
+        "Incorrect: official_title (sim=0.51)",
+        "Missing: sanction_date"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.899751529134788,
+      "tokens": 4823,
+      "time_s": 17.43730115890503,
+      "errors": [
+        "Incorrect: summary (sim=0.90)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_009",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.821536527654374,
+      "tokens": 4471,
+      "time_s": 17.477641820907593,
+      "errors": [
+        "Incorrect: summary (sim=0.84)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_005",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.0,
+      "tokens": 9431,
+      "time_s": 21.52676796913147,
+      "errors": [
+        "Incorrect: law_range (sim=0.00)",
+        "Incorrect: sanction_date (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_008",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.0,
+      "tokens": 5019,
+      "time_s": 15.189833164215088,
+      "errors": [
+        "Missing: platforms.0",
+        "Missing: platforms.1",
+        "Missing: platforms.2",
+        "Missing: platforms.3",
+        "Missing: platforms.4",
+        "Missing: platforms.5"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_005",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.9882417463226005,
+      "tokens": 5490,
+      "time_s": 18.571656465530396,
+      "errors": [
+        "Missing: original_language",
+        "Incorrect: publication_year (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_009",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.0,
+      "tokens": 7100,
+      "time_s": 37.62739634513855,
+      "errors": [
+        "Missing: mass_kg"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_010",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.0,
+      "tokens": 3534,
+      "time_s": 13.34649395942688,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_monuments_2",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.2868523144591033,
+      "tokens": 2919,
+      "time_s": 13.812525272369385,
+      "errors": [
+        "Incorrect: bic_category (sim=0.00)",
+        "Incorrect: is_declared (sim=0.00)",
+        "Incorrect: municipality (sim=0.36)",
+        "Incorrect: official_name (sim=0.92)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_entities_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.581373142312654,
+      "tokens": 3284,
+      "time_s": 15.759283065795898,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.0.text (sim=0.52)",
+        "Incorrect: entities.1.text (sim=0.38)",
+        "Incorrect: entities.2.label (sim=0.00)",
+        "Incorrect: entities.2.text (sim=0.45)",
+        "Incorrect: entities.3.label (sim=0.00)",
+        "Incorrect: entities.3.text (sim=0.35)",
+        "Incorrect: entities.4.text (sim=0.72)",
+        "Incorrect: entities.5.label (sim=0.00)",
+        "Incorrect: entities.5.text (sim=0.37)",
+        "Incorrect: entities.6.label (sim=0.00)",
+        "Incorrect: entities.6.text (sim=0.39)",
+        "Missing: entities.7.label",
+        "Missing: entities.7.text",
+        "Missing: entities.8.label",
+        "Missing: entities.8.text",
+        "Missing: entities.9.label",
+        "Missing: entities.9.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_entities_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.4774786458061381,
+      "tokens": 4315,
+      "time_s": 23.733047485351562,
+      "errors": [
+        "Incorrect: entities.1.text (sim=0.50)",
+        "Incorrect: entities.2.text (sim=0.39)",
+        "Incorrect: entities.3.text (sim=0.42)",
+        "Incorrect: entities.4.text (sim=0.42)",
+        "Incorrect: entities.5.text (sim=0.46)",
+        "Hallucinated: entities.6.label",
+        "Hallucinated: entities.6.text",
+        "Hallucinated: entities.7.label",
+        "Hallucinated: entities.7.text",
+        "Hallucinated: entities.8.label",
+        "Hallucinated: entities.8.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_extraction_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 1.0,
+      "tokens": 3629,
+      "time_s": 9.146505117416382,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.0,
+      "tokens": 4474,
+      "time_s": 13.768756628036499,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: director",
+        "Missing: main_cast.0",
+        "Missing: main_cast.1",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2",
+        "Missing: pros.3",
+        "Missing: rating",
+        "Missing: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_006",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.317722985029872,
+      "tokens": 3196,
+      "time_s": 13.4782133102417,
+      "errors": [
+        "Incorrect: exact_release_date (sim=0.00)",
+        "Incorrect: license (sim=0.57)",
+        "Incorrect: primary_developer (sim=0.75)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.868055727694394,
+      "tokens": 4325,
+      "time_s": 20.089235544204712,
+      "errors": [
+        "Missing: casualties",
+        "Missing: injured",
+        "Incorrect: summary (sim=0.88)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_contracts_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.979182667162178,
+      "tokens": 8003,
+      "time_s": 48.86568784713745,
+      "errors": [
+        "Missing: effective_date",
+        "Missing: monetary_amount"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_015",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 7.0,
+      "tokens": 3972,
+      "time_s": 9.100358724594116,
+      "errors": [
+        "Incorrect: discovery_date (sim=0.00)",
+        "Missing: mass_kg"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_04",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.0,
+      "tokens": 5944,
+      "time_s": 21.777286052703857,
+      "errors": [
+        "Missing: dietary_tags.0",
+        "Missing: dietary_tags.1",
+        "Missing: dietary_tags.2",
+        "Missing: dietary_tags.3",
+        "Missing: servings",
+        "Missing: total_time_minutes"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_010",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.848745751992471,
+      "tokens": 4571,
+      "time_s": 17.56495714187622,
+      "errors": [
+        "Incorrect: summary (sim=0.85)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.872165909472051,
+      "tokens": 4938,
+      "time_s": 22.980934381484985,
+      "errors": [
+        "Missing: affected_count",
+        "Missing: casualties",
+        "Missing: date",
+        "Missing: injured",
+        "Incorrect: key_people.3 (sim=0.86)",
+        "Incorrect: key_people.4 (sim=0.83)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_009",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.971391109801854,
+      "tokens": 6025,
+      "time_s": 18.06537437438965,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_contracts_004",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.977219074397693,
+      "tokens": 4994,
+      "time_s": 21.643495082855225,
+      "errors": [
+        "Incorrect: effective_date (sim=0.00)",
+        "Incorrect: governing_law_jurisdiction (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_05",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.0,
+      "tokens": 5022,
+      "time_s": 16.721598863601685,
+      "errors": [
+        "Missing: dietary_tags.0",
+        "Missing: dietary_tags.1",
+        "Missing: dietary_tags.2",
+        "Missing: servings",
+        "Missing: total_time_minutes"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_monuments_5",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 1.373435615847188,
+      "tokens": 3143,
+      "time_s": 16.46465802192688,
+      "errors": [
+        "Incorrect: bic_category (sim=0.00)",
+        "Missing: declaration_date",
+        "Missing: is_declared",
+        "Incorrect: municipality (sim=0.37)",
+        "Missing: registration_code"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_contracts_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 7.7248001083778615,
+      "tokens": 5057,
+      "time_s": 21.941001176834106,
+      "errors": [
+        "Incorrect: effective_date (sim=0.00)",
+        "Incorrect: parties.1 (sim=0.43)",
+        "Incorrect: parties.2 (sim=0.54)",
+        "Missing: parties.3"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_09",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.912456775151369,
+      "tokens": 5501,
+      "time_s": 20.166457414627075,
+      "errors": [
+        "Missing: dietary_tags.0",
+        "Missing: dietary_tags.1",
+        "Incorrect: dish_name (sim=0.91)",
+        "Missing: servings"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_007",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.955602680973582,
+      "tokens": 3752,
+      "time_s": 13.912323236465454,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_008",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 10.0,
+      "tokens": 4346,
+      "time_s": 17.023880004882812,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.803378372323703,
+      "tokens": 7237,
+      "time_s": 16.8681480884552,
+      "errors": [
+        "Incorrect: publication_year (sim=0.00)",
+        "Incorrect: title (sim=0.80)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_monuments_4",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.0,
+      "tokens": 3093,
+      "time_s": 14.945777893066406,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_06",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.2054331982193265,
+      "tokens": 11130,
+      "time_s": 27.433492422103882,
+      "errors": [
+        "Missing: dietary_tags.0",
+        "Missing: dietary_tags.1",
+        "Incorrect: ingredients.2.name (sim=0.66)",
+        "Missing: ingredients.3.amount",
+        "Missing: ingredients.3.name",
+        "Missing: ingredients.3.unit",
+        "Missing: servings",
+        "Missing: technique_sequence.1"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_004",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.0,
+      "tokens": 4023,
+      "time_s": 17.34890055656433,
+      "errors": [
+        "Incorrect: location (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_012",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.195700384985521,
+      "tokens": 4285,
+      "time_s": 16.91901206970215,
+      "errors": [
+        "Incorrect: current_ceo_name (sim=0.00)",
+        "Incorrect: exact_release_date (sim=0.00)",
+        "Incorrect: features.0 (sim=0.89)",
+        "Incorrect: features.1 (sim=0.66)",
+        "Hallucinated: features.2",
+        "Hallucinated: features.3",
+        "Hallucinated: features.4",
+        "Hallucinated: features.5",
+        "Incorrect: latest_stable_version_sha256 (sim=0.00)",
+        "Incorrect: license (sim=0.35)",
+        "Missing: platforms.3",
+        "Missing: platforms.4"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_004",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.0,
+      "tokens": 6213,
+      "time_s": 18.821630239486694,
+      "errors": [
+        "Missing: diameter_km",
+        "Missing: eccentricity",
+        "Missing: mass_kg",
+        "Missing: orbital_period_days"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_006",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 7.0,
+      "tokens": 3964,
+      "time_s": 14.991592168807983,
+      "errors": [
+        "Missing: diameter_km",
+        "Missing: mass_kg"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_010",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.7227756239631695,
+      "tokens": 4055,
+      "time_s": 14.063657283782959,
+      "errors": [
+        "Missing: affected_count",
+        "Missing: casualties",
+        "Missing: date",
+        "Missing: injured",
+        "Incorrect: key_people.2 (sim=0.81)",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.80)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_010",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.5225324468813834,
+      "tokens": 6374,
+      "time_s": 21.299901008605957,
+      "errors": [
+        "Incorrect: affected_count (sim=0.00)",
+        "Incorrect: casualties (sim=0.00)",
+        "Missing: date",
+        "Incorrect: key_organizations.0 (sim=0.92)",
+        "Incorrect: key_organizations.2 (sim=0.87)",
+        "Incorrect: key_organizations.3 (sim=0.87)",
+        "Incorrect: summary (sim=0.68)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_013",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 7.0,
+      "tokens": 5373,
+      "time_s": 17.031290769577026,
+      "errors": [
+        "Incorrect: discoverer (sim=0.00)",
+        "Incorrect: discovery_date (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_006",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.964302157678459,
+      "tokens": 4568,
+      "time_s": 19.542354822158813,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.0,
+      "tokens": 4993,
+      "time_s": 23.55208969116211,
+      "errors": [
+        "Missing: sanction_date"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_010",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.835365114851338,
+      "tokens": 5439,
+      "time_s": 15.980746030807495,
+      "errors": [
+        "Missing: director",
+        "Missing: main_cast.0",
+        "Missing: main_cast.1",
+        "Incorrect: pros.0 (sim=0.88)",
+        "Incorrect: pros.1 (sim=0.94)",
+        "Missing: rating",
+        "Missing: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_004",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.75,
+      "tokens": 5963,
+      "time_s": 18.775540828704834,
+      "errors": [
+        "Incorrect: director (sim=0.00)",
+        "Missing: pros.3"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_005",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.0,
+      "tokens": 4884,
+      "time_s": 15.395144939422607,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: cons.1",
+        "Missing: director",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2",
+        "Missing: rating",
+        "Missing: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_014",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.0,
+      "tokens": 6146,
+      "time_s": 21.21085548400879,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.7192805370697425,
+      "tokens": 1750,
+      "time_s": 7.885378122329712,
+      "errors": [
+        "Incorrect: answer (sim=0.72)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_008",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.0,
+      "tokens": 4983,
+      "time_s": 15.393574476242065,
+      "errors": [
+        "Missing: diameter_km",
+        "Missing: eccentricity",
+        "Missing: mass_kg",
+        "Missing: orbital_period_days"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_entities_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 1.0,
+      "tokens": 3121,
+      "time_s": 15.221613883972168,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_08",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.5,
+      "tokens": 7595,
+      "time_s": 28.4490385055542,
+      "errors": [
+        "Missing: dietary_tags.2",
+        "Missing: dietary_tags.3",
+        "Missing: servings"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_004",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.0,
+      "tokens": 2832,
+      "time_s": 11.332778692245483,
+      "errors": [
+        "Incorrect: publication_year (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.913880272978812,
+      "tokens": 5103,
+      "time_s": 25.90641951560974,
+      "errors": [
+        "Missing: date",
+        "Incorrect: headline (sim=0.91)",
+        "Missing: key_organizations.0",
+        "Missing: key_organizations.1",
+        "Missing: key_organizations.2",
+        "Missing: key_organizations.3",
+        "Missing: key_people.0",
+        "Missing: key_people.1",
+        "Missing: key_people.2"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_6",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.386792452830189,
+      "tokens": 5047,
+      "time_s": 15.908803462982178,
+      "errors": [
+        "Incorrect: diagnosis_methods.2 (sim=0.70)",
+        "Incorrect: etiology_description (sim=0.00)",
+        "Incorrect: symptoms.0.severity_level (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.687091932352065,
+      "tokens": 4340,
+      "time_s": 15.620586156845093,
+      "errors": [
+        "Missing: casualties",
+        "Missing: date",
+        "Incorrect: key_people.0 (sim=0.77)",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.85)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_monuments_3",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.0,
+      "tokens": 2876,
+      "time_s": 13.505409717559814,
+      "errors": [
+        "Missing: is_declared"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_10",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.93417197789653,
+      "tokens": 5765,
+      "time_s": 24.78845739364624,
+      "errors": [
+        "Missing: dietary_tags.0",
+        "Missing: dietary_tags.1",
+        "Incorrect: dish_name (sim=0.93)",
+        "Missing: servings",
+        "Missing: total_time_minutes"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_005",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.859960578460437,
+      "tokens": 5477,
+      "time_s": 20.089436531066895,
+      "errors": [
+        "Incorrect: casualties (sim=0.00)",
+        "Missing: date",
+        "Incorrect: key_organizations.1 (sim=0.74)",
+        "Missing: key_organizations.2",
+        "Missing: key_organizations.3",
+        "Incorrect: key_people.0 (sim=0.75)",
+        "Incorrect: summary (sim=0.84)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.0,
+      "tokens": 5758,
+      "time_s": 15.090585470199585,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: cons.1",
+        "Missing: cons.2",
+        "Missing: cons.3",
+        "Missing: director",
+        "Missing: main_cast.0",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2",
+        "Missing: rating",
+        "Missing: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_04",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 2.5833333333333335,
+      "tokens": 7036,
+      "time_s": 28.630242824554443,
+      "errors": [
+        "Missing: diagnosis_methods.1",
+        "Missing: diagnosis_methods.2",
+        "Missing: diagnosis_methods.3",
+        "Incorrect: etiology_description (sim=0.00)",
+        "Missing: is_chronic",
+        "Missing: symptoms.10.is_primary",
+        "Missing: symptoms.10.name",
+        "Missing: symptoms.10.severity_level",
+        "Missing: symptoms.11.is_primary",
+        "Missing: symptoms.11.name",
+        "Missing: symptoms.11.severity_level",
+        "Missing: symptoms.4.is_primary",
+        "Missing: symptoms.4.name",
+        "Missing: symptoms.4.severity_level",
+        "Missing: symptoms.5.is_primary",
+        "Missing: symptoms.5.name",
+        "Missing: symptoms.5.severity_level",
+        "Missing: symptoms.6.is_primary",
+        "Missing: symptoms.6.name",
+        "Missing: symptoms.6.severity_level",
+        "Missing: symptoms.7.is_primary",
+        "Missing: symptoms.7.name",
+        "Missing: symptoms.7.severity_level",
+        "Missing: symptoms.8.is_primary",
+        "Missing: symptoms.8.name",
+        "Missing: symptoms.8.severity_level",
+        "Missing: symptoms.9.is_primary",
+        "Missing: symptoms.9.name",
+        "Missing: symptoms.9.severity_level"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_005",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.899381157688435,
+      "tokens": 3832,
+      "time_s": 16.78556513786316,
+      "errors": [
+        "Incorrect: summary (sim=0.90)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_006",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.0,
+      "tokens": 5774,
+      "time_s": 16.526272773742676,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: director",
+        "Missing: main_cast.0",
+        "Missing: main_cast.1",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2",
+        "Missing: rating",
+        "Missing: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_016",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.0,
+      "tokens": 5012,
+      "time_s": 15.884750604629517,
+      "errors": [
+        "Incorrect: discovery_date (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.0,
+      "tokens": 5727,
+      "time_s": 15.228788614273071,
+      "errors": [
+        "Incorrect: orbital_period_days (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_08",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.0,
+      "tokens": 6948,
+      "time_s": 16.64136028289795,
+      "errors": [
+        "Incorrect: etiology_description (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_009",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 7.736427000735104,
+      "tokens": 7795,
+      "time_s": 36.23324728012085,
+      "errors": [
+        "Incorrect: casualties (sim=0.00)",
+        "Missing: date",
+        "Missing: key_organizations.6",
+        "Missing: key_people.10"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_extraction_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 1.0,
+      "tokens": 2073,
+      "time_s": 9.423305749893188,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_07",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.75,
+      "tokens": 8958,
+      "time_s": 27.923258781433105,
+      "errors": [
+        "Missing: diagnosis_methods.3",
+        "Incorrect: etiology_description (sim=0.00)",
+        "Incorrect: is_chronic (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_005",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 7.85401516536231,
+      "tokens": 3903,
+      "time_s": 18.33317756652832,
+      "errors": [
+        "Missing: casualties",
+        "Missing: injured",
+        "Incorrect: summary (sim=0.87)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_07",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.2,
+      "tokens": 5459,
+      "time_s": 17.820484399795532,
+      "errors": [
+        "Missing: ingredients.0.amount",
+        "Missing: ingredients.0.unit",
+        "Missing: ingredients.1.amount",
+        "Missing: ingredients.1.unit",
+        "Missing: ingredients.2.amount",
+        "Missing: ingredients.2.unit",
+        "Missing: ingredients.3.amount",
+        "Missing: ingredients.3.unit",
+        "Missing: servings"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.536564432602573,
+      "tokens": 5453,
+      "time_s": 20.48311996459961,
+      "errors": [
+        "Missing: affected_count",
+        "Missing: casualties",
+        "Missing: date",
+        "Missing: injured",
+        "Incorrect: key_organizations.0 (sim=0.92)",
+        "Incorrect: key_organizations.1 (sim=0.93)",
+        "Incorrect: summary (sim=0.68)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_009",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.63709115267335,
+      "tokens": 4568,
+      "time_s": 18.622045040130615,
+      "errors": [
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.64)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_entities_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.25,
+      "tokens": 3069,
+      "time_s": 12.707515478134155,
+      "errors": [
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.46)",
+        "Missing: entities.2.label",
+        "Missing: entities.2.text",
+        "Missing: entities.3.label",
+        "Missing: entities.3.text",
+        "Missing: entities.4.label",
+        "Missing: entities.4.text",
+        "Missing: entities.5.label",
+        "Missing: entities.5.text",
+        "Missing: entities.6.label",
+        "Missing: entities.6.text",
+        "Missing: entities.7.label",
+        "Missing: entities.7.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_010",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.888669600052186,
+      "tokens": 4249,
+      "time_s": 16.979349613189697,
+      "errors": [
+        "Incorrect: summary (sim=0.89)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_02",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 2.806875648355894,
+      "tokens": 6224,
+      "time_s": 17.182937622070312,
+      "errors": [
+        "Incorrect: complexity_score (sim=0.00)",
+        "Missing: dietary_tags.0",
+        "Missing: dietary_tags.1",
+        "Incorrect: ingredients.0.name (sim=0.30)",
+        "Incorrect: ingredients.1.name (sim=0.35)",
+        "Incorrect: ingredients.2.name (sim=0.40)",
+        "Incorrect: ingredients.3.name (sim=0.36)",
+        "Incorrect: ingredients.4.name (sim=0.35)",
+        "Incorrect: ingredients.5.name (sim=0.34)",
+        "Missing: servings",
+        "Missing: total_time_minutes"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.226222412855162,
+      "tokens": 7143,
+      "time_s": 30.14656925201416,
+      "errors": [
+        "Incorrect: side_effects.0.impact (sim=0.00)",
+        "Incorrect: side_effects.0.probability (sim=0.00)",
+        "Missing: side_effects.0.system_organ_class",
+        "Incorrect: side_effects.1.impact (sim=0.00)",
+        "Incorrect: side_effects.1.probability (sim=0.00)",
+        "Missing: side_effects.1.system_organ_class",
+        "Missing: side_effects.10.impact",
+        "Missing: side_effects.10.probability",
+        "Missing: side_effects.10.reaction",
+        "Missing: side_effects.10.system_organ_class",
+        "Missing: side_effects.11.impact",
+        "Missing: side_effects.11.probability",
+        "Missing: side_effects.11.reaction",
+        "Missing: side_effects.11.system_organ_class",
+        "Missing: side_effects.12.impact",
+        "Missing: side_effects.12.probability",
+        "Missing: side_effects.12.reaction",
+        "Missing: side_effects.12.system_organ_class",
+        "Incorrect: side_effects.2.impact (sim=0.00)",
+        "Missing: side_effects.2.system_organ_class",
+        "Incorrect: side_effects.3.impact (sim=0.00)",
+        "Missing: side_effects.3.system_organ_class",
+        "Missing: side_effects.4.system_organ_class",
+        "Incorrect: side_effects.5.reaction (sim=0.62)",
+        "Missing: side_effects.5.system_organ_class",
+        "Incorrect: side_effects.6.impact (sim=0.00)",
+        "Incorrect: side_effects.6.probability (sim=0.00)",
+        "Incorrect: side_effects.6.reaction (sim=0.50)",
+        "Missing: side_effects.6.system_organ_class",
+        "Incorrect: side_effects.7.impact (sim=0.00)",
+        "Incorrect: side_effects.7.reaction (sim=0.43)",
+        "Missing: side_effects.7.system_organ_class",
+        "Missing: side_effects.8.impact",
+        "Missing: side_effects.8.probability",
+        "Missing: side_effects.8.reaction",
+        "Missing: side_effects.8.system_organ_class",
+        "Missing: side_effects.9.impact",
+        "Missing: side_effects.9.probability",
+        "Missing: side_effects.9.reaction",
+        "Missing: side_effects.9.system_organ_class",
+        "Missing: standard_doses.0",
+        "Missing: standard_doses.1"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_006",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 7.0,
+      "tokens": 5134,
+      "time_s": 21.23740863800049,
+      "errors": [
+        "Incorrect: casualties (sim=0.00)",
+        "Incorrect: date (sim=0.00)",
+        "Incorrect: injured (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.760948628211345,
+      "tokens": 4220,
+      "time_s": 16.40717124938965,
+      "errors": [
+        "Incorrect: summary (sim=0.76)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_008",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.734589310445024,
+      "tokens": 5303,
+      "time_s": 27.32444953918457,
+      "errors": [
+        "Missing: affected_count",
+        "Missing: casualties",
+        "Missing: injured",
+        "Incorrect: key_organizations.0 (sim=0.84)",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.90)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_extraction_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 1.0,
+      "tokens": 2912,
+      "time_s": 9.455249786376953,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.5468072948656654,
+      "tokens": 1673,
+      "time_s": 7.645690441131592,
+      "errors": [
+        "Incorrect: answer (sim=0.55)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_015",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.0,
+      "tokens": 4001,
+      "time_s": 15.916555404663086,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_2",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.0229818477939236,
+      "tokens": 8940,
+      "time_s": 28.971639394760132,
+      "errors": [
+        "Incorrect: diagnosis_methods.1 (sim=0.59)",
+        "Missing: diagnosis_methods.2",
+        "Incorrect: etiology_description (sim=0.00)",
+        "Incorrect: is_chronic (sim=0.00)",
+        "Hallucinated: symptoms.2.is_primary",
+        "Hallucinated: symptoms.2.name",
+        "Hallucinated: symptoms.2.severity_level",
+        "Hallucinated: symptoms.3.is_primary",
+        "Hallucinated: symptoms.3.name",
+        "Hallucinated: symptoms.3.severity_level"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_entities_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.8,
+      "tokens": 2548,
+      "time_s": 11.978956460952759,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.0.text (sim=0.30)",
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.27)",
+        "Incorrect: entities.2.label (sim=0.00)",
+        "Incorrect: entities.2.text (sim=0.31)",
+        "Incorrect: entities.3.label (sim=0.00)",
+        "Incorrect: entities.3.text (sim=0.29)",
+        "Missing: entities.4.label",
+        "Missing: entities.4.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 10.0,
+      "tokens": 5106,
+      "time_s": 21.25889754295349,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_007",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 7.98189466017384,
+      "tokens": 3610,
+      "time_s": 12.866372346878052,
+      "errors": [
+        "Missing: affected_count",
+        "Incorrect: casualties (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_008",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.985796691812174,
+      "tokens": 5416,
+      "time_s": 26.055790662765503,
+      "errors": [
+        "Incorrect: casualties (sim=0.00)",
+        "Incorrect: date (sim=0.00)",
+        "Incorrect: location (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_004",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.527449034425914,
+      "tokens": 5193,
+      "time_s": 19.421987056732178,
+      "errors": [
+        "Incorrect: summary (sim=0.53)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_contracts_005",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.980494020707054,
+      "tokens": 4434,
+      "time_s": 16.764156818389893,
+      "errors": [
+        "Missing: effective_date",
+        "Incorrect: governing_law_jurisdiction (sim=0.00)",
+        "Incorrect: has_nda_clause (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_01",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.465103263257851,
+      "tokens": 5238,
+      "time_s": 24.57634925842285,
+      "errors": [
+        "Incorrect: etiology_description (sim=0.00)",
+        "Missing: symptoms.0.is_primary",
+        "Missing: symptoms.0.severity_level",
+        "Missing: symptoms.1.is_primary",
+        "Missing: symptoms.1.severity_level",
+        "Missing: symptoms.2.is_primary",
+        "Missing: symptoms.2.severity_level",
+        "Missing: symptoms.3.is_primary",
+        "Missing: symptoms.3.severity_level",
+        "Missing: symptoms.4.is_primary",
+        "Missing: symptoms.4.severity_level"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.0,
+      "tokens": 3115,
+      "time_s": 11.229363441467285,
+      "errors": [
+        "Incorrect: publication_year (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_extraction_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.9953585981718346,
+      "tokens": 2611,
+      "time_s": 9.226462364196777,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_017",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.0,
+      "tokens": 4700,
+      "time_s": 13.44268012046814,
+      "errors": [
+        "Missing: mass_kg"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.967203186131189,
+      "tokens": 6378,
+      "time_s": 20.07755970954895,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: cons.1",
+        "Missing: cons.2",
+        "Missing: cons.3",
+        "Missing: director",
+        "Missing: main_cast.0",
+        "Missing: main_cast.1",
+        "Missing: main_cast.2",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2",
+        "Missing: pros.3",
+        "Missing: rating",
+        "Missing: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_01",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.0,
+      "tokens": 8016,
+      "time_s": 22.92889976501465,
+      "errors": [
+        "Missing: dietary_tags.0",
+        "Missing: dietary_tags.1",
+        "Missing: servings"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_entities_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.8279727636200863,
+      "tokens": 2559,
+      "time_s": 12.34079384803772,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.0.text (sim=0.32)",
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.32)",
+        "Missing: entities.5.label",
+        "Missing: entities.5.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_007",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.983404423744751,
+      "tokens": 4410,
+      "time_s": 20.045148372650146,
+      "errors": [
+        "Incorrect: date (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_entities_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 0.5,
+      "tokens": 2889,
+      "time_s": 13.349993705749512,
+      "errors": [
+        "Missing: entities.10.label",
+        "Missing: entities.10.text",
+        "Missing: entities.11.label",
+        "Missing: entities.11.text",
+        "Missing: entities.6.label",
+        "Missing: entities.6.text",
+        "Missing: entities.7.label",
+        "Missing: entities.7.text",
+        "Missing: entities.8.label",
+        "Missing: entities.8.text",
+        "Missing: entities.9.label",
+        "Missing: entities.9.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_004",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.738215679163045,
+      "tokens": 6513,
+      "time_s": 17.136754989624023,
+      "errors": [
+        "Incorrect: official_title (sim=0.74)",
+        "Missing: sanction_date"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_007",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.0,
+      "tokens": 3899,
+      "time_s": 12.569348812103271,
+      "errors": [
+        "Incorrect: publication_year (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.885519359890104,
+      "tokens": 5949,
+      "time_s": 20.876325607299805,
+      "errors": [
+        "Incorrect: summary (sim=0.89)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_contracts_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.981891411924459,
+      "tokens": 4953,
+      "time_s": 21.742961406707764,
+      "errors": [
+        "Missing: effective_date",
+        "Missing: has_liability_limitation"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.0,
+      "tokens": 3295,
+      "time_s": 12.248018026351929,
+      "errors": [
+        "Missing: platforms.0",
+        "Missing: platforms.1",
+        "Missing: platforms.2",
+        "Missing: platforms.3",
+        "Missing: platforms.4",
+        "Missing: platforms.5",
+        "Missing: platforms.6"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_004",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.985182168865961,
+      "tokens": 4734,
+      "time_s": 20.4644136428833,
+      "errors": [
+        "Incorrect: location (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.0,
+      "tokens": 4836,
+      "time_s": 17.821069717407227,
+      "errors": [
+        "Incorrect: semi_major_axis_au (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_09",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.9665142152413218,
+      "tokens": 6279,
+      "time_s": 25.114726781845093,
+      "errors": [
+        "Incorrect: etiology_description (sim=0.00)",
+        "Incorrect: pathology_name (sim=0.54)",
+        "Missing: symptoms.3.is_primary",
+        "Missing: symptoms.3.name",
+        "Missing: symptoms.3.severity_level",
+        "Missing: symptoms.4.is_primary",
+        "Missing: symptoms.4.name",
+        "Missing: symptoms.4.severity_level",
+        "Missing: symptoms.5.is_primary",
+        "Missing: symptoms.5.name",
+        "Missing: symptoms.5.severity_level",
+        "Missing: symptoms.6.is_primary",
+        "Missing: symptoms.6.name",
+        "Missing: symptoms.6.severity_level"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_10",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 2.43859649122807,
+      "tokens": 5500,
+      "time_s": 20.55246663093567,
+      "errors": [
+        "Missing: diagnosis_methods.1",
+        "Missing: diagnosis_methods.2",
+        "Incorrect: etiology_description (sim=0.00)",
+        "Incorrect: is_chronic (sim=0.00)",
+        "Missing: symptoms.0.is_primary",
+        "Missing: symptoms.0.severity_level",
+        "Missing: symptoms.1.is_primary",
+        "Missing: symptoms.1.severity_level",
+        "Missing: symptoms.2.is_primary",
+        "Missing: symptoms.2.name",
+        "Missing: symptoms.2.severity_level",
+        "Missing: symptoms.3.is_primary",
+        "Missing: symptoms.3.name",
+        "Missing: symptoms.3.severity_level",
+        "Missing: symptoms.4.is_primary",
+        "Missing: symptoms.4.name",
+        "Missing: symptoms.4.severity_level"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_005",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.37587243426156,
+      "tokens": 4254,
+      "time_s": 15.191779375076294,
+      "errors": [
+        "Incorrect: official_name (sim=0.38)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_008",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.98125,
+      "tokens": 4408,
+      "time_s": 20.346465349197388,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.761114622769233,
+      "tokens": 4727,
+      "time_s": 20.65198016166687,
+      "errors": [
+        "Incorrect: summary (sim=0.76)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_005",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.8009353788206695,
+      "tokens": 5142,
+      "time_s": 15.664639949798584,
+      "errors": [
+        "Incorrect: common_name (sim=0.60)",
+        "Incorrect: side_effects.0.probability (sim=0.00)",
+        "Missing: side_effects.0.system_organ_class",
+        "Missing: side_effects.1.impact",
+        "Missing: side_effects.1.probability",
+        "Missing: side_effects.1.reaction",
+        "Missing: side_effects.1.system_organ_class",
+        "Missing: standard_doses.0",
+        "Missing: standard_doses.1",
+        "Missing: standard_doses.2"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_014",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.0,
+      "tokens": 3639,
+      "time_s": 14.220229625701904,
+      "errors": [
+        "Missing: current_ceo_name",
+        "Missing: exact_release_date",
+        "Missing: latest_stable_version_sha256"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_004",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.936411131973092,
+      "tokens": 4166,
+      "time_s": 17.75903058052063,
+      "errors": [
+        "Incorrect: summary (sim=0.94)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 1.0,
+      "tokens": 1886,
+      "time_s": 8.07057499885559,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_016",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 7.81016456541633,
+      "tokens": 3996,
+      "time_s": 12.966191053390503,
+      "errors": [
+        "Incorrect: license (sim=0.81)",
+        "Missing: platforms.0",
+        "Missing: platforms.1",
+        "Missing: platforms.2",
+        "Missing: platforms.3",
+        "Missing: platforms.4"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_020",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.0,
+      "tokens": 6096,
+      "time_s": 24.97860884666443,
+      "errors": [
+        "Missing: mass_kg"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.354697241703995,
+      "tokens": 4283,
+      "time_s": 17.344579696655273,
+      "errors": [
+        "Incorrect: headline (sim=0.62)",
+        "Incorrect: summary (sim=0.73)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_007",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.0,
+      "tokens": 5839,
+      "time_s": 15.853008508682251,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: cons.1",
+        "Missing: cons.2",
+        "Missing: director",
+        "Missing: main_cast.0",
+        "Missing: main_cast.1",
+        "Missing: main_cast.2",
+        "Missing: main_cast.3",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: rating",
+        "Missing: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_010",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.0,
+      "tokens": 6021,
+      "time_s": 21.01619052886963,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_005",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 8.684631185557402,
+      "tokens": 7147,
+      "time_s": 27.65462040901184,
+      "errors": [
+        "Incorrect: key_organizations.1 (sim=0.38)",
+        "Incorrect: key_organizations.2 (sim=0.33)",
+        "Incorrect: key_organizations.3 (sim=0.37)",
+        "Incorrect: key_organizations.4 (sim=0.46)",
+        "Missing: key_organizations.5",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.85)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_02",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.75,
+      "tokens": 4855,
+      "time_s": 18.067039251327515,
+      "errors": [
+        "Missing: diagnosis_methods.1",
+        "Incorrect: etiology_description (sim=0.00)",
+        "Missing: symptoms.2.is_primary",
+        "Missing: symptoms.2.name",
+        "Missing: symptoms.2.severity_level",
+        "Missing: symptoms.3.is_primary",
+        "Missing: symptoms.3.name",
+        "Missing: symptoms.3.severity_level",
+        "Missing: symptoms.4.is_primary",
+        "Missing: symptoms.4.name",
+        "Missing: symptoms.4.severity_level",
+        "Missing: symptoms.5.is_primary",
+        "Missing: symptoms.5.name",
+        "Missing: symptoms.5.severity_level",
+        "Missing: symptoms.6.is_primary",
+        "Missing: symptoms.6.name",
+        "Missing: symptoms.6.severity_level",
+        "Missing: symptoms.7.is_primary",
+        "Missing: symptoms.7.name",
+        "Missing: symptoms.7.severity_level"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_003",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.0,
+      "tokens": 5674,
+      "time_s": 18.22967004776001,
+      "errors": [
+        "Missing: diameter_km",
+        "Missing: eccentricity",
+        "Missing: mass_kg"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.318907989343495,
+      "tokens": 9205,
+      "time_s": 52.73900866508484,
+      "errors": [
+        "Incorrect: side_effects.0.impact (sim=0.00)",
+        "Missing: side_effects.0.system_organ_class",
+        "Incorrect: side_effects.1.impact (sim=0.00)",
+        "Missing: side_effects.1.system_organ_class",
+        "Missing: side_effects.10.system_organ_class",
+        "Incorrect: side_effects.11.probability (sim=0.00)",
+        "Missing: side_effects.11.system_organ_class",
+        "Incorrect: side_effects.12.probability (sim=0.00)",
+        "Missing: side_effects.12.system_organ_class",
+        "Incorrect: side_effects.2.probability (sim=0.00)",
+        "Missing: side_effects.2.system_organ_class",
+        "Incorrect: side_effects.3.impact (sim=0.00)",
+        "Incorrect: side_effects.3.probability (sim=0.00)",
+        "Missing: side_effects.3.system_organ_class",
+        "Incorrect: side_effects.4.probability (sim=0.00)",
+        "Missing: side_effects.4.system_organ_class",
+        "Incorrect: side_effects.5.probability (sim=0.00)",
+        "Missing: side_effects.5.system_organ_class",
+        "Incorrect: side_effects.6.probability (sim=0.00)",
+        "Missing: side_effects.6.system_organ_class",
+        "Incorrect: side_effects.7.probability (sim=0.00)",
+        "Missing: side_effects.7.system_organ_class",
+        "Incorrect: side_effects.8.impact (sim=0.00)",
+        "Missing: side_effects.8.system_organ_class",
+        "Incorrect: side_effects.9.probability (sim=0.00)",
+        "Missing: side_effects.9.system_organ_class",
+        "Missing: standard_doses.0"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_009",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.957427991707276,
+      "tokens": 8599,
+      "time_s": 21.779261827468872,
+      "errors": [
+        "Incorrect: publication_year (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.990673645397532,
+      "tokens": 3857,
+      "time_s": 15.842861890792847,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_012",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.0,
+      "tokens": 3642,
+      "time_s": 10.792654514312744,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_05",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 3.1702443383767553,
+      "tokens": 5427,
+      "time_s": 24.12065291404724,
+      "errors": [
+        "Incorrect: etiology_description (sim=0.00)",
+        "Incorrect: is_chronic (sim=0.00)",
+        "Missing: symptoms.0.is_primary",
+        "Incorrect: symptoms.0.name (sim=0.73)",
+        "Missing: symptoms.0.severity_level",
+        "Missing: symptoms.1.is_primary",
+        "Missing: symptoms.1.severity_level",
+        "Missing: symptoms.10.is_primary",
+        "Missing: symptoms.10.name",
+        "Missing: symptoms.10.severity_level",
+        "Missing: symptoms.2.is_primary",
+        "Missing: symptoms.2.severity_level",
+        "Missing: symptoms.3.is_primary",
+        "Missing: symptoms.3.severity_level",
+        "Missing: symptoms.4.is_primary",
+        "Missing: symptoms.4.severity_level",
+        "Missing: symptoms.5.is_primary",
+        "Missing: symptoms.5.severity_level",
+        "Missing: symptoms.6.is_primary",
+        "Missing: symptoms.6.severity_level",
+        "Missing: symptoms.7.is_primary",
+        "Missing: symptoms.7.severity_level",
+        "Missing: symptoms.8.is_primary",
+        "Missing: symptoms.8.severity_level",
+        "Missing: symptoms.9.is_primary",
+        "Missing: symptoms.9.name",
+        "Missing: symptoms.9.severity_level"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_extraction_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 1.0,
+      "tokens": 5776,
+      "time_s": 27.658490419387817,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_013",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 7.740739657252524,
+      "tokens": 3575,
+      "time_s": 14.246393203735352,
+      "errors": [
+        "Incorrect: license (sim=0.74)",
+        "Hallucinated: platforms.0"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_019",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.0,
+      "tokens": 5339,
+      "time_s": 17.401671648025513,
+      "errors": [
+        "Incorrect: body_type (sim=0.00)",
+        "Incorrect: diameter_km (sim=0.00)",
+        "Incorrect: discovery_date (sim=0.00)",
+        "Incorrect: semi_major_axis_au (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_03",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.0,
+      "tokens": 6909,
+      "time_s": 25.16921043395996,
+      "errors": [
+        "Incorrect: etiology_description (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_06",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.0,
+      "tokens": 3851,
+      "time_s": 13.795811653137207,
+      "errors": [
+        "Missing: is_chronic"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_001",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 4.066666666666666,
+      "tokens": 8829,
+      "time_s": 34.53109550476074,
+      "errors": [
+        "Missing: side_effects.0.system_organ_class",
+        "Missing: side_effects.1.system_organ_class",
+        "Missing: side_effects.10.impact",
+        "Missing: side_effects.10.probability",
+        "Missing: side_effects.10.reaction",
+        "Missing: side_effects.10.system_organ_class",
+        "Missing: side_effects.11.impact",
+        "Missing: side_effects.11.probability",
+        "Missing: side_effects.11.reaction",
+        "Missing: side_effects.11.system_organ_class",
+        "Missing: side_effects.12.impact",
+        "Missing: side_effects.12.probability",
+        "Missing: side_effects.12.reaction",
+        "Missing: side_effects.12.system_organ_class",
+        "Missing: side_effects.13.impact",
+        "Missing: side_effects.13.probability",
+        "Missing: side_effects.13.reaction",
+        "Missing: side_effects.13.system_organ_class",
+        "Missing: side_effects.14.impact",
+        "Missing: side_effects.14.probability",
+        "Missing: side_effects.14.reaction",
+        "Missing: side_effects.14.system_organ_class",
+        "Missing: side_effects.15.impact",
+        "Missing: side_effects.15.probability",
+        "Missing: side_effects.15.reaction",
+        "Missing: side_effects.15.system_organ_class",
+        "Missing: side_effects.16.impact",
+        "Missing: side_effects.16.probability",
+        "Missing: side_effects.16.reaction",
+        "Missing: side_effects.16.system_organ_class",
+        "Missing: side_effects.17.impact",
+        "Missing: side_effects.17.probability",
+        "Missing: side_effects.17.reaction",
+        "Missing: side_effects.17.system_organ_class",
+        "Missing: side_effects.18.impact",
+        "Missing: side_effects.18.probability",
+        "Missing: side_effects.18.reaction",
+        "Missing: side_effects.18.system_organ_class",
+        "Missing: side_effects.19.impact",
+        "Missing: side_effects.19.probability",
+        "Missing: side_effects.19.reaction",
+        "Missing: side_effects.19.system_organ_class",
+        "Missing: side_effects.2.impact",
+        "Missing: side_effects.2.probability",
+        "Missing: side_effects.2.reaction",
+        "Missing: side_effects.2.system_organ_class",
+        "Missing: side_effects.20.impact",
+        "Missing: side_effects.20.probability",
+        "Missing: side_effects.20.reaction",
+        "Missing: side_effects.20.system_organ_class",
+        "Missing: side_effects.21.impact",
+        "Missing: side_effects.21.probability",
+        "Missing: side_effects.21.reaction",
+        "Missing: side_effects.21.system_organ_class",
+        "Missing: side_effects.3.impact",
+        "Missing: side_effects.3.probability",
+        "Missing: side_effects.3.reaction",
+        "Missing: side_effects.3.system_organ_class",
+        "Missing: side_effects.4.impact",
+        "Missing: side_effects.4.probability",
+        "Missing: side_effects.4.reaction",
+        "Missing: side_effects.4.system_organ_class",
+        "Missing: side_effects.5.impact",
+        "Missing: side_effects.5.probability",
+        "Missing: side_effects.5.reaction",
+        "Missing: side_effects.5.system_organ_class",
+        "Missing: side_effects.6.impact",
+        "Missing: side_effects.6.probability",
+        "Missing: side_effects.6.reaction",
+        "Missing: side_effects.6.system_organ_class",
+        "Missing: side_effects.7.impact",
+        "Missing: side_effects.7.probability",
+        "Missing: side_effects.7.reaction",
+        "Missing: side_effects.7.system_organ_class",
+        "Missing: side_effects.8.impact",
+        "Missing: side_effects.8.probability",
+        "Missing: side_effects.8.reaction",
+        "Missing: side_effects.8.system_organ_class",
+        "Missing: side_effects.9.impact",
+        "Missing: side_effects.9.probability",
+        "Missing: side_effects.9.reaction",
+        "Missing: side_effects.9.system_organ_class",
+        "Missing: standard_doses.0",
+        "Missing: standard_doses.1"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_008",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.666666666666666,
+      "tokens": 4182,
+      "time_s": 17.539103746414185,
+      "errors": [
+        "Missing: genres.2"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_03",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 2.25,
+      "tokens": 6286,
+      "time_s": 16.259564638137817,
+      "errors": [
+        "Incorrect: complexity_score (sim=0.00)",
+        "Missing: dietary_tags.0",
+        "Missing: dietary_tags.1",
+        "Missing: dietary_tags.2",
+        "Missing: dietary_tags.3",
+        "Missing: servings",
+        "Hallucinated: technique_sequence.1",
+        "Hallucinated: technique_sequence.2",
+        "Hallucinated: technique_sequence.3",
+        "Missing: total_time_minutes"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_008",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 5.0,
+      "tokens": 6165,
+      "time_s": 18.020566940307617,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: cons.1",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2",
+        "Missing: pros.3",
+        "Missing: rating",
+        "Missing: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_006",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 7.713529478727372,
+      "tokens": 4534,
+      "time_s": 18.093995809555054,
+      "errors": [
+        "Missing: casualties",
+        "Missing: injured",
+        "Incorrect: summary (sim=0.73)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_011",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 9.0,
+      "tokens": 4776,
+      "time_s": 20.206812620162964,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_006",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 6.0,
+      "tokens": 3423,
+      "time_s": 13.080717325210571,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_entities_002",
+      "model": "llama-3.2-3b-instruct",
+      "tps": 1.0,
+      "tokens": 2222,
+      "time_s": 10.337138652801514,
+      "errors": [],
+      "status": "PASS"
+    }
+  ]
+}

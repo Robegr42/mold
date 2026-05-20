@@ -1,0 +1,2880 @@
+{
+  "participant": {
+    "team_name": "MOLD Team",
+    "institution": "University of Havana",
+    "pipelines": [
+      {
+        "name": "two-pass",
+        "description": "Strategy that decouples reasoning in Spanish from strict JSON extraction."
+      },
+      {
+        "name": "grounded",
+        "description": "Evidence-based agent that mandates source quotes to authorize extraction."
+      },
+      {
+        "name": "auditor",
+        "description": "Self-correction loop with an adversarial audit to strike hallucinations."
+      },
+      {
+        "name": "baseline",
+        "description": "Reference implementation using OpenAI Structured Outputs."
+      },
+      {
+        "name": "end-anchored",
+        "description": "Strategy that places a blank JSON template at the end of the prompt."
+      },
+      {
+        "name": "champion",
+        "description": "High-accuracy modular pipeline with RAG, Two-Pass reasoning, and ReAct verification."
+      },
+      {
+        "name": "slim-champion",
+        "description": "Streamlined high-accuracy pipeline with RAG and Two-Pass reasoning, optimized for SLMs."
+      },
+      {
+        "name": "stable-champion",
+        "description": "Streamlined architecture using the optimal Two-Pass invariant configuration (Null-Rule only)."
+      },
+      {
+        "name": "synthetic-anchor",
+        "description": "Experimental pipeline that uses synthetic examples from ArchitectModule as few-shot anchors when RAG fails."
+      },
+      {
+        "name": "audited-synthetic",
+        "description": "Double-gate pipeline (RAG 0.55 + Synthetic Audit 0.70) with structural validation."
+      }
+    ]
+  },
+  "config": {
+    "model": "qwen/qwen3-14b",
+    "pipeline": "two-pass-null",
+    "data_source": "/home/danilo/vscode/mold/data/dev"
+  },
+  "metrics": {
+    "precision": 0.7887910994294784,
+    "recall": 0.6614086858570161,
+    "f1": 0.7195053947498621
+  },
+  "tasks": [
+    {
+      "task_id": "stem_astronomy_detailed_011",
+      "model": "qwen/qwen3-14b",
+      "tps": 2.7526932854280477,
+      "tokens": 3259,
+      "time_s": 16.995206356048584,
+      "errors": [
+        "Incorrect: discoverer (sim=0.00)",
+        "Missing: discovery_date",
+        "Missing: eccentricity",
+        "Missing: mass_kg",
+        "Incorrect: official_name (sim=0.75)",
+        "Missing: orbital_period_days",
+        "Missing: semi_major_axis_au"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_007",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.0,
+      "tokens": 3210,
+      "time_s": 5.400700092315674,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_009",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.456204104406158,
+      "tokens": 3075,
+      "time_s": 7.963505744934082,
+      "errors": [
+        "Missing: current_ceo_name",
+        "Missing: exact_release_date",
+        "Incorrect: features.0 (sim=0.77)",
+        "Incorrect: features.1 (sim=0.43)",
+        "Hallucinated: features.3",
+        "Hallucinated: features.4",
+        "Hallucinated: features.5",
+        "Missing: latest_stable_version_sha256",
+        "Incorrect: license (sim=0.69)",
+        "Incorrect: primary_developer (sim=0.32)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_010",
+      "model": "qwen/qwen3-14b",
+      "tps": 6.48100498839431,
+      "tokens": 2705,
+      "time_s": 7.698244094848633,
+      "errors": [
+        "Incorrect: features.0 (sim=0.52)",
+        "Incorrect: features.1 (sim=0.47)",
+        "Hallucinated: features.2",
+        "Hallucinated: features.3",
+        "Incorrect: license (sim=0.58)",
+        "Hallucinated: platforms.0",
+        "Hallucinated: platforms.1",
+        "Hallucinated: platforms.2",
+        "Hallucinated: platforms.3",
+        "Incorrect: primary_developer (sim=0.63)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_006",
+      "model": "qwen/qwen3-14b",
+      "tps": 8.055133983935995,
+      "tokens": 4213,
+      "time_s": 15.342359066009521,
+      "errors": [
+        "Incorrect: key_organizations.1 (sim=0.46)",
+        "Hallucinated: key_organizations.2",
+        "Hallucinated: key_organizations.3",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.73)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_007",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.432934504286484,
+      "tokens": 2525,
+      "time_s": 6.673712730407715,
+      "errors": [
+        "Missing: key_people.2",
+        "Missing: key_people.3",
+        "Incorrect: summary (sim=0.93)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_extraction_001",
+      "model": "qwen/qwen3-14b",
+      "tps": 0.5674225470860996,
+      "tokens": 1145,
+      "time_s": 2.0839481353759766,
+      "errors": [
+        "Incorrect: answer (sim=0.57)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_009",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.830291716911034,
+      "tokens": 2633,
+      "time_s": 7.48131537437439,
+      "errors": [
+        "Incorrect: summary (sim=0.83)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_monuments_1",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.7379473044136615,
+      "tokens": 3263,
+      "time_s": 20.267627954483032,
+      "errors": [
+        "Incorrect: bic_category (sim=0.00)",
+        "Incorrect: municipality (sim=0.36)",
+        "Incorrect: registration_code (sim=0.38)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_002",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.476407595330288,
+      "tokens": 2137,
+      "time_s": 12.9639573097229,
+      "errors": [
+        "Incorrect: genres.0 (sim=0.42)",
+        "Incorrect: genres.1 (sim=0.41)",
+        "Hallucinated: genres.2",
+        "Incorrect: key_themes.0 (sim=0.51)",
+        "Incorrect: key_themes.1 (sim=0.75)",
+        "Hallucinated: key_themes.2",
+        "Hallucinated: key_themes.3",
+        "Hallucinated: key_themes.4",
+        "Hallucinated: key_themes.5",
+        "Incorrect: original_language (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_002",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.353899180467251,
+      "tokens": 8876,
+      "time_s": 8.912492990493774,
+      "errors": [
+        "Incorrect: affected_articles.0 (sim=0.48)",
+        "Incorrect: affected_articles.1 (sim=0.48)",
+        "Incorrect: official_title (sim=0.78)",
+        "Missing: sanction_date"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_018",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.0,
+      "tokens": 3705,
+      "time_s": 6.286401033401489,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_001",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.564138827584994,
+      "tokens": 5325,
+      "time_s": 8.427982568740845,
+      "errors": [
+        "Incorrect: affected_articles.0 (sim=0.69)",
+        "Incorrect: affected_articles.1 (sim=0.74)",
+        "Incorrect: affected_articles.2 (sim=0.73)",
+        "Incorrect: affected_articles.3 (sim=0.73)",
+        "Missing: sanction_date"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_002",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.80252124548457,
+      "tokens": 2920,
+      "time_s": 5.913158178329468,
+      "errors": [
+        "Incorrect: summary (sim=0.80)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_009",
+      "model": "qwen/qwen3-14b",
+      "tps": 6.250732481118571,
+      "tokens": 3043,
+      "time_s": 8.306726694107056,
+      "errors": [
+        "Missing: affected_count",
+        "Incorrect: category (sim=0.00)",
+        "Missing: date",
+        "Incorrect: key_organizations.1 (sim=0.39)",
+        "Hallucinated: key_organizations.2",
+        "Incorrect: summary (sim=0.82)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_005",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.0,
+      "tokens": 6363,
+      "time_s": 7.184599876403809,
+      "errors": [
+        "Missing: affected_articles.0",
+        "Missing: affected_articles.1",
+        "Missing: affected_articles.2",
+        "Missing: sanction_date"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_008",
+      "model": "qwen/qwen3-14b",
+      "tps": 7.3535869563971685,
+      "tokens": 3923,
+      "time_s": 10.603687524795532,
+      "errors": [
+        "Incorrect: features.0 (sim=0.40)",
+        "Incorrect: features.1 (sim=0.57)",
+        "Incorrect: features.2 (sim=0.39)",
+        "Incorrect: features.3 (sim=0.68)",
+        "Hallucinated: features.4",
+        "Hallucinated: features.5",
+        "Hallucinated: features.6",
+        "Hallucinated: features.7",
+        "Incorrect: license (sim=0.68)",
+        "Incorrect: primary_developer (sim=0.42)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_005",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.6,
+      "tokens": 3742,
+      "time_s": 8.41400933265686,
+      "errors": [
+        "Incorrect: genres.0 (sim=0.50)",
+        "Incorrect: genres.1 (sim=0.50)",
+        "Hallucinated: key_themes.3",
+        "Hallucinated: key_themes.4",
+        "Incorrect: original_language (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_009",
+      "model": "qwen/qwen3-14b",
+      "tps": 5.0,
+      "tokens": 2771,
+      "time_s": 3.4141504764556885,
+      "errors": [
+        "Missing: eccentricity",
+        "Missing: mass_kg",
+        "Missing: orbital_period_days",
+        "Missing: semi_major_axis_au"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_010",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.746206650493097,
+      "tokens": 2521,
+      "time_s": 7.583014726638794,
+      "errors": [
+        "Incorrect: key_themes.0 (sim=0.47)",
+        "Incorrect: key_themes.1 (sim=0.38)",
+        "Incorrect: original_language (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_monuments_2",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.363069566983351,
+      "tokens": 4673,
+      "time_s": 27.739652395248413,
+      "errors": [
+        "Incorrect: bic_category (sim=0.00)",
+        "Incorrect: is_declared (sim=0.00)",
+        "Incorrect: municipality (sim=0.36)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_entities_002",
+      "model": "qwen/qwen3-14b",
+      "tps": 0.0,
+      "tokens": 2133,
+      "time_s": 6.39585018157959,
+      "errors": [
+        "Missing: entities.0.label",
+        "Missing: entities.0.text",
+        "Missing: entities.1.label",
+        "Missing: entities.1.text",
+        "Missing: entities.2.label",
+        "Missing: entities.2.text",
+        "Missing: entities.3.label",
+        "Missing: entities.3.text",
+        "Missing: entities.4.label",
+        "Missing: entities.4.text",
+        "Missing: entities.5.label",
+        "Missing: entities.5.text",
+        "Missing: entities.6.label",
+        "Missing: entities.6.text",
+        "Missing: entities.7.label",
+        "Missing: entities.7.text",
+        "Missing: entities.8.label",
+        "Missing: entities.8.text",
+        "Missing: entities.9.label",
+        "Missing: entities.9.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_entities_001",
+      "model": "qwen/qwen3-14b",
+      "tps": 0.0,
+      "tokens": 3540,
+      "time_s": 14.081517457962036,
+      "errors": [
+        "Missing: entities.0.label",
+        "Missing: entities.0.text",
+        "Missing: entities.1.label",
+        "Missing: entities.1.text",
+        "Missing: entities.2.label",
+        "Missing: entities.2.text",
+        "Missing: entities.3.label",
+        "Missing: entities.3.text",
+        "Missing: entities.4.label",
+        "Missing: entities.4.text",
+        "Missing: entities.5.label",
+        "Missing: entities.5.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_extraction_002",
+      "model": "qwen/qwen3-14b",
+      "tps": 0.5329196627245786,
+      "tokens": 2238,
+      "time_s": 2.2265000343322754,
+      "errors": [
+        "Incorrect: answer (sim=0.53)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_003",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.365048664929193,
+      "tokens": 3642,
+      "time_s": 11.809437036514282,
+      "errors": [
+        "Incorrect: cons.0 (sim=0.61)",
+        "Missing: director",
+        "Incorrect: key_verdict (sim=0.59)",
+        "Missing: main_cast.0",
+        "Missing: main_cast.1",
+        "Incorrect: pros.0 (sim=0.38)",
+        "Incorrect: pros.1 (sim=0.55)",
+        "Incorrect: pros.2 (sim=0.51)",
+        "Missing: pros.3",
+        "Missing: rating",
+        "Missing: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_006",
+      "model": "qwen/qwen3-14b",
+      "tps": 2.976892558502462,
+      "tokens": 1620,
+      "time_s": 3.502958297729492,
+      "errors": [
+        "Missing: current_ceo_name",
+        "Incorrect: exact_release_date (sim=0.00)",
+        "Missing: latest_stable_version_sha256",
+        "Incorrect: license (sim=0.57)",
+        "Incorrect: primary_developer (sim=0.41)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_003",
+      "model": "qwen/qwen3-14b",
+      "tps": 6.785236153520117,
+      "tokens": 2680,
+      "time_s": 8.33519458770752,
+      "errors": [
+        "Incorrect: category (sim=0.00)",
+        "Incorrect: date (sim=0.00)",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.79)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_contracts_002",
+      "model": "qwen/qwen3-14b",
+      "tps": 5.367852634881933,
+      "tokens": 3571,
+      "time_s": 9.352852582931519,
+      "errors": [
+        "Missing: effective_date",
+        "Incorrect: governing_law_jurisdiction (sim=0.00)",
+        "Missing: monetary_amount",
+        "Incorrect: parties.0 (sim=0.63)",
+        "Incorrect: parties.1 (sim=0.36)",
+        "Missing: parties.2"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_015",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.0,
+      "tokens": 2507,
+      "time_s": 9.756736993789673,
+      "errors": [
+        "Missing: discovery_date",
+        "Missing: eccentricity",
+        "Missing: mass_kg",
+        "Missing: orbital_period_days",
+        "Missing: semi_major_axis_au"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_04",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.883285016367587,
+      "tokens": 3790,
+      "time_s": 9.08537244796753,
+      "errors": [
+        "Incorrect: complexity_score (sim=0.00)",
+        "Missing: dietary_tags.3",
+        "Missing: ingredients.0.amount",
+        "Missing: ingredients.0.unit",
+        "Missing: ingredients.1.amount",
+        "Incorrect: ingredients.1.name (sim=0.47)",
+        "Missing: ingredients.1.unit",
+        "Missing: ingredients.2.amount",
+        "Incorrect: ingredients.2.name (sim=0.31)",
+        "Missing: ingredients.2.unit",
+        "Missing: ingredients.3.amount",
+        "Incorrect: ingredients.3.name (sim=0.33)",
+        "Missing: ingredients.3.unit",
+        "Missing: ingredients.4.amount",
+        "Incorrect: ingredients.4.name (sim=0.32)",
+        "Missing: ingredients.4.unit",
+        "Missing: ingredients.5.amount",
+        "Incorrect: ingredients.5.name (sim=0.37)",
+        "Missing: ingredients.5.unit",
+        "Missing: ingredients.6.amount",
+        "Missing: ingredients.6.name",
+        "Missing: ingredients.6.unit",
+        "Missing: servings"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_010",
+      "model": "qwen/qwen3-14b",
+      "tps": 8.264734260752611,
+      "tokens": 3809,
+      "time_s": 17.63433814048767,
+      "errors": [
+        "Incorrect: key_organizations.0 (sim=0.40)",
+        "Incorrect: key_organizations.1 (sim=0.52)",
+        "Incorrect: key_organizations.2 (sim=0.62)",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.81)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_003",
+      "model": "qwen/qwen3-14b",
+      "tps": 6.480104740264541,
+      "tokens": 2916,
+      "time_s": 12.533562660217285,
+      "errors": [
+        "Missing: affected_count",
+        "Missing: casualties",
+        "Missing: injured",
+        "Missing: key_organizations.3",
+        "Incorrect: key_people.3 (sim=0.86)",
+        "Incorrect: key_people.4 (sim=0.83)",
+        "Incorrect: summary (sim=0.84)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_009",
+      "model": "qwen/qwen3-14b",
+      "tps": 6.506799151296739,
+      "tokens": 4211,
+      "time_s": 8.413793802261353,
+      "errors": [
+        "Incorrect: cons.0 (sim=0.82)",
+        "Incorrect: cons.1 (sim=0.63)",
+        "Incorrect: key_verdict (sim=0.58)",
+        "Incorrect: pros.0 (sim=0.74)",
+        "Incorrect: pros.1 (sim=0.55)",
+        "Incorrect: pros.2 (sim=0.86)",
+        "Hallucinated: pros.3",
+        "Hallucinated: pros.4",
+        "Missing: rating",
+        "Missing: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_contracts_004",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.810607023992985,
+      "tokens": 2971,
+      "time_s": 7.86873722076416,
+      "errors": [
+        "Missing: effective_date",
+        "Incorrect: governing_law_jurisdiction (sim=0.00)",
+        "Missing: has_liability_limitation",
+        "Missing: monetary_amount",
+        "Incorrect: parties.0 (sim=0.92)",
+        "Incorrect: parties.1 (sim=0.87)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_05",
+      "model": "qwen/qwen3-14b",
+      "tps": 0.33651905209405886,
+      "tokens": 2517,
+      "time_s": 3.017331123352051,
+      "errors": [
+        "Incorrect: complexity_score (sim=0.00)",
+        "Missing: dietary_tags.0",
+        "Missing: dietary_tags.1",
+        "Missing: dietary_tags.2",
+        "Incorrect: dish_name (sim=0.34)",
+        "Missing: ingredients.0.amount",
+        "Missing: ingredients.0.name",
+        "Missing: ingredients.0.unit",
+        "Missing: ingredients.1.amount",
+        "Missing: ingredients.1.name",
+        "Missing: ingredients.1.unit",
+        "Missing: servings",
+        "Incorrect: technique_sequence.0 (sim=0.00)",
+        "Missing: total_time_minutes"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_monuments_5",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.373435615847188,
+      "tokens": 4681,
+      "time_s": 28.325215578079224,
+      "errors": [
+        "Incorrect: bic_category (sim=0.00)",
+        "Incorrect: is_declared (sim=0.00)",
+        "Incorrect: municipality (sim=0.37)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_contracts_003",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.5,
+      "tokens": 2953,
+      "time_s": 7.7323832511901855,
+      "errors": [
+        "Incorrect: contract_type (sim=0.00)",
+        "Missing: effective_date",
+        "Incorrect: governing_law_jurisdiction (sim=0.00)",
+        "Missing: has_liability_limitation",
+        "Missing: monetary_amount",
+        "Incorrect: parties.1 (sim=0.43)",
+        "Missing: parties.2",
+        "Missing: parties.3"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_09",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.18167714234292,
+      "tokens": 3335,
+      "time_s": 9.78881049156189,
+      "errors": [
+        "Missing: dietary_tags.0",
+        "Missing: dietary_tags.1",
+        "Missing: ingredients.0.amount",
+        "Missing: ingredients.0.unit",
+        "Missing: ingredients.1.amount",
+        "Missing: ingredients.1.unit",
+        "Missing: ingredients.2.amount",
+        "Missing: ingredients.2.unit",
+        "Missing: ingredients.3.amount",
+        "Incorrect: ingredients.3.name (sim=0.61)",
+        "Missing: ingredients.3.unit",
+        "Missing: ingredients.4.amount",
+        "Missing: ingredients.4.unit",
+        "Missing: servings"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_007",
+      "model": "qwen/qwen3-14b",
+      "tps": 8.658126610060226,
+      "tokens": 3626,
+      "time_s": 15.096961498260498,
+      "errors": [
+        "Hallucinated: key_organizations.0",
+        "Incorrect: summary (sim=0.68)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_008",
+      "model": "qwen/qwen3-14b",
+      "tps": 8.638028146939572,
+      "tokens": 2929,
+      "time_s": 7.941712379455566,
+      "errors": [
+        "Incorrect: date (sim=0.00)",
+        "Incorrect: key_organizations.0 (sim=0.77)",
+        "Incorrect: summary (sim=0.78)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_003",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.492372974177006,
+      "tokens": 4938,
+      "time_s": 10.562039375305176,
+      "errors": [
+        "Hallucinated: genres.1",
+        "Incorrect: key_themes.0 (sim=0.37)",
+        "Incorrect: key_themes.1 (sim=0.33)",
+        "Incorrect: key_themes.2 (sim=0.39)",
+        "Hallucinated: key_themes.3",
+        "Hallucinated: key_themes.4",
+        "Incorrect: original_language (sim=0.00)",
+        "Incorrect: title (sim=0.80)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_monuments_4",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.7769338819514306,
+      "tokens": 3660,
+      "time_s": 20.829636096954346,
+      "errors": [
+        "Incorrect: bic_category (sim=0.00)",
+        "Incorrect: municipality (sim=0.37)",
+        "Incorrect: registration_code (sim=0.40)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_06",
+      "model": "qwen/qwen3-14b",
+      "tps": 2.571428571428571,
+      "tokens": 6717,
+      "time_s": 11.009954452514648,
+      "errors": [
+        "Incorrect: complexity_score (sim=0.00)",
+        "Missing: dietary_tags.0",
+        "Missing: dietary_tags.1",
+        "Missing: ingredients.0.amount",
+        "Missing: ingredients.0.unit",
+        "Missing: ingredients.1.amount",
+        "Missing: ingredients.1.name",
+        "Missing: ingredients.1.unit",
+        "Missing: ingredients.2.amount",
+        "Missing: ingredients.2.name",
+        "Missing: ingredients.2.unit",
+        "Missing: ingredients.3.amount",
+        "Missing: ingredients.3.name",
+        "Missing: ingredients.3.unit",
+        "Missing: servings",
+        "Missing: technique_sequence.1"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_004",
+      "model": "qwen/qwen3-14b",
+      "tps": 5.835566846401088,
+      "tokens": 2661,
+      "time_s": 8.340922355651855,
+      "errors": [
+        "Missing: affected_count",
+        "Missing: casualties",
+        "Missing: injured",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.85)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_012",
+      "model": "qwen/qwen3-14b",
+      "tps": 5.148896050707402,
+      "tokens": 3038,
+      "time_s": 9.248078107833862,
+      "errors": [
+        "Missing: current_ceo_name",
+        "Incorrect: exact_release_date (sim=0.00)",
+        "Incorrect: features.0 (sim=0.89)",
+        "Incorrect: features.1 (sim=0.66)",
+        "Hallucinated: features.2",
+        "Hallucinated: features.3",
+        "Hallucinated: features.4",
+        "Hallucinated: features.5",
+        "Hallucinated: features.6",
+        "Hallucinated: features.7",
+        "Hallucinated: features.8",
+        "Hallucinated: features.9",
+        "Missing: latest_stable_version_sha256"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_004",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.0,
+      "tokens": 3664,
+      "time_s": 10.94911003112793,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_006",
+      "model": "qwen/qwen3-14b",
+      "tps": 2.0,
+      "tokens": 1997,
+      "time_s": 7.637942790985107,
+      "errors": [
+        "Missing: diameter_km",
+        "Missing: discoverer",
+        "Missing: discovery_date",
+        "Missing: eccentricity",
+        "Missing: mass_kg",
+        "Missing: orbital_period_days",
+        "Missing: semi_major_axis_au"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_010",
+      "model": "qwen/qwen3-14b",
+      "tps": 5.391752794218945,
+      "tokens": 2827,
+      "time_s": 16.728909492492676,
+      "errors": [
+        "Missing: affected_count",
+        "Missing: casualties",
+        "Missing: injured",
+        "Incorrect: key_organizations.0 (sim=0.80)",
+        "Missing: key_organizations.2",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.83)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_010",
+      "model": "qwen/qwen3-14b",
+      "tps": 8.154983738861947,
+      "tokens": 5696,
+      "time_s": 19.414303302764893,
+      "errors": [
+        "Incorrect: affected_count (sim=0.00)",
+        "Incorrect: key_organizations.1 (sim=0.51)",
+        "Incorrect: key_organizations.2 (sim=0.49)",
+        "Incorrect: key_organizations.3 (sim=0.51)",
+        "Hallucinated: key_organizations.4",
+        "Hallucinated: key_organizations.5",
+        "Hallucinated: key_organizations.6",
+        "Hallucinated: key_organizations.7",
+        "Incorrect: key_people.1 (sim=0.33)",
+        "Incorrect: key_people.2 (sim=0.33)",
+        "Incorrect: summary (sim=0.71)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_013",
+      "model": "qwen/qwen3-14b",
+      "tps": 8.0,
+      "tokens": 3724,
+      "time_s": 8.664331912994385,
+      "errors": [
+        "Incorrect: discovery_date (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_006",
+      "model": "qwen/qwen3-14b",
+      "tps": 7.846284369900768,
+      "tokens": 2781,
+      "time_s": 10.269582986831665,
+      "errors": [
+        "Incorrect: date (sim=0.00)",
+        "Incorrect: key_organizations.0 (sim=0.91)",
+        "Missing: key_organizations.1",
+        "Missing: key_organizations.2",
+        "Missing: key_people.2",
+        "Incorrect: summary (sim=0.88)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_003",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.3339449229678118,
+      "tokens": 2700,
+      "time_s": 11.194515705108643,
+      "errors": [
+        "Incorrect: affected_articles.0 (sim=0.76)",
+        "Incorrect: affected_articles.1 (sim=0.76)",
+        "Incorrect: law_range (sim=0.00)",
+        "Incorrect: official_title (sim=0.72)",
+        "Missing: sanction_date"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_010",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.3906222433511966,
+      "tokens": 3634,
+      "time_s": 6.8789873123168945,
+      "errors": [
+        "Incorrect: cons.0 (sim=0.53)",
+        "Incorrect: cons.1 (sim=0.57)",
+        "Incorrect: cons.2 (sim=0.49)",
+        "Hallucinated: cons.3",
+        "Missing: director",
+        "Incorrect: key_verdict (sim=0.59)",
+        "Missing: main_cast.0",
+        "Missing: main_cast.1",
+        "Incorrect: pros.0 (sim=0.69)",
+        "Incorrect: pros.1 (sim=0.89)",
+        "Hallucinated: pros.2",
+        "Missing: rating",
+        "Missing: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_004",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.513448115574622,
+      "tokens": 4019,
+      "time_s": 13.94059443473816,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: cons.1",
+        "Missing: cons.2",
+        "Missing: cons.3",
+        "Missing: director",
+        "Incorrect: key_verdict (sim=0.51)",
+        "Missing: main_cast.0",
+        "Missing: main_cast.1",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2",
+        "Missing: pros.3",
+        "Missing: rating",
+        "Missing: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_005",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.5212576017330717,
+      "tokens": 3283,
+      "time_s": 7.197170972824097,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: cons.1",
+        "Missing: director",
+        "Incorrect: key_verdict (sim=0.52)",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2",
+        "Missing: rating",
+        "Missing: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_014",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.0,
+      "tokens": 3703,
+      "time_s": 12.553766250610352,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_003",
+      "model": "qwen/qwen3-14b",
+      "tps": 1.0,
+      "tokens": 1056,
+      "time_s": 7.1208336353302,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_008",
+      "model": "qwen/qwen3-14b",
+      "tps": 5.0,
+      "tokens": 3104,
+      "time_s": 9.024654626846313,
+      "errors": [
+        "Missing: diameter_km",
+        "Missing: eccentricity",
+        "Missing: mass_kg",
+        "Missing: orbital_period_days"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_entities_002",
+      "model": "qwen/qwen3-14b",
+      "tps": 0.52,
+      "tokens": 2098,
+      "time_s": 6.519605398178101,
+      "errors": [
+        "Incorrect: entities.0.label (sim=0.00)",
+        "Incorrect: entities.0.text (sim=0.32)",
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.40)",
+        "Incorrect: entities.2.label (sim=0.00)",
+        "Incorrect: entities.2.text (sim=0.36)",
+        "Incorrect: entities.3.label (sim=0.00)",
+        "Incorrect: entities.3.text (sim=0.36)",
+        "Incorrect: entities.4.label (sim=0.00)",
+        "Incorrect: entities.4.text (sim=0.43)",
+        "Incorrect: entities.5.label (sim=0.00)",
+        "Incorrect: entities.5.text (sim=0.36)",
+        "Incorrect: entities.6.label (sim=0.00)",
+        "Incorrect: entities.6.text (sim=0.34)",
+        "Incorrect: entities.7.label (sim=0.00)",
+        "Incorrect: entities.7.text (sim=0.43)",
+        "Incorrect: entities.8.label (sim=0.00)",
+        "Incorrect: entities.8.text (sim=0.40)",
+        "Missing: entities.9.label",
+        "Missing: entities.9.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_08",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.9887097908432443,
+      "tokens": 4605,
+      "time_s": 17.453077793121338,
+      "errors": [
+        "Incorrect: complexity_score (sim=0.00)",
+        "Incorrect: dietary_tags.0 (sim=0.00)",
+        "Missing: dietary_tags.1",
+        "Missing: dietary_tags.2",
+        "Missing: dietary_tags.3",
+        "Incorrect: ingredients.0.name (sim=0.77)",
+        "Hallucinated: ingredients.10.amount",
+        "Hallucinated: ingredients.10.name",
+        "Hallucinated: ingredients.10.unit",
+        "Hallucinated: ingredients.11.amount",
+        "Hallucinated: ingredients.11.name",
+        "Hallucinated: ingredients.11.unit",
+        "Hallucinated: ingredients.9.amount",
+        "Hallucinated: ingredients.9.name",
+        "Hallucinated: ingredients.9.unit",
+        "Missing: servings"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_004",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.81872350270998,
+      "tokens": 1955,
+      "time_s": 12.227787494659424,
+      "errors": [
+        "Incorrect: genres.0 (sim=0.54)",
+        "Hallucinated: genres.1",
+        "Incorrect: key_themes.0 (sim=0.38)",
+        "Incorrect: key_themes.1 (sim=0.36)",
+        "Incorrect: key_themes.2 (sim=0.44)",
+        "Hallucinated: key_themes.3",
+        "Incorrect: original_language (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_002",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.017369039404592,
+      "tokens": 2969,
+      "time_s": 18.155144453048706,
+      "errors": [
+        "Incorrect: key_organizations.0 (sim=0.53)",
+        "Incorrect: key_organizations.1 (sim=0.46)",
+        "Missing: key_organizations.2",
+        "Missing: key_organizations.3",
+        "Incorrect: key_people.0 (sim=0.76)",
+        "Incorrect: key_people.1 (sim=0.78)",
+        "Incorrect: key_people.2 (sim=0.81)",
+        "Incorrect: summary (sim=0.87)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_6",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.0,
+      "tokens": 4081,
+      "time_s": 16.736175298690796,
+      "errors": [
+        "Missing: diagnosis_methods.0",
+        "Missing: diagnosis_methods.1",
+        "Missing: diagnosis_methods.2",
+        "Missing: diagnosis_methods.3",
+        "Missing: diagnosis_methods.4",
+        "Incorrect: etiology_description (sim=0.00)",
+        "Missing: symptoms.0.is_primary",
+        "Missing: symptoms.0.name",
+        "Missing: symptoms.0.severity_level"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_001",
+      "model": "qwen/qwen3-14b",
+      "tps": 6.123689723103096,
+      "tokens": 2989,
+      "time_s": 7.939655065536499,
+      "errors": [
+        "Missing: affected_count",
+        "Missing: date",
+        "Hallucinated: key_organizations.1",
+        "Incorrect: key_people.0 (sim=0.76)",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.78)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_monuments_3",
+      "model": "qwen/qwen3-14b",
+      "tps": 5.0,
+      "tokens": 3174,
+      "time_s": 16.37404775619507,
+      "errors": [
+        "Incorrect: bic_category (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_10",
+      "model": "qwen/qwen3-14b",
+      "tps": 5.191892008926805,
+      "tokens": 4279,
+      "time_s": 15.449755430221558,
+      "errors": [
+        "Missing: dietary_tags.0",
+        "Missing: dietary_tags.1",
+        "Missing: ingredients.0.amount",
+        "Incorrect: ingredients.0.name (sim=0.37)",
+        "Missing: ingredients.0.unit",
+        "Missing: ingredients.1.amount",
+        "Incorrect: ingredients.1.name (sim=0.37)",
+        "Missing: ingredients.1.unit",
+        "Missing: ingredients.2.amount",
+        "Missing: ingredients.2.unit",
+        "Missing: ingredients.3.amount",
+        "Incorrect: ingredients.3.name (sim=0.66)",
+        "Missing: ingredients.3.unit",
+        "Missing: ingredients.4.amount",
+        "Missing: ingredients.4.unit",
+        "Missing: ingredients.5.amount",
+        "Missing: ingredients.5.unit",
+        "Missing: ingredients.6.amount",
+        "Missing: ingredients.6.unit",
+        "Missing: ingredients.7.amount",
+        "Missing: ingredients.7.unit",
+        "Missing: ingredients.8.amount",
+        "Missing: ingredients.8.unit",
+        "Missing: ingredients.9.amount",
+        "Missing: ingredients.9.unit"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_005",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.564399422795258,
+      "tokens": 3864,
+      "time_s": 10.121214628219604,
+      "errors": [
+        "Incorrect: key_organizations.0 (sim=0.86)",
+        "Incorrect: key_organizations.1 (sim=0.87)",
+        "Incorrect: key_organizations.2 (sim=0.88)",
+        "Incorrect: key_organizations.3 (sim=0.93)",
+        "Incorrect: summary (sim=0.78)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_001",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.6200523181508437,
+      "tokens": 4009,
+      "time_s": 10.338391542434692,
+      "errors": [
+        "Missing: cons.0",
+        "Missing: cons.1",
+        "Missing: cons.2",
+        "Missing: cons.3",
+        "Missing: director",
+        "Incorrect: key_verdict (sim=0.62)",
+        "Missing: main_cast.0",
+        "Missing: pros.0",
+        "Missing: pros.1",
+        "Missing: pros.2",
+        "Missing: rating",
+        "Missing: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_04",
+      "model": "qwen/qwen3-14b",
+      "tps": 2.7264264324178917,
+      "tokens": 4743,
+      "time_s": 21.665972232818604,
+      "errors": [
+        "Incorrect: diagnosis_methods.0 (sim=0.61)",
+        "Incorrect: diagnosis_methods.1 (sim=0.84)",
+        "Incorrect: diagnosis_methods.2 (sim=0.63)",
+        "Incorrect: diagnosis_methods.3 (sim=0.54)",
+        "Incorrect: etiology_description (sim=0.00)",
+        "Incorrect: is_chronic (sim=0.00)",
+        "Incorrect: symptoms.0.name (sim=0.43)",
+        "Missing: symptoms.0.severity_level",
+        "Incorrect: symptoms.1.is_primary (sim=0.00)",
+        "Incorrect: symptoms.1.name (sim=0.46)",
+        "Missing: symptoms.1.severity_level",
+        "Incorrect: symptoms.10.name (sim=0.42)",
+        "Missing: symptoms.10.severity_level",
+        "Missing: symptoms.11.is_primary",
+        "Missing: symptoms.11.name",
+        "Missing: symptoms.11.severity_level",
+        "Incorrect: symptoms.2.is_primary (sim=0.00)",
+        "Incorrect: symptoms.2.name (sim=0.56)",
+        "Missing: symptoms.2.severity_level",
+        "Incorrect: symptoms.3.is_primary (sim=0.00)",
+        "Missing: symptoms.3.severity_level",
+        "Incorrect: symptoms.4.is_primary (sim=0.00)",
+        "Incorrect: symptoms.4.name (sim=0.41)",
+        "Missing: symptoms.4.severity_level",
+        "Incorrect: symptoms.5.is_primary (sim=0.00)",
+        "Incorrect: symptoms.5.name (sim=0.44)",
+        "Missing: symptoms.5.severity_level",
+        "Incorrect: symptoms.6.is_primary (sim=0.00)",
+        "Incorrect: symptoms.6.name (sim=0.43)",
+        "Missing: symptoms.6.severity_level",
+        "Incorrect: symptoms.7.is_primary (sim=0.00)",
+        "Incorrect: symptoms.7.name (sim=0.38)",
+        "Missing: symptoms.7.severity_level",
+        "Incorrect: symptoms.8.is_primary (sim=0.00)",
+        "Incorrect: symptoms.8.name (sim=0.54)",
+        "Missing: symptoms.8.severity_level",
+        "Incorrect: symptoms.9.name (sim=0.60)",
+        "Missing: symptoms.9.severity_level"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_005",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.84705621989564,
+      "tokens": 2319,
+      "time_s": 6.688812494277954,
+      "errors": [
+        "Incorrect: summary (sim=0.85)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_006",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.306732010108629,
+      "tokens": 3918,
+      "time_s": 10.364758253097534,
+      "errors": [
+        "Incorrect: cons.0 (sim=0.75)",
+        "Hallucinated: cons.1",
+        "Missing: director",
+        "Incorrect: key_verdict (sim=0.63)",
+        "Missing: main_cast.0",
+        "Missing: main_cast.1",
+        "Incorrect: pros.0 (sim=0.53)",
+        "Incorrect: pros.1 (sim=0.44)",
+        "Incorrect: pros.2 (sim=0.50)",
+        "Hallucinated: pros.3",
+        "Missing: rating",
+        "Missing: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_016",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.0,
+      "tokens": 3113,
+      "time_s": 5.8227598667144775,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_002",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.0,
+      "tokens": 3723,
+      "time_s": 9.092278957366943,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_08",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.0,
+      "tokens": 4765,
+      "time_s": 9.806558847427368,
+      "errors": [
+        "Incorrect: etiology_description (sim=0.00)",
+        "Missing: is_chronic"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_009",
+      "model": "qwen/qwen3-14b",
+      "tps": 7.014277585478301,
+      "tokens": 5454,
+      "time_s": 16.949753284454346,
+      "errors": [
+        "Missing: date",
+        "Incorrect: key_organizations.0 (sim=0.40)",
+        "Incorrect: key_organizations.1 (sim=0.49)",
+        "Incorrect: key_organizations.2 (sim=0.46)",
+        "Missing: key_organizations.3",
+        "Missing: key_organizations.4",
+        "Missing: key_organizations.5",
+        "Missing: key_organizations.6",
+        "Missing: key_people.10",
+        "Incorrect: key_people.3 (sim=0.41)",
+        "Incorrect: key_people.4 (sim=0.35)",
+        "Incorrect: key_people.5 (sim=0.38)",
+        "Incorrect: key_people.6 (sim=0.31)",
+        "Incorrect: key_people.7 (sim=0.33)",
+        "Incorrect: key_people.8 (sim=0.36)",
+        "Incorrect: key_people.9 (sim=0.38)",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.72)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_extraction_002",
+      "model": "qwen/qwen3-14b",
+      "tps": 0.7371545204782971,
+      "tokens": 1111,
+      "time_s": 2.8442983627319336,
+      "errors": [
+        "Incorrect: answer (sim=0.74)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_07",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.3479362862203734,
+      "tokens": 7920,
+      "time_s": 15.14686107635498,
+      "errors": [
+        "Incorrect: diagnosis_methods.3 (sim=0.43)",
+        "Hallucinated: diagnosis_methods.4",
+        "Incorrect: etiology_description (sim=0.00)",
+        "Incorrect: is_chronic (sim=0.00)",
+        "Incorrect: symptoms.0.name (sim=0.57)",
+        "Incorrect: symptoms.1.name (sim=0.53)",
+        "Incorrect: symptoms.2.name (sim=0.36)",
+        "Incorrect: symptoms.3.is_primary (sim=0.00)",
+        "Incorrect: symptoms.3.name (sim=0.39)",
+        "Incorrect: symptoms.4.is_primary (sim=0.00)",
+        "Incorrect: symptoms.4.name (sim=0.37)",
+        "Incorrect: symptoms.5.is_primary (sim=0.00)",
+        "Incorrect: symptoms.5.name (sim=0.40)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_005",
+      "model": "qwen/qwen3-14b",
+      "tps": 5.898031710910526,
+      "tokens": 2387,
+      "time_s": 13.687817811965942,
+      "errors": [
+        "Missing: casualties",
+        "Missing: date",
+        "Missing: injured",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.90)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_07",
+      "model": "qwen/qwen3-14b",
+      "tps": 2.5639513790052275,
+      "tokens": 4586,
+      "time_s": 18.014323711395264,
+      "errors": [
+        "Incorrect: complexity_score (sim=0.00)",
+        "Incorrect: ingredients.1.name (sim=0.46)",
+        "Hallucinated: ingredients.10.amount",
+        "Hallucinated: ingredients.10.name",
+        "Hallucinated: ingredients.10.unit",
+        "Hallucinated: ingredients.11.amount",
+        "Hallucinated: ingredients.11.name",
+        "Hallucinated: ingredients.11.unit",
+        "Incorrect: ingredients.2.name (sim=0.39)",
+        "Incorrect: ingredients.3.name (sim=0.35)",
+        "Hallucinated: ingredients.4.amount",
+        "Hallucinated: ingredients.4.name",
+        "Hallucinated: ingredients.4.unit",
+        "Hallucinated: ingredients.5.amount",
+        "Hallucinated: ingredients.5.name",
+        "Hallucinated: ingredients.5.unit",
+        "Hallucinated: ingredients.6.amount",
+        "Hallucinated: ingredients.6.name",
+        "Hallucinated: ingredients.6.unit",
+        "Hallucinated: ingredients.7.amount",
+        "Hallucinated: ingredients.7.name",
+        "Hallucinated: ingredients.7.unit",
+        "Hallucinated: ingredients.8.amount",
+        "Hallucinated: ingredients.8.name",
+        "Hallucinated: ingredients.8.unit",
+        "Hallucinated: ingredients.9.amount",
+        "Hallucinated: ingredients.9.name",
+        "Hallucinated: ingredients.9.unit",
+        "Missing: servings",
+        "Incorrect: technique_sequence.0 (sim=0.00)",
+        "Incorrect: technique_sequence.1 (sim=0.00)",
+        "Hallucinated: technique_sequence.2",
+        "Missing: total_time_minutes"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_002",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.609717351089413,
+      "tokens": 3675,
+      "time_s": 15.45199179649353,
+      "errors": [
+        "Incorrect: key_organizations.0 (sim=0.92)",
+        "Incorrect: key_organizations.1 (sim=0.93)",
+        "Incorrect: summary (sim=0.76)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_009",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.369952053733547,
+      "tokens": 2923,
+      "time_s": 7.3300909996032715,
+      "errors": [
+        "Incorrect: key_organizations.0 (sim=0.78)",
+        "Incorrect: key_organizations.2 (sim=0.76)",
+        "Missing: key_people.2",
+        "Incorrect: summary (sim=0.87)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_entities_001",
+      "model": "qwen/qwen3-14b",
+      "tps": 0.375,
+      "tokens": 2869,
+      "time_s": 19.126875400543213,
+      "errors": [
+        "Incorrect: entities.1.label (sim=0.00)",
+        "Incorrect: entities.1.text (sim=0.46)",
+        "Incorrect: entities.2.label (sim=0.00)",
+        "Incorrect: entities.2.text (sim=0.46)",
+        "Missing: entities.3.label",
+        "Missing: entities.3.text",
+        "Missing: entities.4.label",
+        "Missing: entities.4.text",
+        "Missing: entities.5.label",
+        "Missing: entities.5.text",
+        "Missing: entities.6.label",
+        "Missing: entities.6.text",
+        "Missing: entities.7.label",
+        "Missing: entities.7.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_010",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.809850381855943,
+      "tokens": 2444,
+      "time_s": 5.346091985702515,
+      "errors": [
+        "Incorrect: summary (sim=0.81)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_02",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.460684786024747,
+      "tokens": 5215,
+      "time_s": 16.290714740753174,
+      "errors": [
+        "Incorrect: complexity_score (sim=0.00)",
+        "Missing: dietary_tags.0",
+        "Missing: dietary_tags.1",
+        "Missing: ingredients.0.amount",
+        "Incorrect: ingredients.0.name (sim=0.30)",
+        "Missing: ingredients.0.unit",
+        "Missing: ingredients.1.amount",
+        "Incorrect: ingredients.1.name (sim=0.35)",
+        "Missing: ingredients.1.unit",
+        "Missing: ingredients.2.amount",
+        "Incorrect: ingredients.2.name (sim=0.40)",
+        "Missing: ingredients.2.unit",
+        "Missing: ingredients.3.amount",
+        "Incorrect: ingredients.3.name (sim=0.36)",
+        "Missing: ingredients.3.unit",
+        "Missing: ingredients.4.amount",
+        "Missing: ingredients.4.name",
+        "Missing: ingredients.4.unit",
+        "Missing: ingredients.5.amount",
+        "Missing: ingredients.5.name",
+        "Missing: ingredients.5.unit",
+        "Incorrect: technique_sequence.1 (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_003",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.841504007086749,
+      "tokens": 4589,
+      "time_s": 17.952341556549072,
+      "errors": [
+        "Missing: side_effects.0.system_organ_class",
+        "Incorrect: side_effects.1.impact (sim=0.00)",
+        "Incorrect: side_effects.1.reaction (sim=0.71)",
+        "Missing: side_effects.1.system_organ_class",
+        "Missing: side_effects.10.impact",
+        "Missing: side_effects.10.probability",
+        "Missing: side_effects.10.reaction",
+        "Missing: side_effects.10.system_organ_class",
+        "Missing: side_effects.11.impact",
+        "Missing: side_effects.11.probability",
+        "Missing: side_effects.11.reaction",
+        "Missing: side_effects.11.system_organ_class",
+        "Missing: side_effects.12.impact",
+        "Missing: side_effects.12.probability",
+        "Missing: side_effects.12.reaction",
+        "Missing: side_effects.12.system_organ_class",
+        "Missing: side_effects.2.system_organ_class",
+        "Incorrect: side_effects.3.impact (sim=0.00)",
+        "Missing: side_effects.3.system_organ_class",
+        "Missing: side_effects.4.system_organ_class",
+        "Incorrect: side_effects.5.probability (sim=0.00)",
+        "Incorrect: side_effects.5.reaction (sim=0.44)",
+        "Missing: side_effects.5.system_organ_class",
+        "Incorrect: side_effects.6.impact (sim=0.00)",
+        "Incorrect: side_effects.6.reaction (sim=0.60)",
+        "Missing: side_effects.6.system_organ_class",
+        "Incorrect: side_effects.7.impact (sim=0.00)",
+        "Incorrect: side_effects.7.reaction (sim=0.41)",
+        "Missing: side_effects.7.system_organ_class",
+        "Incorrect: side_effects.8.impact (sim=0.00)",
+        "Incorrect: side_effects.8.reaction (sim=0.43)",
+        "Missing: side_effects.8.system_organ_class",
+        "Missing: side_effects.9.impact",
+        "Missing: side_effects.9.probability",
+        "Missing: side_effects.9.reaction",
+        "Missing: side_effects.9.system_organ_class",
+        "Missing: standard_doses.1"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_006",
+      "model": "qwen/qwen3-14b",
+      "tps": 5.799428914790691,
+      "tokens": 3620,
+      "time_s": 10.73684310913086,
+      "errors": [
+        "Missing: affected_count",
+        "Incorrect: casualties (sim=0.00)",
+        "Incorrect: date (sim=0.00)",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.80)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_001",
+      "model": "qwen/qwen3-14b",
+      "tps": 2.717978299563948,
+      "tokens": 2617,
+      "time_s": 11.425938367843628,
+      "errors": [
+        "Missing: affected_count",
+        "Missing: casualties",
+        "Incorrect: category (sim=0.00)",
+        "Incorrect: date (sim=0.00)",
+        "Missing: injured",
+        "Missing: key_organizations.0",
+        "Missing: key_organizations.1",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.72)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_008",
+      "model": "qwen/qwen3-14b",
+      "tps": 8.882988996269004,
+      "tokens": 3691,
+      "time_s": 17.49572467803955,
+      "errors": [
+        "Incorrect: key_people.0 (sim=0.32)",
+        "Incorrect: key_people.1 (sim=0.32)",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.88)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_extraction_002",
+      "model": "qwen/qwen3-14b",
+      "tps": 0.6553923257262939,
+      "tokens": 1659,
+      "time_s": 2.216019630432129,
+      "errors": [
+        "Incorrect: answer (sim=0.66)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_002",
+      "model": "qwen/qwen3-14b",
+      "tps": 1.0,
+      "tokens": 1000,
+      "time_s": 14.09903073310852,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_015",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.5144269027630743,
+      "tokens": 2931,
+      "time_s": 13.903745412826538,
+      "errors": [
+        "Missing: current_ceo_name",
+        "Missing: exact_release_date",
+        "Incorrect: features.0 (sim=0.77)",
+        "Incorrect: features.1 (sim=0.46)",
+        "Hallucinated: features.2",
+        "Missing: latest_stable_version_sha256",
+        "Incorrect: license (sim=0.58)",
+        "Hallucinated: platforms.0",
+        "Hallucinated: platforms.1",
+        "Hallucinated: platforms.2",
+        "Incorrect: primary_developer (sim=0.42)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_2",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.550551961385241,
+      "tokens": 6618,
+      "time_s": 15.081088066101074,
+      "errors": [
+        "Incorrect: diagnosis_methods.0 (sim=0.62)",
+        "Incorrect: diagnosis_methods.1 (sim=0.45)",
+        "Incorrect: diagnosis_methods.2 (sim=0.48)",
+        "Hallucinated: diagnosis_methods.3",
+        "Hallucinated: diagnosis_methods.4",
+        "Hallucinated: diagnosis_methods.5",
+        "Incorrect: etiology_description (sim=0.00)",
+        "Incorrect: symptoms.0.name (sim=0.38)",
+        "Incorrect: symptoms.1.is_primary (sim=0.00)",
+        "Incorrect: symptoms.1.name (sim=0.35)",
+        "Hallucinated: symptoms.2.is_primary",
+        "Hallucinated: symptoms.2.name",
+        "Hallucinated: symptoms.2.severity_level",
+        "Hallucinated: symptoms.3.is_primary",
+        "Hallucinated: symptoms.3.name",
+        "Hallucinated: symptoms.3.severity_level",
+        "Hallucinated: symptoms.4.is_primary",
+        "Hallucinated: symptoms.4.name",
+        "Hallucinated: symptoms.4.severity_level",
+        "Hallucinated: symptoms.5.is_primary",
+        "Hallucinated: symptoms.5.name",
+        "Hallucinated: symptoms.5.severity_level"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_entities_001",
+      "model": "qwen/qwen3-14b",
+      "tps": 0.0,
+      "tokens": 2923,
+      "time_s": 17.208718061447144,
+      "errors": [
+        "Missing: entities.0.label",
+        "Missing: entities.0.text",
+        "Missing: entities.1.label",
+        "Missing: entities.1.text",
+        "Missing: entities.2.label",
+        "Missing: entities.2.text",
+        "Missing: entities.3.label",
+        "Missing: entities.3.text",
+        "Missing: entities.4.label",
+        "Missing: entities.4.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_003",
+      "model": "qwen/qwen3-14b",
+      "tps": 7.707094536209045,
+      "tokens": 3026,
+      "time_s": 7.068725347518921,
+      "errors": [
+        "Incorrect: affected_count (sim=0.00)",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.71)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_007",
+      "model": "qwen/qwen3-14b",
+      "tps": 7.827670554704074,
+      "tokens": 2860,
+      "time_s": 15.741836547851562,
+      "errors": [
+        "Hallucinated: key_organizations.0",
+        "Hallucinated: key_organizations.1",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.83)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_008",
+      "model": "qwen/qwen3-14b",
+      "tps": 7.585380046346595,
+      "tokens": 4163,
+      "time_s": 19.381595134735107,
+      "errors": [
+        "Missing: affected_count",
+        "Incorrect: key_organizations.2 (sim=0.87)",
+        "Incorrect: key_people.2 (sim=0.37)",
+        "Incorrect: key_people.3 (sim=0.36)",
+        "Incorrect: key_people.4 (sim=0.38)",
+        "Incorrect: key_people.5 (sim=0.34)",
+        "Hallucinated: key_people.6",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.79)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_004",
+      "model": "qwen/qwen3-14b",
+      "tps": 7.076006085813828,
+      "tokens": 3493,
+      "time_s": 8.64788031578064,
+      "errors": [
+        "Incorrect: affected_count (sim=0.00)",
+        "Incorrect: date (sim=0.00)",
+        "Incorrect: key_organizations.0 (sim=0.59)",
+        "Incorrect: key_organizations.1 (sim=0.46)",
+        "Incorrect: key_organizations.2 (sim=0.34)",
+        "Hallucinated: key_organizations.3",
+        "Hallucinated: key_organizations.4",
+        "Incorrect: key_people.0 (sim=0.89)",
+        "Incorrect: key_people.1 (sim=0.84)",
+        "Incorrect: key_people.2 (sim=0.30)",
+        "Incorrect: key_people.3 (sim=0.30)",
+        "Missing: key_people.4",
+        "Incorrect: summary (sim=0.78)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_contracts_005",
+      "model": "qwen/qwen3-14b",
+      "tps": 5.686197293212171,
+      "tokens": 2677,
+      "time_s": 6.087208986282349,
+      "errors": [
+        "Missing: effective_date",
+        "Incorrect: governing_law_jurisdiction (sim=0.00)",
+        "Missing: monetary_amount",
+        "Incorrect: parties.0 (sim=0.64)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_01",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.7142857142857144,
+      "tokens": 3430,
+      "time_s": 11.347642183303833,
+      "errors": [
+        "Incorrect: etiology_description (sim=0.00)",
+        "Missing: is_chronic",
+        "Incorrect: symptoms.5.is_primary (sim=0.00)",
+        "Incorrect: symptoms.6.is_primary (sim=0.00)",
+        "Incorrect: symptoms.7.is_primary (sim=0.00)",
+        "Incorrect: symptoms.8.is_primary (sim=0.00)",
+        "Incorrect: symptoms.9.is_primary (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_001",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.180377551071597,
+      "tokens": 2364,
+      "time_s": 13.48391318321228,
+      "errors": [
+        "Incorrect: genres.0 (sim=0.76)",
+        "Incorrect: genres.1 (sim=0.65)",
+        "Missing: genres.2",
+        "Incorrect: key_themes.0 (sim=0.70)",
+        "Incorrect: key_themes.1 (sim=0.47)",
+        "Missing: key_themes.2",
+        "Incorrect: original_language (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_extraction_003",
+      "model": "qwen/qwen3-14b",
+      "tps": 0.6721068033589942,
+      "tokens": 1545,
+      "time_s": 7.984936237335205,
+      "errors": [
+        "Incorrect: answer (sim=0.67)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_017",
+      "model": "qwen/qwen3-14b",
+      "tps": 5.0,
+      "tokens": 2991,
+      "time_s": 5.426565170288086,
+      "errors": [
+        "Missing: eccentricity",
+        "Missing: mass_kg",
+        "Missing: orbital_period_days",
+        "Missing: semi_major_axis_au"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_002",
+      "model": "qwen/qwen3-14b",
+      "tps": 5.29953027563154,
+      "tokens": 4306,
+      "time_s": 8.87450647354126,
+      "errors": [
+        "Incorrect: cons.0 (sim=0.73)",
+        "Incorrect: cons.1 (sim=0.71)",
+        "Incorrect: cons.2 (sim=0.45)",
+        "Missing: cons.3",
+        "Missing: director",
+        "Incorrect: key_verdict (sim=0.62)",
+        "Missing: main_cast.0",
+        "Missing: main_cast.1",
+        "Missing: main_cast.2",
+        "Incorrect: pros.0 (sim=0.52)",
+        "Incorrect: pros.1 (sim=0.46)",
+        "Incorrect: pros.2 (sim=0.45)",
+        "Missing: pros.3",
+        "Missing: rating"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_01",
+      "model": "qwen/qwen3-14b",
+      "tps": 1.0,
+      "tokens": 4550,
+      "time_s": 4.515884637832642,
+      "errors": [
+        "Incorrect: complexity_score (sim=0.00)",
+        "Incorrect: dietary_tags.0 (sim=0.00)",
+        "Incorrect: dietary_tags.1 (sim=0.00)",
+        "Missing: ingredients.0.amount",
+        "Missing: ingredients.0.name",
+        "Missing: ingredients.0.unit",
+        "Missing: ingredients.1.amount",
+        "Missing: ingredients.1.name",
+        "Missing: ingredients.1.unit",
+        "Missing: ingredients.2.amount",
+        "Missing: ingredients.2.name",
+        "Missing: ingredients.2.unit",
+        "Missing: ingredients.3.amount",
+        "Missing: ingredients.3.name",
+        "Missing: ingredients.3.unit",
+        "Missing: ingredients.4.amount",
+        "Missing: ingredients.4.name",
+        "Missing: ingredients.4.unit",
+        "Incorrect: servings (sim=0.00)",
+        "Hallucinated: technique_sequence.0",
+        "Hallucinated: technique_sequence.1",
+        "Missing: total_time_minutes"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_entities_001",
+      "model": "qwen/qwen3-14b",
+      "tps": 0.0,
+      "tokens": 1577,
+      "time_s": 8.967503070831299,
+      "errors": [
+        "Missing: entities.0.label",
+        "Missing: entities.0.text",
+        "Missing: entities.1.label",
+        "Missing: entities.1.text",
+        "Missing: entities.2.label",
+        "Missing: entities.2.text",
+        "Missing: entities.3.label",
+        "Missing: entities.3.text",
+        "Missing: entities.4.label",
+        "Missing: entities.4.text",
+        "Missing: entities.5.label",
+        "Missing: entities.5.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_007",
+      "model": "qwen/qwen3-14b",
+      "tps": 7.379151012839857,
+      "tokens": 2716,
+      "time_s": 7.742610692977905,
+      "errors": [
+        "Incorrect: date (sim=0.00)",
+        "Incorrect: key_organizations.1 (sim=0.43)",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.82)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_entities_003",
+      "model": "qwen/qwen3-14b",
+      "tps": 0.0,
+      "tokens": 3619,
+      "time_s": 22.58241057395935,
+      "errors": [
+        "Missing: entities.0.label",
+        "Missing: entities.0.text",
+        "Missing: entities.1.label",
+        "Missing: entities.1.text",
+        "Missing: entities.10.label",
+        "Missing: entities.10.text",
+        "Missing: entities.11.label",
+        "Missing: entities.11.text",
+        "Missing: entities.2.label",
+        "Missing: entities.2.text",
+        "Missing: entities.3.label",
+        "Missing: entities.3.text",
+        "Missing: entities.4.label",
+        "Missing: entities.4.text",
+        "Missing: entities.5.label",
+        "Missing: entities.5.text",
+        "Missing: entities.6.label",
+        "Missing: entities.6.text",
+        "Missing: entities.7.label",
+        "Missing: entities.7.text",
+        "Missing: entities.8.label",
+        "Missing: entities.8.text",
+        "Missing: entities.9.label",
+        "Missing: entities.9.text"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_004",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.949336731095009,
+      "tokens": 4137,
+      "time_s": 5.315145492553711,
+      "errors": [
+        "Missing: affected_articles.0",
+        "Incorrect: official_title (sim=0.95)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_007",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.634464011954607,
+      "tokens": 2792,
+      "time_s": 16.903711795806885,
+      "errors": [
+        "Incorrect: genres.0 (sim=0.39)",
+        "Incorrect: genres.1 (sim=0.43)",
+        "Hallucinated: genres.2",
+        "Hallucinated: genres.3",
+        "Hallucinated: genres.4",
+        "Hallucinated: genres.5",
+        "Hallucinated: genres.6",
+        "Incorrect: key_themes.0 (sim=0.43)",
+        "Incorrect: key_themes.1 (sim=0.39)",
+        "Incorrect: key_themes.2 (sim=0.36)",
+        "Hallucinated: key_themes.3",
+        "Hallucinated: key_themes.4",
+        "Hallucinated: key_themes.5",
+        "Hallucinated: key_themes.6"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_001",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.721724492333562,
+      "tokens": 4269,
+      "time_s": 10.458452463150024,
+      "errors": [
+        "Incorrect: key_organizations.1 (sim=0.31)",
+        "Incorrect: key_organizations.2 (sim=0.46)",
+        "Incorrect: key_organizations.3 (sim=0.30)",
+        "Incorrect: key_organizations.4 (sim=0.39)",
+        "Incorrect: key_organizations.5 (sim=0.39)",
+        "Incorrect: key_organizations.6 (sim=0.37)",
+        "Incorrect: summary (sim=0.72)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_contracts_001",
+      "model": "qwen/qwen3-14b",
+      "tps": 7.0,
+      "tokens": 3884,
+      "time_s": 14.840873718261719,
+      "errors": [
+        "Incorrect: governing_law_jurisdiction (sim=0.00)",
+        "Missing: has_liability_limitation"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_003",
+      "model": "qwen/qwen3-14b",
+      "tps": 5.0,
+      "tokens": 2208,
+      "time_s": 5.827214479446411,
+      "errors": [
+        "Missing: current_ceo_name",
+        "Missing: exact_release_date",
+        "Missing: features.0",
+        "Missing: features.1",
+        "Missing: latest_stable_version_sha256"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_004",
+      "model": "qwen/qwen3-14b",
+      "tps": 8.73638129107879,
+      "tokens": 3081,
+      "time_s": 14.786240816116333,
+      "errors": [
+        "Incorrect: key_organizations.2 (sim=0.91)",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.80)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_001",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.0,
+      "tokens": 2602,
+      "time_s": 4.050433397293091,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_09",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.596812657516295,
+      "tokens": 4343,
+      "time_s": 13.463174104690552,
+      "errors": [
+        "Incorrect: etiology_description (sim=0.00)",
+        "Incorrect: pathology_name (sim=0.51)",
+        "Incorrect: symptoms.0.name (sim=0.38)",
+        "Missing: symptoms.0.severity_level",
+        "Missing: symptoms.1.is_primary",
+        "Missing: symptoms.1.name",
+        "Missing: symptoms.1.severity_level",
+        "Missing: symptoms.2.is_primary",
+        "Missing: symptoms.2.name",
+        "Missing: symptoms.2.severity_level",
+        "Missing: symptoms.3.is_primary",
+        "Missing: symptoms.3.name",
+        "Missing: symptoms.3.severity_level",
+        "Missing: symptoms.4.is_primary",
+        "Missing: symptoms.4.name",
+        "Missing: symptoms.4.severity_level",
+        "Missing: symptoms.5.is_primary",
+        "Missing: symptoms.5.name",
+        "Missing: symptoms.5.severity_level",
+        "Missing: symptoms.6.is_primary",
+        "Missing: symptoms.6.name",
+        "Missing: symptoms.6.severity_level"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_10",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.6807696684111124,
+      "tokens": 5823,
+      "time_s": 30.358596324920654,
+      "errors": [
+        "Incorrect: diagnosis_methods.0 (sim=0.50)",
+        "Incorrect: diagnosis_methods.1 (sim=0.64)",
+        "Incorrect: diagnosis_methods.2 (sim=0.38)",
+        "Hallucinated: diagnosis_methods.3",
+        "Hallucinated: diagnosis_methods.4",
+        "Incorrect: etiology_description (sim=0.00)",
+        "Missing: symptoms.0.severity_level",
+        "Missing: symptoms.1.severity_level",
+        "Incorrect: symptoms.2.name (sim=0.93)",
+        "Missing: symptoms.2.severity_level",
+        "Missing: symptoms.3.severity_level",
+        "Missing: symptoms.4.severity_level",
+        "Hallucinated: symptoms.5.is_primary",
+        "Hallucinated: symptoms.5.name",
+        "Hallucinated: symptoms.6.is_primary",
+        "Hallucinated: symptoms.6.name",
+        "Hallucinated: symptoms.7.is_primary",
+        "Hallucinated: symptoms.7.name",
+        "Hallucinated: symptoms.8.is_primary",
+        "Hallucinated: symptoms.8.name"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_005",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.0,
+      "tokens": 2878,
+      "time_s": 7.88117241859436,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_008",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.329932450866604,
+      "tokens": 2400,
+      "time_s": 11.872559309005737,
+      "errors": [
+        "Incorrect: key_organizations.0 (sim=0.48)",
+        "Incorrect: key_organizations.1 (sim=0.41)",
+        "Missing: key_organizations.2",
+        "Incorrect: summary (sim=0.77)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_health_news_003",
+      "model": "qwen/qwen3-14b",
+      "tps": 8.391280401852953,
+      "tokens": 4091,
+      "time_s": 16.639678478240967,
+      "errors": [
+        "Incorrect: affected_count (sim=0.00)",
+        "Incorrect: key_organizations.2 (sim=0.54)",
+        "Hallucinated: key_organizations.3",
+        "Incorrect: summary (sim=0.82)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_005",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.845997253200932,
+      "tokens": 5116,
+      "time_s": 21.273613214492798,
+      "errors": [
+        "Incorrect: side_effects.0.impact (sim=0.00)",
+        "Incorrect: side_effects.0.reaction (sim=0.50)",
+        "Missing: side_effects.0.system_organ_class",
+        "Incorrect: side_effects.1.impact (sim=0.00)",
+        "Incorrect: side_effects.1.reaction (sim=0.41)",
+        "Missing: side_effects.1.system_organ_class",
+        "Hallucinated: side_effects.2.impact",
+        "Hallucinated: side_effects.2.probability",
+        "Hallucinated: side_effects.2.reaction",
+        "Hallucinated: side_effects.3.impact",
+        "Hallucinated: side_effects.3.probability",
+        "Hallucinated: side_effects.3.reaction",
+        "Hallucinated: side_effects.4.impact",
+        "Hallucinated: side_effects.4.probability",
+        "Hallucinated: side_effects.4.reaction",
+        "Hallucinated: side_effects.5.impact",
+        "Hallucinated: side_effects.5.probability",
+        "Hallucinated: side_effects.5.reaction",
+        "Hallucinated: side_effects.6.impact",
+        "Hallucinated: side_effects.6.probability",
+        "Hallucinated: side_effects.6.reaction",
+        "Incorrect: standard_doses.0 (sim=0.64)",
+        "Incorrect: standard_doses.1 (sim=0.45)",
+        "Missing: standard_doses.2"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_014",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.718215429906528,
+      "tokens": 2503,
+      "time_s": 11.459883451461792,
+      "errors": [
+        "Missing: current_ceo_name",
+        "Missing: exact_release_date",
+        "Incorrect: features.0 (sim=0.45)",
+        "Hallucinated: features.1",
+        "Hallucinated: features.2",
+        "Hallucinated: features.3",
+        "Hallucinated: features.4",
+        "Missing: latest_stable_version_sha256",
+        "Incorrect: license (sim=0.47)",
+        "Incorrect: platforms.0 (sim=0.47)",
+        "Incorrect: platforms.1 (sim=0.49)",
+        "Incorrect: platforms.2 (sim=0.48)",
+        "Hallucinated: platforms.3",
+        "Incorrect: primary_developer (sim=0.66)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_judicial_004",
+      "model": "qwen/qwen3-14b",
+      "tps": 7.235212907696767,
+      "tokens": 2997,
+      "time_s": 10.008710861206055,
+      "errors": [
+        "Incorrect: affected_count (sim=0.00)",
+        "Incorrect: casualties (sim=0.00)",
+        "Incorrect: key_organizations.1 (sim=0.37)",
+        "Missing: key_organizations.2",
+        "Missing: key_organizations.3",
+        "Incorrect: key_people.1 (sim=0.83)",
+        "Incorrect: summary (sim=0.89)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_001",
+      "model": "qwen/qwen3-14b",
+      "tps": 1.0,
+      "tokens": 1019,
+      "time_s": 2.2310473918914795,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_016",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.3194241337100605,
+      "tokens": 3035,
+      "time_s": 8.72524642944336,
+      "errors": [
+        "Missing: current_ceo_name",
+        "Incorrect: exact_release_date (sim=0.00)",
+        "Incorrect: features.0 (sim=0.48)",
+        "Incorrect: features.1 (sim=0.45)",
+        "Hallucinated: features.2",
+        "Hallucinated: features.3",
+        "Missing: latest_stable_version_sha256",
+        "Incorrect: license (sim=0.81)",
+        "Incorrect: platforms.3 (sim=0.77)",
+        "Incorrect: platforms.4 (sim=0.80)",
+        "Incorrect: primary_developer (sim=0.47)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_020",
+      "model": "qwen/qwen3-14b",
+      "tps": 5.0,
+      "tokens": 2942,
+      "time_s": 3.658328056335449,
+      "errors": [
+        "Missing: eccentricity",
+        "Missing: mass_kg",
+        "Missing: orbital_period_days",
+        "Missing: semi_major_axis_au"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_002",
+      "model": "qwen/qwen3-14b",
+      "tps": 5.824534969845946,
+      "tokens": 2621,
+      "time_s": 6.793025493621826,
+      "errors": [
+        "Incorrect: category (sim=0.00)",
+        "Missing: date",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.83)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_007",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.286017220162964,
+      "tokens": 4299,
+      "time_s": 9.546112298965454,
+      "errors": [
+        "Incorrect: cons.0 (sim=0.40)",
+        "Incorrect: cons.1 (sim=0.51)",
+        "Incorrect: cons.2 (sim=0.53)",
+        "Hallucinated: cons.3",
+        "Missing: director",
+        "Incorrect: key_verdict (sim=0.63)",
+        "Missing: main_cast.0",
+        "Missing: main_cast.1",
+        "Missing: main_cast.2",
+        "Missing: main_cast.3",
+        "Incorrect: pros.1 (sim=0.61)",
+        "Hallucinated: pros.2",
+        "Hallucinated: pros.3",
+        "Missing: rating",
+        "Missing: release_year"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_010",
+      "model": "qwen/qwen3-14b",
+      "tps": 9.0,
+      "tokens": 3610,
+      "time_s": 6.163705587387085,
+      "errors": [],
+      "status": "PASS"
+    },
+    {
+      "task_id": "environmental_ecology_005",
+      "model": "qwen/qwen3-14b",
+      "tps": 8.532795518523798,
+      "tokens": 4275,
+      "time_s": 7.7405548095703125,
+      "errors": [
+        "Incorrect: key_organizations.1 (sim=0.38)",
+        "Incorrect: key_organizations.2 (sim=0.33)",
+        "Incorrect: key_organizations.3 (sim=0.37)",
+        "Incorrect: key_organizations.4 (sim=0.46)",
+        "Missing: key_organizations.5",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.70)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_02",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.47906697836173,
+      "tokens": 3545,
+      "time_s": 9.892136096954346,
+      "errors": [
+        "Incorrect: diagnosis_methods.0 (sim=0.53)",
+        "Incorrect: diagnosis_methods.1 (sim=0.48)",
+        "Hallucinated: diagnosis_methods.2",
+        "Hallucinated: diagnosis_methods.3",
+        "Incorrect: symptoms.0.name (sim=0.73)",
+        "Missing: symptoms.0.severity_level",
+        "Missing: symptoms.1.severity_level",
+        "Missing: symptoms.2.severity_level",
+        "Missing: symptoms.3.is_primary",
+        "Incorrect: symptoms.3.name (sim=0.92)",
+        "Missing: symptoms.3.severity_level",
+        "Missing: symptoms.4.is_primary",
+        "Incorrect: symptoms.4.name (sim=0.91)",
+        "Missing: symptoms.4.severity_level",
+        "Missing: symptoms.5.is_primary",
+        "Incorrect: symptoms.5.name (sim=0.88)",
+        "Missing: symptoms.5.severity_level",
+        "Missing: symptoms.6.is_primary",
+        "Missing: symptoms.6.severity_level",
+        "Missing: symptoms.7.is_primary",
+        "Missing: symptoms.7.severity_level"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_003",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.0,
+      "tokens": 3288,
+      "time_s": 4.926346778869629,
+      "errors": [
+        "Missing: diameter_km",
+        "Missing: discoverer",
+        "Missing: discovery_date",
+        "Missing: eccentricity",
+        "Missing: mass_kg",
+        "Missing: semi_major_axis_au"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_002",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.81757475442888,
+      "tokens": 5527,
+      "time_s": 14.529388189315796,
+      "errors": [
+        "Incorrect: side_effects.0.impact (sim=0.00)",
+        "Incorrect: side_effects.0.probability (sim=0.00)",
+        "Incorrect: side_effects.0.reaction (sim=0.40)",
+        "Missing: side_effects.0.system_organ_class",
+        "Incorrect: side_effects.1.probability (sim=0.00)",
+        "Incorrect: side_effects.1.reaction (sim=0.49)",
+        "Missing: side_effects.1.system_organ_class",
+        "Incorrect: side_effects.10.impact (sim=0.00)",
+        "Incorrect: side_effects.10.probability (sim=0.00)",
+        "Incorrect: side_effects.10.reaction (sim=0.44)",
+        "Missing: side_effects.10.system_organ_class",
+        "Incorrect: side_effects.11.impact (sim=0.00)",
+        "Incorrect: side_effects.11.reaction (sim=0.56)",
+        "Missing: side_effects.11.system_organ_class",
+        "Missing: side_effects.12.impact",
+        "Missing: side_effects.12.probability",
+        "Missing: side_effects.12.reaction",
+        "Missing: side_effects.12.system_organ_class",
+        "Incorrect: side_effects.2.impact (sim=0.00)",
+        "Incorrect: side_effects.2.probability (sim=0.00)",
+        "Incorrect: side_effects.2.reaction (sim=0.42)",
+        "Missing: side_effects.2.system_organ_class",
+        "Incorrect: side_effects.3.impact (sim=0.00)",
+        "Incorrect: side_effects.3.probability (sim=0.00)",
+        "Incorrect: side_effects.3.reaction (sim=0.44)",
+        "Missing: side_effects.3.system_organ_class",
+        "Incorrect: side_effects.4.impact (sim=0.00)",
+        "Incorrect: side_effects.4.reaction (sim=0.40)",
+        "Missing: side_effects.4.system_organ_class",
+        "Incorrect: side_effects.5.impact (sim=0.00)",
+        "Incorrect: side_effects.5.reaction (sim=0.41)",
+        "Missing: side_effects.5.system_organ_class",
+        "Incorrect: side_effects.6.impact (sim=0.00)",
+        "Incorrect: side_effects.6.reaction (sim=0.44)",
+        "Missing: side_effects.6.system_organ_class",
+        "Incorrect: side_effects.7.impact (sim=0.00)",
+        "Incorrect: side_effects.7.reaction (sim=0.38)",
+        "Missing: side_effects.7.system_organ_class",
+        "Incorrect: side_effects.8.impact (sim=0.00)",
+        "Incorrect: side_effects.8.probability (sim=0.00)",
+        "Incorrect: side_effects.8.reaction (sim=0.48)",
+        "Missing: side_effects.8.system_organ_class",
+        "Incorrect: side_effects.9.impact (sim=0.00)",
+        "Incorrect: side_effects.9.reaction (sim=0.43)",
+        "Missing: side_effects.9.system_organ_class",
+        "Incorrect: standard_doses.0 (sim=0.66)",
+        "Hallucinated: standard_doses.1"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_009",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.857808207452024,
+      "tokens": 6212,
+      "time_s": 13.189024209976196,
+      "errors": [
+        "Incorrect: genres.0 (sim=0.75)",
+        "Incorrect: key_themes.1 (sim=0.40)",
+        "Incorrect: key_themes.2 (sim=0.42)",
+        "Hallucinated: key_themes.3",
+        "Hallucinated: key_themes.4",
+        "Hallucinated: key_themes.5"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_001",
+      "model": "qwen/qwen3-14b",
+      "tps": 8.516807084233946,
+      "tokens": 2493,
+      "time_s": 10.499303340911865,
+      "errors": [
+        "Incorrect: key_organizations.0 (sim=0.84)",
+        "Incorrect: location (sim=0.00)",
+        "Incorrect: summary (sim=0.80)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_012",
+      "model": "qwen/qwen3-14b",
+      "tps": 5.0,
+      "tokens": 2438,
+      "time_s": 7.504218816757202,
+      "errors": [
+        "Missing: eccentricity",
+        "Missing: mass_kg",
+        "Missing: orbital_period_days",
+        "Missing: semi_major_axis_au"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_05",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.1764705882352935,
+      "tokens": 2861,
+      "time_s": 11.534970760345459,
+      "errors": [
+        "Incorrect: is_chronic (sim=0.00)",
+        "Missing: symptoms.0.is_primary",
+        "Missing: symptoms.0.severity_level",
+        "Missing: symptoms.1.is_primary",
+        "Missing: symptoms.1.severity_level",
+        "Missing: symptoms.10.is_primary",
+        "Missing: symptoms.10.name",
+        "Missing: symptoms.10.severity_level",
+        "Missing: symptoms.2.is_primary",
+        "Missing: symptoms.2.severity_level",
+        "Missing: symptoms.3.is_primary",
+        "Missing: symptoms.3.severity_level",
+        "Missing: symptoms.4.is_primary",
+        "Missing: symptoms.4.severity_level",
+        "Missing: symptoms.5.is_primary",
+        "Missing: symptoms.5.severity_level",
+        "Missing: symptoms.6.is_primary",
+        "Missing: symptoms.6.severity_level",
+        "Missing: symptoms.7.is_primary",
+        "Missing: symptoms.7.severity_level",
+        "Missing: symptoms.8.is_primary",
+        "Missing: symptoms.8.severity_level",
+        "Missing: symptoms.9.is_primary",
+        "Missing: symptoms.9.name",
+        "Missing: symptoms.9.severity_level"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_extraction_001",
+      "model": "qwen/qwen3-14b",
+      "tps": 0.483855282040628,
+      "tokens": 2475,
+      "time_s": 2.5652058124542236,
+      "errors": [
+        "Incorrect: answer (sim=0.48)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_013",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.8431868410770993,
+      "tokens": 2281,
+      "time_s": 5.946925640106201,
+      "errors": [
+        "Missing: current_ceo_name",
+        "Missing: exact_release_date",
+        "Incorrect: features.0 (sim=0.56)",
+        "Hallucinated: features.1",
+        "Hallucinated: features.2",
+        "Hallucinated: features.3",
+        "Hallucinated: features.4",
+        "Missing: latest_stable_version_sha256",
+        "Incorrect: license (sim=0.74)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "stem_astronomy_detailed_019",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.0,
+      "tokens": 3233,
+      "time_s": 5.847606897354126,
+      "errors": [
+        "Missing: diameter_km",
+        "Incorrect: discovery_date (sim=0.00)",
+        "Missing: eccentricity",
+        "Missing: mass_kg",
+        "Missing: orbital_period_days",
+        "Missing: semi_major_axis_au"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_03",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.393575350019047,
+      "tokens": 4543,
+      "time_s": 11.26444387435913,
+      "errors": [
+        "Incorrect: diagnosis_methods.1 (sim=0.70)",
+        "Incorrect: diagnosis_methods.2 (sim=0.68)",
+        "Incorrect: diagnosis_methods.3 (sim=0.41)",
+        "Missing: diagnosis_methods.4",
+        "Incorrect: etiology_description (sim=0.00)",
+        "Incorrect: symptoms.3.is_primary (sim=0.00)",
+        "Incorrect: symptoms.4.is_primary (sim=0.00)",
+        "Incorrect: symptoms.5.name (sim=0.57)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_diseases_06",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.0,
+      "tokens": 4489,
+      "time_s": 22.187008142471313,
+      "errors": [
+        "Missing: is_chronic"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_001",
+      "model": "qwen/qwen3-14b",
+      "tps": 2.86282553813132,
+      "tokens": 7030,
+      "time_s": 20.990190029144287,
+      "errors": [
+        "Incorrect: common_name (sim=0.86)",
+        "Incorrect: is_pediatric (sim=0.00)",
+        "Missing: side_effects.0.impact",
+        "Missing: side_effects.0.probability",
+        "Missing: side_effects.0.reaction",
+        "Missing: side_effects.0.system_organ_class",
+        "Missing: side_effects.1.impact",
+        "Missing: side_effects.1.probability",
+        "Missing: side_effects.1.reaction",
+        "Missing: side_effects.1.system_organ_class",
+        "Missing: side_effects.10.impact",
+        "Missing: side_effects.10.probability",
+        "Missing: side_effects.10.reaction",
+        "Missing: side_effects.10.system_organ_class",
+        "Missing: side_effects.11.impact",
+        "Missing: side_effects.11.probability",
+        "Missing: side_effects.11.reaction",
+        "Missing: side_effects.11.system_organ_class",
+        "Missing: side_effects.12.impact",
+        "Missing: side_effects.12.probability",
+        "Missing: side_effects.12.reaction",
+        "Missing: side_effects.12.system_organ_class",
+        "Missing: side_effects.13.impact",
+        "Missing: side_effects.13.probability",
+        "Missing: side_effects.13.reaction",
+        "Missing: side_effects.13.system_organ_class",
+        "Missing: side_effects.14.impact",
+        "Missing: side_effects.14.probability",
+        "Missing: side_effects.14.reaction",
+        "Missing: side_effects.14.system_organ_class",
+        "Missing: side_effects.15.impact",
+        "Missing: side_effects.15.probability",
+        "Missing: side_effects.15.reaction",
+        "Missing: side_effects.15.system_organ_class",
+        "Missing: side_effects.16.impact",
+        "Missing: side_effects.16.probability",
+        "Missing: side_effects.16.reaction",
+        "Missing: side_effects.16.system_organ_class",
+        "Missing: side_effects.17.impact",
+        "Missing: side_effects.17.probability",
+        "Missing: side_effects.17.reaction",
+        "Missing: side_effects.17.system_organ_class",
+        "Missing: side_effects.18.impact",
+        "Missing: side_effects.18.probability",
+        "Missing: side_effects.18.reaction",
+        "Missing: side_effects.18.system_organ_class",
+        "Missing: side_effects.19.impact",
+        "Missing: side_effects.19.probability",
+        "Missing: side_effects.19.reaction",
+        "Missing: side_effects.19.system_organ_class",
+        "Missing: side_effects.2.impact",
+        "Missing: side_effects.2.probability",
+        "Missing: side_effects.2.reaction",
+        "Missing: side_effects.2.system_organ_class",
+        "Missing: side_effects.20.impact",
+        "Missing: side_effects.20.probability",
+        "Missing: side_effects.20.reaction",
+        "Missing: side_effects.20.system_organ_class",
+        "Missing: side_effects.21.impact",
+        "Missing: side_effects.21.probability",
+        "Missing: side_effects.21.reaction",
+        "Missing: side_effects.21.system_organ_class",
+        "Missing: side_effects.3.impact",
+        "Missing: side_effects.3.probability",
+        "Missing: side_effects.3.reaction",
+        "Missing: side_effects.3.system_organ_class",
+        "Missing: side_effects.4.impact",
+        "Missing: side_effects.4.probability",
+        "Missing: side_effects.4.reaction",
+        "Missing: side_effects.4.system_organ_class",
+        "Missing: side_effects.5.impact",
+        "Missing: side_effects.5.probability",
+        "Missing: side_effects.5.reaction",
+        "Missing: side_effects.5.system_organ_class",
+        "Missing: side_effects.6.impact",
+        "Missing: side_effects.6.probability",
+        "Missing: side_effects.6.reaction",
+        "Missing: side_effects.6.system_organ_class",
+        "Missing: side_effects.7.impact",
+        "Missing: side_effects.7.probability",
+        "Missing: side_effects.7.reaction",
+        "Missing: side_effects.7.system_organ_class",
+        "Missing: side_effects.8.impact",
+        "Missing: side_effects.8.probability",
+        "Missing: side_effects.8.reaction",
+        "Missing: side_effects.8.system_organ_class",
+        "Missing: side_effects.9.impact",
+        "Missing: side_effects.9.probability",
+        "Missing: side_effects.9.reaction",
+        "Missing: side_effects.9.system_organ_class",
+        "Missing: standard_doses.0",
+        "Missing: standard_doses.1"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_008",
+      "model": "qwen/qwen3-14b",
+      "tps": 4.573883717022934,
+      "tokens": 2526,
+      "time_s": 6.2945497035980225,
+      "errors": [
+        "Incorrect: genres.0 (sim=0.71)",
+        "Missing: genres.1",
+        "Missing: genres.2",
+        "Incorrect: key_themes.0 (sim=0.59)",
+        "Incorrect: key_themes.1 (sim=0.35)",
+        "Incorrect: key_themes.2 (sim=0.41)",
+        "Hallucinated: key_themes.3",
+        "Hallucinated: key_themes.4"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "lifestyle_recipes_03",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.25,
+      "tokens": 4424,
+      "time_s": 8.32861328125,
+      "errors": [
+        "Incorrect: complexity_score (sim=0.00)",
+        "Incorrect: dietary_tags.1 (sim=0.00)",
+        "Missing: dietary_tags.3",
+        "Hallucinated: ingredients.3.amount",
+        "Hallucinated: ingredients.3.name",
+        "Hallucinated: ingredients.3.unit",
+        "Hallucinated: ingredients.4.amount",
+        "Hallucinated: ingredients.4.name",
+        "Hallucinated: ingredients.4.unit",
+        "Hallucinated: ingredients.5.amount",
+        "Hallucinated: ingredients.5.name",
+        "Hallucinated: ingredients.5.unit",
+        "Missing: servings",
+        "Missing: total_time_minutes"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_008",
+      "model": "qwen/qwen3-14b",
+      "tps": 5.12191251077728,
+      "tokens": 4294,
+      "time_s": 8.768904209136963,
+      "errors": [
+        "Incorrect: cons.0 (sim=0.51)",
+        "Incorrect: cons.1 (sim=0.49)",
+        "Incorrect: key_verdict (sim=0.58)",
+        "Hallucinated: main_cast.0",
+        "Hallucinated: main_cast.1",
+        "Incorrect: pros.0 (sim=0.47)",
+        "Incorrect: pros.1 (sim=0.37)",
+        "Incorrect: pros.2 (sim=0.35)",
+        "Incorrect: pros.3 (sim=0.38)",
+        "Hallucinated: pros.4",
+        "Missing: rating",
+        "Missing: release_year",
+        "Incorrect: work_title (sim=0.82)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "general_disasters_006",
+      "model": "qwen/qwen3-14b",
+      "tps": 8.198039369698094,
+      "tokens": 3106,
+      "time_s": 14.038638591766357,
+      "errors": [
+        "Incorrect: affected_count (sim=0.00)",
+        "Incorrect: key_organizations.0 (sim=0.34)",
+        "Incorrect: key_organizations.2 (sim=0.47)",
+        "Incorrect: summary (sim=0.73)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_011",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.4458853186373255,
+      "tokens": 2853,
+      "time_s": 7.5505969524383545,
+      "errors": [
+        "Missing: current_ceo_name",
+        "Missing: exact_release_date",
+        "Incorrect: features.0 (sim=0.45)",
+        "Hallucinated: features.1",
+        "Missing: latest_stable_version_sha256",
+        "Incorrect: license (sim=0.39)",
+        "Hallucinated: platforms.0",
+        "Hallucinated: platforms.1",
+        "Hallucinated: platforms.2",
+        "Incorrect: primary_developer (sim=0.87)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_literature_006",
+      "model": "qwen/qwen3-14b",
+      "tps": 3.119166993863108,
+      "tokens": 2582,
+      "time_s": 8.43290114402771,
+      "errors": [
+        "Incorrect: genres.0 (sim=0.77)",
+        "Incorrect: key_themes.0 (sim=0.67)",
+        "Incorrect: key_themes.1 (sim=0.46)",
+        "Incorrect: key_themes.2 (sim=0.54)",
+        "Incorrect: original_language (sim=0.00)",
+        "Incorrect: publication_year (sim=0.00)"
+      ],
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_entities_002",
+      "model": "qwen/qwen3-14b",
+      "tps": 0.0,
+      "tokens": 1670,
+      "time_s": 6.276512145996094,
+      "errors": [
+        "Missing: entities.0.label",
+        "Missing: entities.0.text",
+        "Missing: entities.1.label",
+        "Missing: entities.1.text",
+        "Missing: entities.2.label",
+        "Missing: entities.2.text",
+        "Missing: entities.3.label",
+        "Missing: entities.3.text",
+        "Missing: entities.4.label",
+        "Missing: entities.4.text"
+      ],
+      "status": "PASS"
+    }
+  ]
+}
