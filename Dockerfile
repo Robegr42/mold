@@ -1,34 +1,41 @@
-# Use a slim Python image
+# GenSIE 2026 Submission Dockerfile
+# Optimized for CPU-only, isolated environment (No Internet)
+
+# Use a lightweight Python base
 FROM python:3.13-slim
 
-# Install uv for fast dependency management
+# Set environment variables for isolation and performance
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PARTICIPANT_PATH="gensie.baseline.OfficialParticipant" \
+    # Challenge mandatory connection variables
+    OPENAI_BASE_URL="" \
+    OPENAI_API_KEY="sk-dummy"
+
+# Install uv for efficient dependency management
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # Set the working directory
 WORKDIR /app
 
-# 1. Copy only the dependency files first
+# 1. Install dependencies first (leverage Docker caching)
+# Note: We exclude dev dependencies for a smaller footprint
 COPY pyproject.toml uv.lock README.md ./
+RUN uv pip install --system --no-cache .
 
-# 2. Install external dependencies only
-# We use --no-install-project if we were using uv sync, 
-# but with uv pip we can just install the requirements.
-# To avoid building the project, we use uv pip install on the dependencies.
-RUN uv pip install --system -r pyproject.toml
+# 2. Pre-download lightweight embedding models for offline use
+# The challenge environment has NO internet access.
+RUN python3 -c "from fastembed import TextEmbedding; \
+    cache_dir = '/app/models'; \
+    TextEmbedding(model_name='sentence-transformers/all-MiniLM-L6-v2', cache_dir=cache_dir); \
+    print('Embedding model pre-cached successfully.')"
 
-# 3. Copy the actual source code into a subfolder
-COPY . /app/gensie-lib
+# 3. Copy the full project source
+COPY . .
 
-# 4. Install the project in editable mode
-RUN uv pip install --system -e /app/gensie-lib
-
-# Expose the FastAPI port
+# 4. Final configuration
 EXPOSE 8000
 
-# Set default environment variables for the agent
-ENV PARTICIPANT_PATH="gensie.baseline.OfficialParticipant"
-ENV OPENAI_BASE_URL=""
-ENV OPENAI_API_KEY="sk-dummy"
-
-# Run the server via the CLI
-ENTRYPOINT ["gensie"]
+# Entrypoint must start the FastAPI server as per GenSIE spec
+# Using --host 0.0.0.0 is mandatory for container networking
+ENTRYPOINT ["gensie", "serve", "--host", "0.0.0.0", "--port", "8000"]
