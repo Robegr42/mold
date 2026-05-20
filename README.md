@@ -8,6 +8,16 @@
 
 **M.O.L.D.** is a lightweight Python solution designed to tame the chaos of unstructured text using Small Language Models (SLMs). It allows you to extract information into JSON format, guaranteeing that the output fits your real-time needs, even when the data schema is completely dynamic or unknown beforehand.
 
+## 🤖 The GenSIE Agents
+
+The core of M.O.L.D. is the GenSIE agent ecosystem, providing three distinct architectural strategies for high-stakes information extraction:
+
+*   **M.I.R.A.** (*Minimalist Invariant Reasoning Agent*): Decoupled two-pass reasoning for maximizing precision via internal linguistic alignment and deterministic invariant pruning.
+*   **V.I.G.I.L.** (*Validated In-context Gated Intelligence Layer*): Gated RAG architecture optimizing Context SNR through latent semantic routing and threshold-gated grounding.
+*   **A.R.C.A.N.E.** (*Audited Reasoning via Cached Anchors & Neural Examples*): Recursive synthetic grounding loop for autonomous performance stabilization in low-resource or novel domains.
+
+For detailed technical specifications, see [AGENTS.md](./AGENTS.md).
+
 ## ✨ Key Features
 
 * **Zero Fine-Tuning:** Skip the expensive and time-consuming training pipelines. M.O.L.D. works out of the box with capable SLMs.
