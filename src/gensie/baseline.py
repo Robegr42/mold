@@ -113,7 +113,7 @@ class InvariantPromptMixin:
             sections.append(f"1. Target Schema (JSON Schema):\n```json\n{ts_schema}\n```")
             
         if use_null:
-            sections.append(f"2. Strict Extract-or-Null Rule: Do not infer or guess. If information is absent, return `null`.")
+            sections.append(f"2. Extract-or-Null Rule: Extract values that are explicitly stated or strongly implied by the context. If information is definitively absent or cannot be reasonably inferred, return `null`.")
             
         if use_dialect:
             sections.append(f"3. Dialect Rule: Respect Iberian/Latin American synonyms when extracting terms.")

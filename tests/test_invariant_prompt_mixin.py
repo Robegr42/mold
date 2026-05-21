@@ -18,7 +18,7 @@ def test_apply_invariants():
     
     assert base_prompt in modified_prompt
     # Check for extract-or-null rule
-    assert "Do not infer or guess. If information is absent, return `null`." in modified_prompt
+    assert "Extract values that are explicitly stated or strongly implied" in modified_prompt
     # Check for dialect rule
     assert "Iberian" in modified_prompt
     assert "Latin American" in modified_prompt
