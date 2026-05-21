@@ -59,6 +59,16 @@ To restore the competitiveness of `mira`, `vigil`, and `arcane`, we must adapt t
     3. Compare these results with the global `use_null=True` baseline from Step 4.
     4. Set the most performant configuration as the new default for `vigil`.
 
+### 6. Mira-Specific Pass Optimization for Null Invariant
+- **Action:** Determine the optimal configuration for the `null` invariant across `mira`'s two passes.
+- **Details:** Currently, `mira` only applies the `null` invariant to Step 1 (Reasoning). This task will investigate if enabling it in Step 2 (Extraction) improves results.
+- **Execution:**
+    1. Refactor `mira` to support per-pass `use_null` toggles.
+    2. Test `mira` with `use_null` enabled ONLY in Step 2 (Extraction).
+    3. Test `mira` with `use_null` enabled in BOTH Step 1 and Step 2.
+    4. Compare these results with the current benchmarks (None enabled vs Step 1 enabled).
+    5. Choose and adopt the best configuration for `mira`.
+
 ## Verification
 - Run local evaluations using the `gensie eval` command against the `data/starter/` dataset.
 - Monitor the aggregate metrics to ensure Micro-F1 has improved and that the pipelines perform better with the adjusted invariants.
