@@ -49,6 +49,23 @@ def parse_robust_json(text: str) -> Dict[str, Any]:
         return {}
 
 
+def parse_env_bool(var_name: str, default: bool) -> bool:
+    """
+    Parses a boolean environment variable.
+    Returns True for "true" or "1" (case-insensitive), False for "false" or "0".
+    If the variable is not set, returns the default value.
+    """
+    val = os.getenv(var_name)
+    if val is None:
+        return default
+    val = val.lower().strip()
+    if val in ("true", "1"):
+        return True
+    if val in ("false", "0"):
+        return False
+    return default
+
+
 def compress_schema_to_ts(schema: Dict[str, Any], indent_level: int = 0) -> str:
     """
     Compresses a JSON schema into a concise TypeScript type representation.
@@ -393,7 +410,7 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
             api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
         )
         self.use_ts = use_ts
-        self.use_null = use_null
+        self.use_null = parse_env_bool("GENSIE_USE_NULL", use_null)
         self.use_dialect = use_dialect
         
         # Tallies token usage for the current task; the server reads it to set
@@ -506,7 +523,7 @@ class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
         self.architect = ArchitectModule(self.client)
         # Optimal Invariants
         self.use_ts = False
-        self.use_null = True
+        self.use_null = parse_env_bool("GENSIE_USE_NULL", True)
         self.use_dialect = False
         
         # Tallies token usage for the current task; the server reads it to set
@@ -643,7 +660,7 @@ class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
         self.architect = ArchitectModule(self.client)
         # Optimal Generalizer Configuration
         self.use_ts = False
-        self.use_null = True
+        self.use_null = parse_env_bool("GENSIE_USE_NULL", True)
         self.use_dialect = False
         
         self.rag_k = int(os.getenv("GENSIE_RAG_K", "3"))
