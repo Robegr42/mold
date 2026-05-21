@@ -1,6 +1,6 @@
 import pytest
 from typing import Dict
-from gensie.utils.schema import compress_schema_to_ts
+from gensie.baseline import compress_schema_to_ts
 
 def test_compress_schema_to_ts_basic():
     schema = {
