@@ -389,6 +389,10 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
         self.use_ts = use_ts
         self.use_null = use_null
         self.use_dialect = use_dialect
+        
+        # Tallies token usage for the current task; the server reads it to set
+        # the X-GenSIE-Token-Usage response header. Reuse this in your own agent.
+        self.usage = UsageTracker()
 
     def run(self, task: Task, model: str) -> Dict[str, Any]:
         total_tokens = 0
@@ -501,6 +505,10 @@ class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
         self.use_ts = False
         self.use_null = True
         self.use_dialect = False
+        
+        # Tallies token usage for the current task; the server reads it to set
+        # the X-GenSIE-Token-Usage response header. Reuse this in your own agent.
+        self.usage = UsageTracker()
 
     def _audit_synthesis(self, task: Task, synthetic: Dict[str, Any]) -> bool:
         """
@@ -640,6 +648,10 @@ class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
         self.rag_k = int(os.getenv("GENSIE_RAG_K", "3"))
         self.reasoning_lang = os.getenv("GENSIE_REASONING_LANG", "Spanish")
         self.hint_count = int(os.getenv("GENSIE_HINT_COUNT", "3"))
+        
+        # Tallies token usage for the current task; the server reads it to set
+        # the X-GenSIE-Token-Usage response header. Reuse this in your own agent.
+        self.usage = UsageTracker()
 
     def run(self, task: Task, model: str) -> Dict[str, Any]:
         """
