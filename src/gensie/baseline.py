@@ -544,7 +544,7 @@ class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
         """
         Executes the audited synthesis pipeline.
         """
-        total_tokens = 0
+        self.usage.reset()
         fs_str = ""
         is_zero_shot = False
 
@@ -555,7 +555,7 @@ class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
             fs_str = "\n".join([f"Example Input: {e['input_text']}\nExample Output: {json.dumps(e['output'])}" for e in few_shots])
         else:
             # 2. Gate 2: Audited Synthesis
-            synthetic = self.architect.synthesize_example(task, model)
+            synthetic = self.architect.synthesize_example(task, model, usage=self.usage)
             if synthetic and self._audit_synthesis(task, synthetic):
                 fs_str = f"Example Input: {synthetic['text']}\nExample Output: {json.dumps(synthetic['json'])}"
             else:
@@ -590,8 +590,7 @@ class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
             ]
         )
         
-        if hasattr(response1, "usage") and response1.usage:
-            total_tokens += response1.usage.total_tokens
+        self.usage.add(getattr(response1, "usage", None))
         analysis = response1.choices[0].message.content
 
         extraction_prompt = (
@@ -619,15 +618,14 @@ class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
                 response_format={"type": "json_schema", "json_schema": {"name": "extraction", "schema": task.target_schema, "strict": True}}
             )
             
-            if hasattr(response2, "usage") and response2.usage:
-                total_tokens += response2.usage.total_tokens
+            self.usage.add(getattr(response2, "usage", None))
             
             result = parse_robust_json(response2.choices[0].message.content)
-            result["_tokens"] = total_tokens
+            result["_tokens"] = self.usage.snapshot()["total_tokens"]
             return result
         except Exception as e:
             logger.error(f"AuditedSynthetic Pass 2 failed: {e}")
-            return {"error": f"Extraction failed: {str(e)}", "_tokens": total_tokens}
+            return {"error": f"Extraction failed: {str(e)}", "_tokens": self.usage.snapshot()["total_tokens"]}
 
 
 class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
