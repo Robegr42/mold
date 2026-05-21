@@ -220,7 +220,7 @@ class ArchitectModule:
         self.client = client
         self._synthesis_cache = {}
 
-    def get_reasoning_hints(self, task: Task, model: str, lang: str = "Spanish", count: int = 3) -> str:
+    def get_reasoning_hints(self, task: Task, model: str, lang: str = "Spanish", count: int = 3, usage: Optional[UsageTracker] = None) -> str:
         prompt = (
             f"Analyze the following extraction schema and instruction.\n"
             f"Instruction: {task.instruction}\n"
@@ -238,12 +238,14 @@ class ArchitectModule:
                 ],
                 max_tokens=200
             )
+            if usage:
+                usage.add(getattr(response, "usage", None))
             return response.choices[0].message.content
         except Exception as e:
             logger.error(f"ArchitectModule error: {e}")
             return "Analice el texto cuidadosamente y asegúrese de que cada campo esté respaldado por evidencia directa."
 
-    def synthesize_example(self, task: Task, model: str) -> Optional[Dict[str, Any]]:
+    def synthesize_example(self, task: Task, model: str, usage: Optional[UsageTracker] = None) -> Optional[Dict[str, Any]]:
         """
         Synthesizes a realistic training example (text + json) for a given task schema.
         Uses an in-memory cache keyed by the MD5 hash of the schema.
@@ -279,6 +281,8 @@ class ArchitectModule:
                 messages=messages,
                 response_format={"type": "text"}
             )
+            if usage:
+                usage.add(getattr(response, "usage", None))
             content = response.choices[0].message.content
             result = parse_robust_json(content)
 
@@ -302,6 +306,8 @@ class ArchitectModule:
                     messages=correction_messages,
                     response_format={"type": "text"}
                 )
+                if usage:
+                    usage.add(getattr(response, "usage", None))
                 result = parse_robust_json(response.choices[0].message.content)
                 if "text" not in result or "json" not in result:
                     raise KeyError("Missing 'text' or 'json' keys after correction.")
