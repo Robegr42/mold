@@ -661,7 +661,7 @@ class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
         If RAG is gated (no relevant examples), it injects a generalization directive.
         Otherwise, it uses the retrieved few-shot examples for pass 1 analysis.
         """
-        total_tokens = 0
+        self.usage.reset()
         
         # 1. Gated Augmentation
         few_shots, is_relevant = self.rag.get_gated_examples(task, k=self.rag_k, threshold=0.55)
@@ -672,7 +672,7 @@ class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
             directive = "No relevant examples found. Perform zero-shot extraction relying strictly on the schema definitions and reasoning hints."
         else:
             fs_str = "\n".join([f"Example Input: {e['input_text']}\nExample Output: {json.dumps(e['output'])}" for e in few_shots])
-        hints = self.architect.get_reasoning_hints(task, model, lang=self.reasoning_lang, count=self.hint_count)
+        hints = self.architect.get_reasoning_hints(task, model, lang=self.reasoning_lang, count=self.hint_count, usage=self.usage)
         
         # 2. Pass 1: Unconstrained Analysis
         analysis_prompt = (
@@ -700,8 +700,7 @@ class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
             ]
         )
         
-        if hasattr(response1, "usage") and response1.usage:
-            total_tokens += response1.usage.total_tokens
+        self.usage.add(getattr(response1, "usage", None))
         analysis = response1.choices[0].message.content
 
         # 3. Pass 2: Strict Extraction
@@ -730,15 +729,14 @@ class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
                 response_format={"type": "json_schema", "json_schema": {"name": "extraction", "schema": task.target_schema, "strict": True}}
             )
             
-            if hasattr(response2, "usage") and response2.usage:
-                total_tokens += response2.usage.total_tokens
+            self.usage.add(getattr(response2, "usage", None))
             
             result = parse_robust_json(response2.choices[0].message.content)
-            result["_tokens"] = total_tokens
+            result["_tokens"] = self.usage.snapshot()["total_tokens"]
             return result
         except Exception as e:
             logger.error(f"VIGILAgent Pass 2 failed: {e}")
-            return {"error": f"Extraction failed: {str(e)}", "_tokens": total_tokens}
+            return {"error": f"Extraction failed: {str(e)}", "_tokens": self.usage.snapshot()["total_tokens"]}
 
 
 class OfficialParticipant(Participant):
