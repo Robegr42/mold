@@ -50,6 +50,15 @@ To restore the competitiveness of `mira`, `vigil`, and `arcane`, we must adapt t
     1. Test first with the `mira` pipeline. 
     2. If performance improves under one configuration, extend the test to the `vigil` and `arcane` pipelines.
 
+### 5. Vigil-Specific Pass Optimization for Null Invariant
+- **Action:** Determine if applying the (softened) `null` invariant to only one pass improves `vigil` performance.
+- **Details:** The previous study showed `vigil` performs better with the invariant enabled globally. This task further refines that by checking if isolating the invariant to the Reasoning step or the Extraction step is even better.
+- **Execution:**
+    1. Test `vigil` with `use_null` enabled ONLY in Pass 1 (Reasoning).
+    2. Test `vigil` with `use_null` enabled ONLY in Pass 2 (Extraction).
+    3. Compare these results with the global `use_null=True` baseline from Step 4.
+    4. Set the most performant configuration as the new default for `vigil`.
+
 ## Verification
 - Run local evaluations using the `gensie eval` command against the `data/starter/` dataset.
 - Monitor the aggregate metrics to ensure Micro-F1 has improved and that the pipelines perform better with the adjusted invariants.

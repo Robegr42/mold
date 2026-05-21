@@ -6,4 +6,5 @@
     - [x] Tune the `Extract-or-Null` invariant (soften aggressive pruning)
     - [ ] Enforce strict date formatting in prompts
     - [ ] Enhance complex schema handling in `compress_schema_to_ts`
-    - [ ] Conduct Null Invariant comparative study (mira -> vigil, arcane)
+    - [x] Conduct Null Invariant comparative study (mira -> vigil, arcane)
+    - [ ] Conduct Vigil-specific pass optimization for Null Invariant
