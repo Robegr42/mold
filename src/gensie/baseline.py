@@ -404,7 +404,7 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
     2. Strict extraction using JSON Schema, with a fallback to JSON Object.
     """
 
-    def __init__(self, use_ts=True, use_null=True, use_dialect=True):
+    def __init__(self, use_ts=True, use_null=False, use_dialect=True):
         self.client = OpenAI(
             base_url=os.getenv("OPENAI_BASE_URL"),
             api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
@@ -523,7 +523,7 @@ class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
         self.architect = ArchitectModule(self.client)
         # Optimal Invariants
         self.use_ts = False
-        self.use_null = parse_env_bool("GENSIE_USE_NULL", True)
+        self.use_null = parse_env_bool("GENSIE_USE_NULL", False)
         self.use_dialect = False
         
         # Tallies token usage for the current task; the server reads it to set
@@ -767,7 +767,7 @@ class OfficialParticipant(Participant):
         self.pipelines = {
             "baseline": BasicAgent(),
 
-            "mira": MIRAAgent(use_ts=False, use_dialect=False),
+            "mira": MIRAAgent(use_ts=False, use_null=False, use_dialect=False),
             
             "vigil": VIGILAgent(),
 
