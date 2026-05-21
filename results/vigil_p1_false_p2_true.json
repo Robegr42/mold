@@ -1,0 +1,618 @@
+{
+  "participant": {
+    "team_name": "MOLD Team",
+    "institution": "University of Havana",
+    "pipelines": [
+      {
+        "name": "baseline",
+        "description": "Reference implementation using OpenAI Structured Outputs."
+      },
+      {
+        "name": "mira",
+        "description": "Strategy that decouples reasoning in Spanish from strict JSON extraction with deterministic null pruning."
+      },
+      {
+        "name": "vigil",
+        "description": "High-accuracy pipeline with Gated RAG, Two-Pass reasoning, and optimal generalizer configuration."
+      },
+      {
+        "name": "arcane",
+        "description": "Double-gate pipeline with structural validation."
+      }
+    ]
+  },
+  "config": {
+    "model": "gpt-4o-mini",
+    "pipeline": "vigil",
+    "data_source": "/home/danilo/vscode/mold/data/starter"
+  },
+  "metrics": {
+    "precision": 0.663078090970235,
+    "recall": 0.7754642080838341,
+    "f1": 0.7148810668272845
+  },
+  "timing": {
+    "n": 40,
+    "avg_elapsed_s": 25.825055118024828,
+    "max_elapsed_s": 87.4363281190017,
+    "over_budget_count": 3,
+    "budget_s": 60.0,
+    "avg_within_budget": true
+  },
+  "token_usage": {
+    "n": 40,
+    "total_input": 216007,
+    "total_output": 50941,
+    "total_tokens": 266948,
+    "avg_total_per_instance": 6673.7,
+    "max_total": 15314,
+    "over_target_count": 0,
+    "over_soft_count": 0,
+    "calls_total": 120,
+    "target": 32000,
+    "avg_within_target": true,
+    "source": "header"
+  },
+  "tasks": [
+    {
+      "task_id": "technical_extraction_001",
+      "tps": 1.0,
+      "gold_keys": 1,
+      "system_keys": 2,
+      "elapsed_s": 12.045314130999031,
+      "tokens": {
+        "input": 2784,
+        "output": 613,
+        "total": 3397,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_002",
+      "tps": 2.854417788265149,
+      "gold_keys": 5,
+      "system_keys": 5,
+      "elapsed_s": 17.554583504999755,
+      "tokens": {
+        "input": 5782,
+        "output": 795,
+        "total": 6577,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_001",
+      "tps": 4.97311355789231,
+      "gold_keys": 5,
+      "system_keys": 6,
+      "elapsed_s": 19.914303714998823,
+      "tokens": {
+        "input": 3802,
+        "output": 1052,
+        "total": 4854,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_005",
+      "tps": 3.267048834081003,
+      "gold_keys": 5,
+      "system_keys": 5,
+      "elapsed_s": 24.42306154799735,
+      "tokens": {
+        "input": 8723,
+        "output": 968,
+        "total": 9691,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_entities_002",
+      "tps": 0.38366469996101854,
+      "gold_keys": 1,
+      "system_keys": 2,
+      "elapsed_s": 44.41580409499875,
+      "tokens": {
+        "input": 6007,
+        "output": 2342,
+        "total": 8349,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_entities_001",
+      "tps": 0.3313218125157425,
+      "gold_keys": 1,
+      "system_keys": 2,
+      "elapsed_s": 36.800567641999805,
+      "tokens": {
+        "input": 6836,
+        "output": 1782,
+        "total": 8618,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_extraction_002",
+      "tps": 0.8504709993824695,
+      "gold_keys": 1,
+      "system_keys": 2,
+      "elapsed_s": 10.661324139000499,
+      "tokens": {
+        "input": 4642,
+        "output": 452,
+        "total": 5094,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_003",
+      "tps": 8.0,
+      "gold_keys": 8,
+      "system_keys": 11,
+      "elapsed_s": 24.56887585000004,
+      "tokens": {
+        "input": 5986,
+        "output": 1194,
+        "total": 7180,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_006",
+      "tps": 6.0,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 20.05718240100032,
+      "tokens": {
+        "input": 4841,
+        "output": 1014,
+        "total": 5855,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_extraction_001",
+      "tps": 1.0,
+      "gold_keys": 1,
+      "system_keys": 2,
+      "elapsed_s": 10.144727787999727,
+      "tokens": {
+        "input": 2794,
+        "output": 481,
+        "total": 3275,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_003",
+      "tps": 4.2280110038775796,
+      "gold_keys": 5,
+      "system_keys": 6,
+      "elapsed_s": 20.78613885300001,
+      "tokens": {
+        "input": 4456,
+        "output": 1080,
+        "total": 5536,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_004",
+      "tps": 7.907109735702874,
+      "gold_keys": 8,
+      "system_keys": 11,
+      "elapsed_s": 27.815921135999815,
+      "tokens": {
+        "input": 6051,
+        "output": 1411,
+        "total": 7462,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_005",
+      "tps": 5.941863379630561,
+      "gold_keys": 8,
+      "system_keys": 7,
+      "elapsed_s": 30.59286258299835,
+      "tokens": {
+        "input": 6646,
+        "output": 1527,
+        "total": 8173,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_003",
+      "tps": 1.0,
+      "gold_keys": 1,
+      "system_keys": 2,
+      "elapsed_s": 10.407815180999023,
+      "tokens": {
+        "input": 3762,
+        "output": 473,
+        "total": 4235,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_entities_002",
+      "tps": 0.6998901555822908,
+      "gold_keys": 1,
+      "system_keys": 2,
+      "elapsed_s": 26.70063744000072,
+      "tokens": {
+        "input": 5054,
+        "output": 1321,
+        "total": 6375,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_001",
+      "tps": 4.0,
+      "gold_keys": 8,
+      "system_keys": 5,
+      "elapsed_s": 25.802564883997547,
+      "tokens": {
+        "input": 6690,
+        "output": 1227,
+        "total": 7917,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_extraction_002",
+      "tps": 1.0,
+      "gold_keys": 1,
+      "system_keys": 2,
+      "elapsed_s": 5.529304021998541,
+      "tokens": {
+        "input": 2369,
+        "output": 248,
+        "total": 2617,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_004",
+      "tps": 8.593880412174256,
+      "gold_keys": 9,
+      "system_keys": 10,
+      "elapsed_s": 22.72680769299768,
+      "tokens": {
+        "input": 3890,
+        "output": 1216,
+        "total": 5106,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_entities_001",
+      "tps": 0.7324997130446903,
+      "gold_keys": 1,
+      "system_keys": 2,
+      "elapsed_s": 25.481343688999914,
+      "tokens": {
+        "input": 5346,
+        "output": 1271,
+        "total": 6617,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_003",
+      "tps": 4.145768710998887,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 57.74096847400142,
+      "tokens": {
+        "input": 8806,
+        "output": 2872,
+        "total": 11678,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_extraction_002",
+      "tps": 0.9538461538461538,
+      "gold_keys": 1,
+      "system_keys": 2,
+      "elapsed_s": 6.397276735002379,
+      "tokens": {
+        "input": 3853,
+        "output": 218,
+        "total": 4071,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_002",
+      "tps": 1.0,
+      "gold_keys": 1,
+      "system_keys": 2,
+      "elapsed_s": 7.013444262000121,
+      "tokens": {
+        "input": 2238,
+        "output": 335,
+        "total": 2573,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_entities_001",
+      "tps": 1.0,
+      "gold_keys": 1,
+      "system_keys": 2,
+      "elapsed_s": 22.296259102000477,
+      "tokens": {
+        "input": 5051,
+        "output": 1115,
+        "total": 6166,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_007",
+      "tps": 5.073080900824069,
+      "gold_keys": 9,
+      "system_keys": 10,
+      "elapsed_s": 24.38058979299967,
+      "tokens": {
+        "input": 5200,
+        "output": 1241,
+        "total": 6441,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_001",
+      "tps": 7.268195179507391,
+      "gold_keys": 9,
+      "system_keys": 10,
+      "elapsed_s": 29.576811651000753,
+      "tokens": {
+        "input": 5964,
+        "output": 1502,
+        "total": 7466,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_002",
+      "tps": 5.403279332422553,
+      "gold_keys": 9,
+      "system_keys": 10,
+      "elapsed_s": 29.075268232998496,
+      "tokens": {
+        "input": 5981,
+        "output": 1437,
+        "total": 7418,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_extraction_003",
+      "tps": 0.9953585981718346,
+      "gold_keys": 1,
+      "system_keys": 2,
+      "elapsed_s": 10.188736995998624,
+      "tokens": {
+        "input": 3254,
+        "output": 485,
+        "total": 3739,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_media_002",
+      "tps": 8.80148158216194,
+      "gold_keys": 9,
+      "system_keys": 10,
+      "elapsed_s": 29.264832610999292,
+      "tokens": {
+        "input": 6627,
+        "output": 1418,
+        "total": 8045,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_entities_001",
+      "tps": 1.0,
+      "gold_keys": 1,
+      "system_keys": 2,
+      "elapsed_s": 21.63653342899852,
+      "tokens": {
+        "input": 3572,
+        "output": 1154,
+        "total": 4726,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_entities_003",
+      "tps": 0.8245086755954613,
+      "gold_keys": 1,
+      "system_keys": 2,
+      "elapsed_s": 36.63105570400148,
+      "tokens": {
+        "input": 4861,
+        "output": 1896,
+        "total": 6757,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "legal_legislation_004",
+      "tps": 3.023366552084812,
+      "gold_keys": 5,
+      "system_keys": 6,
+      "elapsed_s": 9.676885156997741,
+      "tokens": {
+        "input": 4557,
+        "output": 406,
+        "total": 4963,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_003",
+      "tps": 8.5,
+      "gold_keys": 9,
+      "system_keys": 10,
+      "elapsed_s": 26.40427024300152,
+      "tokens": {
+        "input": 4961,
+        "output": 1378,
+        "total": 6339,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_software_005",
+      "tps": 6.744400718565544,
+      "gold_keys": 9,
+      "system_keys": 9,
+      "elapsed_s": 18.844360594001046,
+      "tokens": {
+        "input": 5062,
+        "output": 922,
+        "total": 5984,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_004",
+      "tps": 4.048042165261781,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 65.17195770200124,
+      "tokens": {
+        "input": 9143,
+        "output": 3271,
+        "total": 12414,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_005",
+      "tps": 5.253454680482803,
+      "gold_keys": 6,
+      "system_keys": 7,
+      "elapsed_s": 31.826896475002286,
+      "tokens": {
+        "input": 8346,
+        "output": 1445,
+        "total": 9791,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_extraction_001",
+      "tps": 0.8999999999999999,
+      "gold_keys": 1,
+      "system_keys": 2,
+      "elapsed_s": 9.209556663001422,
+      "tokens": {
+        "input": 2923,
+        "output": 442,
+        "total": 3365,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_002",
+      "tps": 4.214285714285714,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 62.898532035000244,
+      "tokens": {
+        "input": 9236,
+        "output": 3203,
+        "total": 12439,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "cultural_extraction_001",
+      "tps": 1.0,
+      "gold_keys": 1,
+      "system_keys": 2,
+      "elapsed_s": 14.700594205998641,
+      "tokens": {
+        "input": 5606,
+        "output": 636,
+        "total": 6242,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "medical_drug_001",
+      "tps": 3.9448037745197433,
+      "gold_keys": 6,
+      "system_keys": 6,
+      "elapsed_s": 87.4363281190017,
+      "tokens": {
+        "input": 11035,
+        "output": 4279,
+        "total": 15314,
+        "calls": 3
+      },
+      "status": "PASS"
+    },
+    {
+      "task_id": "technical_entities_002",
+      "tps": 0.4,
+      "gold_keys": 1,
+      "system_keys": 2,
+      "elapsed_s": 16.201906242000405,
+      "tokens": {
+        "input": 3270,
+        "output": 819,
+        "total": 4089,
+        "calls": 3
+      },
+      "status": "PASS"
+    }
+  ]
+}

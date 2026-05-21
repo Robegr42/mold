@@ -661,8 +661,8 @@ class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
         # Optimal Generalizer Configuration
         self.use_ts = False
         self.use_null = parse_env_bool("GENSIE_USE_NULL", True)
-        self.use_null_p1 = parse_env_bool("GENSIE_VIGIL_NULL_P1", self.use_null)
-        self.use_null_p2 = parse_env_bool("GENSIE_VIGIL_NULL_P2", self.use_null)
+        self.use_null_p1 = parse_env_bool("GENSIE_VIGIL_NULL_P1", False)
+        self.use_null_p2 = parse_env_bool("GENSIE_VIGIL_NULL_P2", True)
         self.use_dialect = False
         
         self.rag_k = int(os.getenv("GENSIE_RAG_K", "3"))
