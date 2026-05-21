@@ -401,7 +401,7 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
         self.usage = UsageTracker()
 
     def run(self, task: Task, model: str) -> Dict[str, Any]:
-        total_tokens = 0
+        self.usage.reset()
         # Pass 1: Analysis in Spanish
         base_pass1_prompt = (
             f"Instruction: {task.instruction}\n\n"
@@ -430,8 +430,7 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
         )
 
         
-        if hasattr(response1, "usage") and response1.usage:
-            total_tokens += response1.usage.total_tokens
+        self.usage.add(getattr(response1, "usage", None))
 
         analysis = response1.choices[0].message.content
 
@@ -466,13 +465,12 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
                     },
                 },
             )
-            if hasattr(response2, "usage") and response2.usage:
-                total_tokens += response2.usage.total_tokens
+            self.usage.add(getattr(response2, "usage", None))
             content = response2.choices[0].message.content
             result = parse_robust_json(content)
             if not result and content.strip():
                 raise ValueError("JSON parsing yielded empty result from non-empty content.")
-            result["_tokens"] = total_tokens
+            result["_tokens"] = self.usage.snapshot()["total_tokens"]
             return result
         except Exception as e:
             # Fallback to text
@@ -482,15 +480,14 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
                     messages=messages2,
                     response_format={"type": "text"},
                 )
-                if hasattr(response3, "usage") and response3.usage:
-                    total_tokens += response3.usage.total_tokens
+                self.usage.add(getattr(response3, "usage", None))
                 content = response3.choices[0].message.content
                 result = parse_robust_json(content)
-                result["_tokens"] = total_tokens
+                result["_tokens"] = self.usage.snapshot()["total_tokens"]
                 return result
             except Exception as fallback_err:
                 logger.error(f"Fallback extraction failed: {str(fallback_err)}")
-                return {"error": f"Failed fallback extraction: {str(fallback_err)}", "_tokens": total_tokens}
+                return {"error": f"Failed fallback extraction: {str(fallback_err)}", "_tokens": self.usage.snapshot()["total_tokens"]}
 
 
 class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
