@@ -43,6 +43,13 @@ To restore the competitiveness of `mira`, `vigil`, and `arcane`, we must adapt t
 - **Action:** Improve `compress_schema_to_ts`.
 - **Details:** Ensure that the TypeScript compression does not lose critical nested details that the model needs to achieve high recall on complex schemas.
 
+### 4. Null Invariant Comparative Study
+- **Action:** Determine the optimal configuration for the `null` invariant.
+- **Details:** Conduct an experimental ablation to compare performance (Micro-F1) with and without the `null` invariant enabled.
+- **Execution:** 
+    1. Test first with the `mira` pipeline. 
+    2. If performance improves under one configuration, extend the test to the `vigil` and `arcane` pipelines.
+
 ## Verification
 - Run local evaluations using the `gensie eval` command against the `data/starter/` dataset.
 - Monitor the aggregate metrics to ensure Micro-F1 has improved and that the pipelines perform better with the adjusted invariants.
