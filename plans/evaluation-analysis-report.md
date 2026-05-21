@@ -1,0 +1,48 @@
+# Evaluation Analysis Report: Pipeline Competitiveness
+
+## Background & Motivation
+The user reported a significant drop in the competitiveness of their advanced pipelines (`mira` [formerly `two-pass-null`], `vigil` [formerly `gated-stable-champion`], and `arcane` [formerly `audited-synthetic`]) under the new evaluation logic compared to the legacy methods used until 05/19/26.
+
+This plan details the root causes found in the recent commits to `src/gensie/eval.py` and proposes a strategy to adapt the pipelines to these new constraints.
+
+## Root Cause Analysis
+An analysis of the evaluation codebase reveals four major changes that disproportionately affect pipelines employing the "Extract-or-Null" strategy (`use_null=True`):
+
+### 1. Case C - The Hard Null Penalty (Hallucinations)
+- **Legacy Behavior:** If the gold standard expected a specific value but the system aggressively output `null`, the evaluator fell through to the semantic similarity logic. It compared the string `"None"` against the expected text, often awarding partial credit.
+- **New Behavior:** A `null` vs value mismatch now scores a hard `0.0`.
+- **Impact:** The advanced pipelines use `InvariantPromptMixin` with `use_null=True`, which enforces a strict rule: "If information is absent, return `null`." This makes them over-cautious. Previously, this pruning was forgiven with partial credit; now, missing a field completely zeros out its score.
+
+### 2. Case A - Rigid Dates
+- **Legacy Behavior:** Date fields (`format: date`, `time`, `date-time`) were evaluated using semantic similarity, allowing flexibility in formatting.
+- **New Behavior:** Date fields are now classified as **Rigid**, requiring an exact lexical match to score `1.0`.
+- **Impact:** Even if the pipelines extract the correct date, any formatting discrepancy results in a `0.0`.
+
+### 3. Global Micro-F1 Normalization
+- **Legacy Behavior:** The True Positive Score (TPS) was normalized per-instance (divided by the max number of keys) before being averaged across the dataset (a Macro-F1 approach).
+- **New Behavior:** The evaluation now uses a true Global Micro-F1. Raw similarities are summed across the entire test set before normalization.
+- **Impact:** Instances with complex, deeply nested schemas (containing many keys) now carry significantly more weight in the final score. If the pipelines struggle to maintain structure or extract all fields in deep schemas, their global score will plummet relative to simpler tasks.
+
+### 4. "Gap Closed" Leaderboard Metric
+- **Legacy Behavior:** Rankings were based on raw F1 scores.
+- **New Behavior:** The primary ranking metric is `Gap Closed = max(0, (F1_system - F1_baseline) / (1 - F1_baseline))`. 
+- **Impact:** The score measures relative improvement over the baseline. If the baseline performs well on certain models, absolute gains appear smaller, masking the advanced pipelines' raw performance advantages.
+
+## Proposed Strategy
+To restore the competitiveness of `mira`, `vigil`, and `arcane`, we must adapt them to the new evaluation constraints.
+
+### 1. Tune the `Extract-or-Null` Invariant
+- **Action:** Re-evaluate `use_null=True` in `src/gensie/baseline.py`.
+- **Details:** The current rule is too aggressive for the new hard null penalty. We should consider disabling it (`use_null=False`) or modifying the `InvariantPromptMixin` to provide softer reasoning hints (e.g., "Extract the value if confidently present, otherwise attempt to infer from context before returning null").
+
+### 2. Enforce Strict Date Formatting
+- **Action:** Add a formatting invariant to the prompts.
+- **Details:** When generating the prompt, explicitly instruct the model to format all dates and times according strictly to the schema's expected format (e.g., ISO 8601).
+
+### 3. Enhance Complex Schema Handling
+- **Action:** Improve `compress_schema_to_ts`.
+- **Details:** Ensure that the TypeScript compression does not lose critical nested details that the model needs to achieve high recall on complex schemas.
+
+## Verification
+- Run local evaluations using the `gensie eval` command against the `data/starter/` dataset.
+- Monitor the aggregate metrics to ensure Micro-F1 has improved and that the pipelines perform better with the adjusted invariants.
