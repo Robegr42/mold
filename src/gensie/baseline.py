@@ -661,6 +661,8 @@ class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
         # Optimal Generalizer Configuration
         self.use_ts = False
         self.use_null = parse_env_bool("GENSIE_USE_NULL", True)
+        self.use_null_p1 = parse_env_bool("GENSIE_VIGIL_NULL_P1", self.use_null)
+        self.use_null_p2 = parse_env_bool("GENSIE_VIGIL_NULL_P2", self.use_null)
         self.use_dialect = False
         
         self.rag_k = int(os.getenv("GENSIE_RAG_K", "3"))
@@ -705,7 +707,7 @@ class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
             analysis_prompt,
             task.target_schema,
             use_ts=self.use_ts,
-            use_null=self.use_null,
+            use_null=self.use_null_p1,
             use_dialect=self.use_dialect
         )
         
@@ -732,7 +734,7 @@ class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
             extraction_prompt,
             task.target_schema,
             use_ts=self.use_ts,
-            use_null=self.use_null,
+            use_null=self.use_null_p2,
             use_dialect=self.use_dialect
         )
         
