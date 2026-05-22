@@ -86,7 +86,7 @@ To restore the competitiveness of `mira`, `vigil`, and `arcane`, we must adapt t
     -   **Both Passes (Global):** F1 = 0.7433 (Winner)
 - **Execution:**
     1. Refactor `arcane` to support per-pass `use_null` toggles and parameterless initialization.
-    2. Adopt the **Both Passes (Global)** configuration as it showed the highest performance improvement.
+    2. Adopt the **Pass 2 Only** configuration. *Note: While global enabling was slightly better in experiments (0.7433 vs 0.7403), we chose "Pass 2 Only" (0.7403) for consistency with `mira` and `vigil`.*
     3. Update `OfficialParticipant` to use the new defaults.
 
 

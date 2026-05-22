@@ -534,7 +534,7 @@ class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
         # Optimal Invariants
         self.use_ts = parse_env_bool("GENSIE_ARCANE_USE_TS", False)
         self.use_dialect = parse_env_bool("GENSIE_ARCANE_USE_DIALECT", False)
-        self.use_null_p1 = parse_env_bool("GENSIE_ARCANE_NULL_P1", True)
+        self.use_null_p1 = parse_env_bool("GENSIE_ARCANE_NULL_P1", False)
         self.use_null_p2 = parse_env_bool("GENSIE_ARCANE_NULL_P2", True)
         self.reasoning_lang = os.getenv("GENSIE_ARCANE_REASONING_LANG", "Spanish")
         
@@ -780,9 +780,7 @@ class OfficialParticipant(Participant):
         # Registering both base and hardened agents
         self.pipelines = {
             "baseline": BasicAgent(),
-
             "mira": MIRAAgent(),
-
             "vigil": VIGILAgent(),
             "arcane": ARCANEAgent(),
         }

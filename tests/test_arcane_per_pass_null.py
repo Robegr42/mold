@@ -89,6 +89,6 @@ def test_arcane_agent_defaults():
     # Clear environment variables if they exist
     with patch.dict(os.environ, {}, clear=True):
         agent = ARCANEAgent()
-        assert agent.use_null_p1 is True
+        assert agent.use_null_p1 is False
         assert agent.use_null_p2 is True
         assert agent.use_dialect is False
