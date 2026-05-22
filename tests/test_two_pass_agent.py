@@ -48,22 +48,46 @@ def test_mira_agent_success(agent, sample_task):
     assert result == {"name": "Juan"}
     assert agent.client.chat.completions.create.call_count == 2
     
-    # First pass: Unconstrained, step-by-step Spanish, with TypeScript schema and dialect awareness
+    # First pass: Unconstrained, step-by-step Spanish, with JSON schema by default (TS=False)
     call_args_1 = agent.client.chat.completions.create.call_args_list[0][1]
     system_prompt_1 = call_args_1["messages"][0]["content"].lower()
     assert "spanish" in system_prompt_1 or "español" in system_prompt_1
     
     user_prompt_1 = call_args_1["messages"][1]["content"]
-    assert "TypeScript" in user_prompt_1
-    assert "Dialect Rule" in user_prompt_1
+    assert "JSON Schema" in user_prompt_1
+    assert "Dialect Rule" not in user_prompt_1
     assert "response_format" not in call_args_1
     
     # Second pass: Pure extraction, now includes EXTRACTION INVARIANTS block
+    # By default P2 uses Null Rule
     call_args_2 = agent.client.chat.completions.create.call_args_list[1][1]
     assert call_args_2["response_format"]["type"] == "json_schema"
     user_prompt_2 = call_args_2["messages"][1]["content"]
     assert "EXTRACTION INVARIANTS" in user_prompt_2
+    assert "Extract-or-Null Rule" in user_prompt_2
     assert "Analysis: The text is in Spanish" in user_prompt_2
+
+def test_mira_agent_custom_reasoning_lang(sample_task):
+    import os
+    from unittest.mock import patch
+    with patch.dict(os.environ, {"GENSIE_MIRA_REASONING_LANG": "French"}):
+        agent = MIRAAgent()
+        assert agent.reasoning_lang == "French"
+        
+        mock_response_1 = MagicMock()
+        mock_response_1.choices[0].message.content = "Analysis in French..."
+        
+        mock_response_2 = MagicMock()
+        mock_response_2.choices[0].message.content = '{"name": "Juan"}'
+        
+        agent.client.chat.completions.create = MagicMock(side_effect=[mock_response_1, mock_response_2])
+        
+        agent.run(sample_task, model="test-model")
+        
+        # Check Pass 1 call for French
+        call_args_1 = agent.client.chat.completions.create.call_args_list[0][1]
+        system_prompt_1 = call_args_1["messages"][0]["content"]
+        assert "French" in system_prompt_1
 
 def test_mira_agent_fallback_on_api_error(agent, sample_task):
     mock_response_1 = MagicMock()

@@ -13,16 +13,6 @@ def sample_task():
         target_schema={"type": "object", "properties": {"name": {"type": "string"}}}
     )
 
-def test_mira_init_params():
-    # Test initialization with explicit parameters
-    agent = MIRAAgent(use_null_p1=True, use_null_p2=False)
-    assert agent.use_null_p1 is True
-    assert agent.use_null_p2 is False
-
-    agent = MIRAAgent(use_null_p1=False, use_null_p2=True)
-    assert agent.use_null_p1 is False
-    assert agent.use_null_p2 is True
-
 @patch.dict(os.environ, {"GENSIE_MIRA_NULL_P1": "true", "GENSIE_MIRA_NULL_P2": "false"})
 def test_mira_init_env_vars():
     # Test initialization with environment variables
@@ -30,18 +20,9 @@ def test_mira_init_env_vars():
     assert agent.use_null_p1 is True
     assert agent.use_null_p2 is False
 
-def test_mira_init_fallback():
-    # Test fallback to use_null
-    agent = MIRAAgent(use_null=True)
-    assert agent.use_null_p1 is True
-    assert agent.use_null_p2 is True
-
-    agent = MIRAAgent(use_null=False)
-    assert agent.use_null_p1 is False
-    assert agent.use_null_p2 is False
-
 def test_mira_run_uses_per_pass_null(sample_task):
-    agent = MIRAAgent(use_null_p1=True, use_null_p2=True)
+    with patch.dict(os.environ, {"GENSIE_MIRA_NULL_P1": "true", "GENSIE_MIRA_NULL_P2": "true"}):
+        agent = MIRAAgent()
     
     mock_response_1 = MagicMock()
     mock_response_1.choices[0].message.content = "Analysis..."

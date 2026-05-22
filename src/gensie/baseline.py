@@ -404,23 +404,16 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
     2. Strict extraction using JSON Schema, with a fallback to JSON Object.
     """
 
-    def __init__(self, use_ts=True, use_null=False, use_dialect=True, use_null_p1=None, use_null_p2=None):
+    def __init__(self):
         self.client = OpenAI(
             base_url=os.getenv("OPENAI_BASE_URL"),
             api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
         )
-        self.use_ts = use_ts
-        self.use_null = parse_env_bool("GENSIE_USE_NULL", use_null)
-        self.use_dialect = use_dialect
-
-        # Per-pass null toggles
-        self.use_null_p1 = use_null_p1
-        if self.use_null_p1 is None:
-            self.use_null_p1 = parse_env_bool("GENSIE_MIRA_NULL_P1", self.use_null)
-
-        self.use_null_p2 = use_null_p2
-        if self.use_null_p2 is None:
-            self.use_null_p2 = parse_env_bool("GENSIE_MIRA_NULL_P2", self.use_null)
+        self.use_ts = parse_env_bool("GENSIE_MIRA_USE_TS", False)
+        self.use_dialect = parse_env_bool("GENSIE_MIRA_USE_DIALECT", False)
+        self.use_null_p1 = parse_env_bool("GENSIE_MIRA_NULL_P1", False)
+        self.use_null_p2 = parse_env_bool("GENSIE_MIRA_NULL_P2", True)
+        self.reasoning_lang = os.getenv("GENSIE_MIRA_REASONING_LANG", "Spanish")
         
         # Tallies token usage for the current task; the server reads it to set
         # the X-GenSIE-Token-Usage response header. Reuse this in your own agent.
@@ -428,7 +421,7 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
 
     def run(self, task: Task, model: str) -> Dict[str, Any]:
         self.usage.reset()
-        # Pass 1: Analysis in Spanish
+        # Pass 1: Analysis in the configured reasoning language
         base_pass1_prompt = (
             f"Instruction: {task.instruction}\n\n"
             f"Input Text: {task.input_text}\n\n"
@@ -449,7 +442,7 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a helpful assistant. Analyze the following text step-by-step in Spanish to identify relevant information.",
+                    "content": f"You are a helpful assistant. Analyze the following text step-by-step in {self.reasoning_lang} to identify relevant information.",
                 },
                 {"role": "user", "content": pass1_prompt},
             ],
@@ -786,7 +779,7 @@ class OfficialParticipant(Participant):
         self.pipelines = {
             "baseline": BasicAgent(),
 
-            "mira": MIRAAgent(use_ts=False, use_null_p1=False, use_null_p2=True, use_dialect=False),
+            "mira": MIRAAgent(),
 
             "vigil": VIGILAgent(),
             "arcane": ARCANEAgent(),
