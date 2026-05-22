@@ -69,6 +69,14 @@ To restore the competitiveness of `mira`, `vigil`, and `arcane`, we must adapt t
     4. Compare these results with the current benchmarks (None enabled vs Step 1 enabled).
     5. Choose and adopt the best configuration for `mira`.
 
+### 7. Standardize Mira Initialization
+- **Action:** Refactor `MIRAAgent.__init__` to follow the parameterless, environment-first pattern used by `VIGILAgent`.
+- **Details:**
+    1. Remove explicit constructor parameters (`use_ts`, `use_null`, etc.).
+    2. Read all configuration values from environment variables (e.g., `GENSIE_MIRA_USE_TS`, `GENSIE_MIRA_NULL_P1`, `GENSIE_MIRA_NULL_P2`).
+    3. Remove the redundant legacy `use_null` parameter in favor of the granular per-pass toggles.
+    4. Update `OfficialParticipant` to instantiate `MIRAAgent()` without arguments.
+
 ## Verification
 - Run local evaluations using the `gensie eval` command against the `data/starter/` dataset.
 - Monitor the aggregate metrics to ensure Micro-F1 has improved and that the pipelines perform better with the adjusted invariants.
