@@ -84,3 +84,11 @@ def test_arcane_agent_reasoning_lang(mock_architect_class, mock_rag_class, sampl
     call_args_1 = agent.client.chat.completions.create.call_args_list[0][1]
     assert "French" in call_args_1["messages"][0]["content"]
     assert "French" in call_args_1["messages"][1]["content"]
+
+def test_arcane_agent_defaults():
+    # Clear environment variables if they exist
+    with patch.dict(os.environ, {}, clear=True):
+        agent = ARCANEAgent()
+        assert agent.use_null_p1 is True
+        assert agent.use_null_p2 is True
+        assert agent.use_dialect is False
