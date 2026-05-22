@@ -102,7 +102,8 @@ class InvariantPromptMixin:
         target_schema: dict,
         use_ts: bool = True,
         use_null: bool = True,
-        use_dialect: bool = True
+        use_dialect: bool = True,
+        use_dates: bool = False
     ) -> str:
         ts_schema = compress_schema_to_ts(target_schema) if use_ts else json.dumps(target_schema, indent=2)
         
@@ -117,6 +118,9 @@ class InvariantPromptMixin:
             
         if use_dialect:
             sections.append(f"3. Dialect Rule: Respect Iberian/Latin American synonyms when extracting terms.")
+            
+        if use_dates:
+            sections.append(f"4. Date Formatting Rule: Format all date and time fields according strictly to the schema's expected format (e.g., ISO 8601 YYYY-MM-DD or HH:MM:SS). Ensure lexical precision for these fields.")
             
         invariants = "\n\n--- EXTRACTION INVARIANTS ---\n" + "\n".join(sections)
         return base_prompt + invariants
@@ -396,6 +400,7 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
         self.use_dialect = False
         self.use_null_p1 = False
         self.use_null_p2 = True
+        self.use_dates = True
         self.reasoning_lang = "Spanish"
         
         # Tallies token usage for the current task; the server reads it to set
@@ -417,7 +422,8 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
             task.target_schema,
             use_ts=self.use_ts,
             use_null=self.use_null_p1,
-            use_dialect=self.use_dialect
+            use_dialect=self.use_dialect,
+            use_dates=self.use_dates
         )
         
         response1 = self.client.chat.completions.create(
@@ -450,7 +456,8 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
             task.target_schema,
             use_ts=self.use_ts,
             use_null=self.use_null_p2,
-            use_dialect=self.use_dialect
+            use_dialect=self.use_dialect,
+            use_dates=self.use_dates
         )
         
         messages2 = [
@@ -519,6 +526,7 @@ class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
         self.use_dialect = False
         self.use_null_p1 = False
         self.use_null_p2 = True
+        self.use_dates = True
         self.reasoning_lang = "Spanish"
         
         # Tallies token usage for the current task; the server reads it to set
@@ -591,7 +599,8 @@ class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
             task.target_schema,
             use_ts=self.use_ts,
             use_null=self.use_null_p1,
-            use_dialect=self.use_dialect
+            use_dialect=self.use_dialect,
+            use_dates=self.use_dates
         )
 
         response1 = self.client.chat.completions.create(
@@ -617,7 +626,8 @@ class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
             task.target_schema,
             use_ts=self.use_ts,
             use_null=self.use_null_p2,
-            use_dialect=self.use_dialect
+            use_dialect=self.use_dialect,
+            use_dates=self.use_dates
         )
         
         try:
@@ -658,6 +668,7 @@ class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
         self.use_null_p1 = False
         self.use_null_p2 = True
         self.use_dialect = False
+        self.use_dates = True
         
         self.rag_k = 3
         self.reasoning_lang = "Spanish"
@@ -702,7 +713,8 @@ class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
             task.target_schema,
             use_ts=self.use_ts,
             use_null=self.use_null_p1,
-            use_dialect=self.use_dialect
+            use_dialect=self.use_dialect,
+            use_dates=self.use_dates
         )
         
         response1 = self.client.chat.completions.create(
@@ -729,7 +741,8 @@ class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
             task.target_schema,
             use_ts=self.use_ts,
             use_null=self.use_null_p2,
-            use_dialect=self.use_dialect
+            use_dialect=self.use_dialect,
+            use_dates=self.use_dates
         )
         
         try:
