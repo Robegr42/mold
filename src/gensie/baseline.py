@@ -49,44 +49,98 @@ def parse_robust_json(text: str) -> Dict[str, Any]:
         return {}
 
 
-def compress_schema_to_ts(schema: Dict[str, Any], indent_level: int = 0) -> str:
+def compress_schema_to_ts(schema: Dict[str, Any], indent_level: int = 0, root_schema: Optional[Dict[str, Any]] = None) -> str:
     """
     Compresses a JSON schema into a concise TypeScript type representation.
     """
-    schema_type = schema.get("type", "any")
+    if root_schema is None:
+        root_schema = schema
 
+    # Handle $ref
+    if "$ref" in schema:
+        ref_path = schema["$ref"]
+        if ref_path.startswith("#/"):
+            # Internal reference
+            parts = ref_path.split("/")[1:]
+            current = root_schema
+            for part in parts:
+                if part == "$defs" and "$defs" not in current and "definitions" in current:
+                    part = "definitions"
+                current = current.get(part, {})
+            if current and current != schema:
+                return compress_schema_to_ts(current, indent_level, root_schema)
+        return "any"
+
+    # Handle oneOf, anyOf, allOf
+    for logic_key in ["oneOf", "anyOf", "allOf"]:
+        if logic_key in schema:
+            sub_schemas = schema[logic_key]
+            sub_ts = [compress_schema_to_ts(s, indent_level, root_schema) for s in sub_schemas]
+            # Filter out duplicates and 'any' if there are more specific types
+            unique_ts = sorted(list(set(sub_ts)))
+            if "any" in unique_ts and len(unique_ts) > 1:
+                unique_ts.remove("any")
+            
+            separator = " | " if logic_key != "allOf" else " & "
+            return separator.join(unique_ts)
+
+    schema_type = schema.get("type", "any")
+    
+    # Handle Enum
+    if "enum" in schema:
+        enum_values = schema["enum"]
+        return " | ".join([json.dumps(v) for v in enum_values])
+
+    res = "any"
     if schema_type == "object":
         properties = schema.get("properties", {})
         required = set(schema.get("required", []))
         
         if not properties:
-            return "Record<string, any>"
-            
-        lines = ["{"]
-        indent = "  " * (indent_level + 1)
-        for prop, prop_schema in properties.items():
-            is_optional = "?" if prop not in required else ""
-            prop_ts = compress_schema_to_ts(prop_schema, indent_level + 1)
-            lines.append(f"{indent}{prop}{is_optional}: {prop_ts};")
-            
-        lines.append("  " * indent_level + "}")
-        return "\n".join(lines)
+            if "additionalProperties" in schema:
+                add_prop = schema["additionalProperties"]
+                if isinstance(add_prop, dict):
+                    res = f"Record<string, {compress_schema_to_ts(add_prop, indent_level, root_schema)}>"
+                else:
+                    res = "Record<string, any>"
+            else:
+                res = "Record<string, any>"
+        else:
+            lines = ["{"]
+            indent = "  " * (indent_level + 1)
+            for prop, prop_schema in properties.items():
+                is_optional = "?" if prop not in required else ""
+                prop_ts = compress_schema_to_ts(prop_schema, indent_level + 1, root_schema)
+                
+                # Add metadata as comments
+                metadata = []
+                if "format" in prop_schema:
+                    metadata.append(f"format: {prop_schema['format']}")
+                if "description" in prop_schema:
+                    metadata.append(prop_schema["description"])
+                
+                comment = f" // {'; '.join(metadata)}" if metadata else ""
+                lines.append(f"{indent}{prop}{is_optional}: {prop_ts};{comment}")
+                
+            lines.append("  " * indent_level + "}")
+            res = "\n".join(lines)
         
     elif schema_type == "array":
         items = schema.get("items", {})
-        item_ts = compress_schema_to_ts(items, indent_level)
+        item_ts = compress_schema_to_ts(items, indent_level, root_schema)
         if " " in item_ts or "\n" in item_ts:
-            return f"Array<{item_ts}>"
-        return f"{item_ts}[]"
+            res = f"Array<{item_ts}>"
+        else:
+            res = f"{item_ts}[]"
         
     elif schema_type in ("integer", "number"):
-        return "number"
+        res = "number"
     elif schema_type == "string":
-        return "string"
+        res = "string"
     elif schema_type == "boolean":
-        return "boolean"
-    else:
-        return "any"
+        res = "boolean"
+    
+    return res
 
 
 class InvariantPromptMixin:
