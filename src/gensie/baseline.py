@@ -532,9 +532,11 @@ class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
         self.rag = GatedRAGModule()
         self.architect = ArchitectModule(self.client)
         # Optimal Invariants
-        self.use_ts = False
-        self.use_null = parse_env_bool("GENSIE_USE_NULL", False)
-        self.use_dialect = False
+        self.use_ts = parse_env_bool("GENSIE_ARCANE_USE_TS", False)
+        self.use_dialect = parse_env_bool("GENSIE_ARCANE_USE_DIALECT", False)
+        self.use_null_p1 = parse_env_bool("GENSIE_ARCANE_NULL_P1", False)
+        self.use_null_p2 = parse_env_bool("GENSIE_ARCANE_NULL_P2", False)
+        self.reasoning_lang = os.getenv("GENSIE_ARCANE_REASONING_LANG", "Spanish")
         
         # Tallies token usage for the current task; the server reads it to set
         # the X-GenSIE-Token-Usage response header. Reuse this in your own agent.
@@ -598,21 +600,21 @@ class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
             f"Input Text: {task.input_text}\n\n"
             f"Reference Example:\n{fs_str}\n\n"
             f"{generalization_directive}\n"
-            f"Analyze the text step-by-step in Spanish to identify all relevant information before extraction."
+            f"Analyze the text step-by-step in {self.reasoning_lang} to identify all relevant information before extraction."
         )
 
         pass1_prompt = self.apply_invariants(
             analysis_prompt,
             task.target_schema,
             use_ts=self.use_ts,
-            use_null=self.use_null,
+            use_null=self.use_null_p1,
             use_dialect=self.use_dialect
         )
 
         response1 = self.client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": "You are a strategic analyst. Provide a detailed step-by-step reasoning in Spanish."},
+                {"role": "system", "content": f"You are a strategic analyst. Provide a detailed step-by-step reasoning in {self.reasoning_lang}."},
                 {"role": "user", "content": pass1_prompt}
             ]
         )
@@ -631,7 +633,7 @@ class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
             extraction_prompt,
             task.target_schema,
             use_ts=self.use_ts,
-            use_null=self.use_null,
+            use_null=self.use_null_p2,
             use_dialect=self.use_dialect
         )
         
