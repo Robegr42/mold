@@ -77,6 +77,15 @@ To restore the competitiveness of `mira`, `vigil`, and `arcane`, we must adapt t
     3. Remove the redundant legacy `use_null` parameter in favor of the granular per-pass toggles.
     4. Update `OfficialParticipant` to instantiate `MIRAAgent()` without arguments.
 
+### 8. Arcane-Specific Pass Optimization for Null Invariant
+- **Action:** Determine if applying the `null` invariant to only one pass improves `arcane` performance.
+- **Details:** Similar to the optimizations for `mira` and `vigil`, this task will investigate if isolating the `null` invariant to Step 2 (Extraction) yields better results than the current global setting.
+- **Execution:**
+    1. Refactor `arcane` to support per-pass `use_null` toggles.
+    2. Test `arcane` with `use_null` enabled ONLY in Step 2 (Extraction).
+    3. Compare these results with the current benchmarks from Step 4.
+    4. Adopt the best configuration for `arcane` and standardize its initialization.
+
 ## Verification
 - Run local evaluations using the `gensie eval` command against the `data/starter/` dataset.
 - Monitor the aggregate metrics to ensure Micro-F1 has improved and that the pipelines perform better with the adjusted invariants.

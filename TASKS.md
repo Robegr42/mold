@@ -9,4 +9,5 @@
     - [x] Conduct Null Invariant comparative study (mira -> vigil, arcane)
     - [x] Conduct Vigil-specific pass optimization for Null Invariant
     - [x] Conduct Mira-specific pass optimization for Null Invariant
-    - [/] Standardize Mira initialization (parameterless __init__)
+    - [x] Standardize Mira initialization (parameterless __init__)
+    - [ ] Conduct Arcane-specific pass optimization for Null Invariant
