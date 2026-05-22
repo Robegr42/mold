@@ -404,7 +404,7 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
     2. Strict extraction using JSON Schema, with a fallback to JSON Object.
     """
 
-    def __init__(self, use_ts=True, use_null=False, use_dialect=True):
+    def __init__(self, use_ts=True, use_null=False, use_dialect=True, use_null_p1=None, use_null_p2=None):
         self.client = OpenAI(
             base_url=os.getenv("OPENAI_BASE_URL"),
             api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
@@ -412,6 +412,15 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
         self.use_ts = use_ts
         self.use_null = parse_env_bool("GENSIE_USE_NULL", use_null)
         self.use_dialect = use_dialect
+
+        # Per-pass null toggles
+        self.use_null_p1 = use_null_p1
+        if self.use_null_p1 is None:
+            self.use_null_p1 = parse_env_bool("GENSIE_MIRA_NULL_P1", self.use_null)
+
+        self.use_null_p2 = use_null_p2
+        if self.use_null_p2 is None:
+            self.use_null_p2 = parse_env_bool("GENSIE_MIRA_NULL_P2", self.use_null)
         
         # Tallies token usage for the current task; the server reads it to set
         # the X-GenSIE-Token-Usage response header. Reuse this in your own agent.
@@ -431,7 +440,7 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
             base_pass1_prompt,
             task.target_schema,
             use_ts=self.use_ts,
-            use_null=self.use_null,
+            use_null=self.use_null_p1,
             use_dialect=self.use_dialect
         )
         
@@ -453,11 +462,19 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
 
         # Pass 2: Extraction
         # Focus purely on extraction based on the reasoning from Pass 1
-        final_prompt = (
+        base_pass2_prompt = (
             f"Instruction: {task.instruction}\n\n"
             f"Input Text: {task.input_text}\n\n"
             f"Analysis: {analysis}\n\n"
             f"Extract the requested information."
+        )
+
+        pass2_prompt = self.apply_invariants(
+            base_pass2_prompt,
+            task.target_schema,
+            use_ts=self.use_ts,
+            use_null=self.use_null_p2,
+            use_dialect=self.use_dialect
         )
         
         messages2 = [
@@ -465,7 +482,7 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
                 "role": "system",
                 "content": "You are a precise data extraction agent. Extract the required information into valid JSON.",
             },
-            {"role": "user", "content": final_prompt},
+            {"role": "user", "content": pass2_prompt},
         ]
         
         # Attempt 1 for Pass 2: json_schema

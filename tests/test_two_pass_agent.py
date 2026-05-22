@@ -58,11 +58,11 @@ def test_mira_agent_success(agent, sample_task):
     assert "Dialect Rule" in user_prompt_1
     assert "response_format" not in call_args_1
     
-    # Second pass: Pure extraction, no EXTRACTION INVARIANTS block
+    # Second pass: Pure extraction, now includes EXTRACTION INVARIANTS block
     call_args_2 = agent.client.chat.completions.create.call_args_list[1][1]
     assert call_args_2["response_format"]["type"] == "json_schema"
     user_prompt_2 = call_args_2["messages"][1]["content"]
-    assert "EXTRACTION INVARIANTS" not in user_prompt_2
+    assert "EXTRACTION INVARIANTS" in user_prompt_2
     assert "Analysis: The text is in Spanish" in user_prompt_2
 
 def test_mira_agent_fallback_on_api_error(agent, sample_task):
