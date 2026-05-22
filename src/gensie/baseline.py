@@ -960,6 +960,122 @@ class SAGEAgent(GenSIEAgent, InvariantPromptMixin):
             return {"error": f"Extraction failed: {str(e)}", "_tokens": self.usage.snapshot()["total_tokens"]}
 
 
+class AURAAgent(GenSIEAgent, InvariantPromptMixin):
+    """
+    Automated Understanding & Refinement Auditor (AURA).
+    A two-pass architecture featuring an initial draft extraction followed by
+    a rigorous 'Skeptical Auditor' pass to prune hallucinations.
+    """
+
+    def __init__(self):
+        self.client = OpenAI(
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+        )
+        self.use_null_p1 = False
+        self.use_null_p2 = False
+        self.use_dialect = True
+        self.use_ts = True
+        self.use_dates = True
+        self.usage = UsageTracker()
+
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        """
+        Executes the two-pass extraction logic.
+        """
+        self.usage.reset()
+
+        # Pass 1: Draft Extraction
+        base_pass1_prompt = (
+            f"Instruction: {task.instruction}\n\n"
+            f"Input Text: {task.input_text}\n\n"
+            f"Generate an initial draft extraction strictly following the schema."
+        )
+
+        pass1_prompt = self.apply_invariants(
+            base_pass1_prompt,
+            task.target_schema,
+            use_ts=self.use_ts,
+            use_null=self.use_null_p1,
+            use_dialect=self.use_dialect,
+            use_dates=self.use_dates
+        )
+
+        response1 = self.client.chat.completions.create(
+            model=model,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a precise data extraction agent. Generate a draft JSON extraction.",
+                },
+                {"role": "user", "content": pass1_prompt},
+            ],
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "draft_extraction",
+                    "schema": task.target_schema,
+                    "strict": True,
+                },
+            },
+        )
+        self.usage.add(getattr(response1, "usage", None))
+        draft_content = response1.choices[0].message.content
+        draft_json = parse_robust_json(draft_content)
+
+        # Pass 2: Audit Pass
+        base_pass2_prompt = (
+            f"Instruction: {task.instruction}\n\n"
+            f"Input Text: {task.input_text}\n\n"
+            f"Draft Extraction: {json.dumps(draft_json, indent=2)}\n\n"
+            f"Review the draft extraction against the input text. Prune any hallucinations "
+            f"or ungrounded information. Ensure every field is strictly supported by the text."
+        )
+
+        pass2_prompt = self.apply_invariants(
+            base_pass2_prompt,
+            task.target_schema,
+            use_ts=self.use_ts,
+            use_null=self.use_null_p2,
+            use_dialect=self.use_dialect,
+            use_dates=self.use_dates
+        )
+
+        response2 = self.client.chat.completions.create(
+            model=model,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a Skeptical Auditor. Your job is to rigorously verify "
+                        "the draft extraction against the provided text. Remove any "
+                        "information that is not explicitly supported. If a field's value "
+                        "cannot be verified, set it to null."
+                    ),
+                },
+                {"role": "user", "content": pass2_prompt},
+            ],
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "audited_extraction",
+                    "schema": task.target_schema,
+                    "strict": True,
+                },
+            },
+        )
+        self.usage.add(getattr(response2, "usage", None))
+
+        try:
+            content = response2.choices[0].message.content
+            result = parse_robust_json(content)
+            result["_tokens"] = self.usage.snapshot()["total_tokens"]
+            return result
+        except Exception as e:
+            logger.error(f"AURAAgent audit pass failed: {e}")
+            return {"error": f"Audit failed: {str(e)}", "_tokens": self.usage.snapshot()["total_tokens"]}
+
+
 class OfficialParticipant(Participant):
     """
     Standard entry point for the competition.
@@ -975,6 +1091,7 @@ class OfficialParticipant(Participant):
             "arcane": ARCANEAgent(),
             "eagle": EAGLEAgent(),
             "sage": SAGEAgent(),
+            "aura": AURAAgent(),
         }
 
     def get_info(self) -> ParticipantInfo:
@@ -1005,6 +1122,10 @@ class OfficialParticipant(Participant):
                 PipelineInfo(
                     name="sage",
                     description="Source-aligned grounded extraction engine.",
+                ),
+                PipelineInfo(
+                    name="aura",
+                    description="Automated Understanding & Refinement Auditor (AURA) two-pass system.",
                 ),
             ],
         )

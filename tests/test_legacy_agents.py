@@ -96,3 +96,68 @@ def test_sage_agent_run(mock_openai):
     system_content = messages[0]['content']
     
     assert "explicitly quote or cite the source text" in system_content.lower()
+
+def test_aura_agent_instantiation(mock_openai):
+    from gensie.baseline import AURAAgent
+    agent = AURAAgent()
+    assert agent.use_null_p1 is False
+    assert agent.use_null_p2 is False
+    assert agent.use_dialect is True
+    assert agent.use_ts is True
+    assert agent.use_dates is True
+
+def test_aura_agent_run(mock_openai):
+    from gensie.baseline import AURAAgent
+    agent = AURAAgent()
+    task = Task(
+        id="test_003",
+        instruction="Extract products",
+        input_text="We have a blue chair and a red table.",
+        target_schema={
+            "type": "object",
+            "properties": {
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {"type": "string"},
+                            "color": {"type": "string"}
+                        }
+                    }
+                }
+            }
+        }
+    )
+    
+    # Pass 1: Draft
+    mock_completion_1 = MagicMock()
+    mock_completion_1.choices = [
+        MagicMock(message=MagicMock(content='{"products": [{"name": "chair", "color": "blue"}, {"name": "table", "color": "red"}]}'))
+    ]
+    mock_completion_1.usage.prompt_tokens = 40
+    mock_completion_1.usage.completion_tokens = 30
+    mock_completion_1.usage.total_tokens = 70
+    
+    # Pass 2: Audit
+    mock_completion_2 = MagicMock()
+    mock_completion_2.choices = [
+        MagicMock(message=MagicMock(content='{"products": [{"name": "chair", "color": "blue"}]}'))
+    ]
+    mock_completion_2.usage.prompt_tokens = 100
+    mock_completion_2.usage.completion_tokens = 25
+    mock_completion_2.usage.total_tokens = 125
+    
+    agent.client.chat.completions.create.side_effect = [mock_completion_1, mock_completion_2]
+    
+    result = agent.run(task, model="gpt-4o-mini")
+    
+    # Pass 1 tokens (70) + Pass 2 tokens (125) = 195
+    assert result == {"products": [{"name": "chair", "color": "blue"}], "_tokens": 195}
+    assert agent.client.chat.completions.create.call_count == 2
+    
+    # Check Pass 2 prompt for Auditor persona
+    args, kwargs = agent.client.chat.completions.create.call_args
+    messages = kwargs['messages']
+    system_content = messages[0]['content']
+    assert "Skeptical Auditor" in system_content
