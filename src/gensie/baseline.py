@@ -400,7 +400,7 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
         self.use_dialect = False
         self.use_null_p1 = False
         self.use_null_p2 = True
-        self.use_dates = True
+        self.use_dates = False
         self.reasoning_lang = "Spanish"
         
         # Tallies token usage for the current task; the server reads it to set
@@ -526,7 +526,7 @@ class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
         self.use_dialect = False
         self.use_null_p1 = False
         self.use_null_p2 = True
-        self.use_dates = True
+        self.use_dates = False
         self.reasoning_lang = "Spanish"
         
         # Tallies token usage for the current task; the server reads it to set
@@ -668,7 +668,7 @@ class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
         self.use_null_p1 = False
         self.use_null_p2 = True
         self.use_dialect = False
-        self.use_dates = True
+        self.use_dates = False
         
         self.rag_k = 3
         self.reasoning_lang = "Spanish"

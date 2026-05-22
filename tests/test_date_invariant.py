@@ -21,10 +21,10 @@ def test_agents_have_use_dates_attribute():
     vigil = VIGILAgent()
     
     assert hasattr(mira, "use_dates")
-    assert mira.use_dates is True
+    assert mira.use_dates is False
     
     assert hasattr(arcane, "use_dates")
-    assert arcane.use_dates is True
+    assert arcane.use_dates is False
     
     assert hasattr(vigil, "use_dates")
-    assert vigil.use_dates is True
+    assert vigil.use_dates is False
