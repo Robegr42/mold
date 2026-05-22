@@ -68,28 +68,22 @@ To restore the competitiveness of `mira`, `vigil`, and `arcane`, we must adapt t
     3. Test `mira` with `use_null` enabled in BOTH Step 1 and Step 2.
     4. Compare these results with the current benchmarks (None enabled vs Step 1 enabled).
     5. Choose and adopt the best configuration for `mira`.
-
-### 7. Standardize Mira Initialization
-- **Action:** Refactor `MIRAAgent.__init__` to follow the parameterless, environment-first pattern used by `VIGILAgent`.
+### 7. Standardize Pipeline Configurations
+- **Action:** Refactor all agents (`mira`, `vigil`, `arcane`) to use hardcoded optimal defaults and a parameterless `__init__`.
 - **Details:**
-    1. Remove explicit constructor parameters (`use_ts`, `use_null`, etc.).
-    2. Read all configuration values from environment variables (e.g., `GENSIE_MIRA_USE_TS`, `GENSIE_MIRA_NULL_P1`, `GENSIE_MIRA_NULL_P2`).
-    3. Remove the redundant legacy `use_null` parameter in favor of the granular per-pass toggles.
-    4. Update `OfficialParticipant` to instantiate `MIRAAgent()` without arguments.
+    1. Remove all environment-variable overrides for pipeline configuration flags (e.g., `GENSIE_MIRA_NULL_P1`, `GENSIE_VIGIL_NULL_P2`, etc.).
+    2. Remove the `parse_env_bool` utility method.
+    3. Lock in the optimal configuration for all pipelines as internal constants in their respective constructors.
+    4. Ensure `OfficialParticipant` remains synchronized with these parameterless initializations.
 
-### 8. Arcane-Specific Pass Optimization for Null Invariant
-- **Action:** Determine the optimal configuration for the `null` invariant across `arcane`'s passes.
-- **Details:** This task investigates if isolating the `null` invariant to Step 2 (Extraction) or enabling it globally yields better results.
-- **Experimental Results (Model: qwen/qwen3-1.7b, Dataset: data/starter, N=20):**
-    -   **None (Current Default):** F1 = 0.7205
-    -   **Pass 2 Only (Step 2 Only):** F1 = 0.7403
-    -   **Both Passes (Global):** F1 = 0.7433 (Winner)
-- **Execution:**
-    1. Refactor `arcane` to support per-pass `use_null` toggles and parameterless initialization.
-    2. Adopt the **Pass 2 Only** configuration. *Note: While global enabling was slightly better in experiments (0.7433 vs 0.7403), we chose "Pass 2 Only" (0.7403) for consistency with `mira` and `vigil`.*
-    3. Update `OfficialParticipant` to use the new defaults.
+### 8. Final Configuration State
+- **MIRAAgent**: `use_ts=False`, `use_dialect=False`, `use_null_p1=False`, `use_null_p2=True`, `reasoning_lang="Spanish"`.
+- **VIGILAgent**: `use_null=True`, `use_null_p1=False`, `use_null_p2=True`, `rag_k=3`, `reasoning_lang="Spanish"`, `hint_count=3`.
+- **ARCANEAgent**: `use_ts=False`, `use_dialect=False`, `use_null_p1=False`, `use_null_p2=True`, `reasoning_lang="Spanish"`.
+- **Note**: While initial experiments favored global enablement for `arcane`, the "Pass 2 Only" configuration was adopted for cross-pipeline consistency.
 
 
-## Verification
+     ## Verification
+
 - Run local evaluations using the `gensie eval` command against the `data/starter/` dataset.
 - Monitor the aggregate metrics to ensure Micro-F1 has improved and that the pipelines perform better with the adjusted invariants.
