@@ -8,4 +8,4 @@
     - [ ] Enhance complex schema handling in `compress_schema_to_ts`
     - [x] Conduct Null Invariant comparative study (mira -> vigil, arcane)
     - [x] Conduct Vigil-specific pass optimization for Null Invariant
-    - [/] Conduct Mira-specific pass optimization for Null Invariant
+    - [x] Conduct Mira-specific pass optimization for Null Invariant
