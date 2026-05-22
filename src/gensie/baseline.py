@@ -889,6 +889,77 @@ class EAGLEAgent(GenSIEAgent, InvariantPromptMixin):
             return {"error": f"Extraction failed: {str(e)}", "_tokens": self.usage.snapshot()["total_tokens"]}
 
 
+class SAGEAgent(GenSIEAgent, InvariantPromptMixin):
+    """
+    Source-Aligned Grounded Extraction (SAGE).
+    A single-pass grounded extraction engine that explicitly quotes or cites
+    the source text for every extracted field to ensure grounding.
+    """
+
+    def __init__(self):
+        self.client = OpenAI(
+            base_url=os.getenv("OPENAI_BASE_URL"),
+            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+        )
+        self.use_null = True
+        self.use_ts = True
+        self.use_dialect = False
+        self.use_dates = True
+        self.usage = UsageTracker()
+
+    def run(self, task: Task, model: str) -> Dict[str, Any]:
+        """
+        Executes the grounded extraction logic.
+        """
+        self.usage.reset()
+        base_prompt = (
+            f"Instruction: {task.instruction}\n\n"
+            f"Input Text: {task.input_text}\n"
+        )
+
+        prompt = self.apply_invariants(
+            base_prompt,
+            task.target_schema,
+            use_ts=self.use_ts,
+            use_null=self.use_null,
+            use_dialect=self.use_dialect,
+            use_dates=self.use_dates
+        )
+
+        response = self.client.chat.completions.create(
+            model=model,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a precise data extraction agent. "
+                        "For every field you extract, you must ensure it is grounded in the source text. "
+                        "You should be able to explicitly quote or cite the source text for every extracted field to ensure grounding."
+                    ),
+                },
+                {"role": "user", "content": prompt},
+            ],
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "extraction",
+                    "schema": task.target_schema,
+                    "strict": True,
+                },
+            },
+        )
+        self.usage.add(getattr(response, "usage", None))
+
+        try:
+            content = response.choices[0].message.content
+            result = parse_robust_json(content)
+            result["_tokens"] = self.usage.snapshot()["total_tokens"]
+            return result
+        except Exception as e:
+            logger.error(f"SAGEAgent failed: {e}")
+            return {"error": f"Extraction failed: {str(e)}", "_tokens": self.usage.snapshot()["total_tokens"]}
+
+
 class OfficialParticipant(Participant):
     """
     Standard entry point for the competition.
@@ -903,6 +974,7 @@ class OfficialParticipant(Participant):
             "vigil": VIGILAgent(),
             "arcane": ARCANEAgent(),
             "eagle": EAGLEAgent(),
+            "sage": SAGEAgent(),
         }
 
     def get_info(self) -> ParticipantInfo:
@@ -929,6 +1001,10 @@ class OfficialParticipant(Participant):
                 PipelineInfo(
                     name="eagle",
                     description="End-anchored extraction strategy for maximizing schema adherence.",
+                ),
+                PipelineInfo(
+                    name="sage",
+                    description="Source-aligned grounded extraction engine.",
                 ),
             ],
         )

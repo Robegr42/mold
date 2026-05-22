@@ -52,3 +52,47 @@ def test_eagle_agent_run(mock_openai):
     # The requirement says: "The agent must append the target schema (JSON format, as use_ts=False) at the very end of the prompt"
     expected_end = 'Output strictly following this JSON schema:\n```json\n{\n  "type": "object",\n  "properties": {\n    "price": {\n      "type": "number"\n    }\n  },\n  "required": [\n    "price"\n  ]\n}\n```'
     assert user_content.strip().endswith(expected_end)
+
+def test_sage_agent_instantiation(mock_openai):
+    from gensie.baseline import SAGEAgent
+    agent = SAGEAgent()
+    assert agent.use_null is True
+    assert agent.use_ts is True
+    assert agent.use_dialect is False
+    assert agent.use_dates is True
+
+def test_sage_agent_run(mock_openai):
+    from gensie.baseline import SAGEAgent
+    agent = SAGEAgent()
+    task = Task(
+        id="test_002",
+        instruction="Extract information",
+        input_text="The patient was seen on 2023-10-01.",
+        target_schema={
+            "type": "object",
+            "properties": {
+                "date": {"type": "string", "format": "date"}
+            },
+            "required": ["date"]
+        }
+    )
+    
+    # Mock OpenAI response
+    mock_completion = MagicMock()
+    mock_completion.choices = [
+        MagicMock(message=MagicMock(content='{"date": "2023-10-01"}'))
+    ]
+    mock_completion.usage.prompt_tokens = 50
+    mock_completion.usage.completion_tokens = 15
+    agent.client.chat.completions.create.return_value = mock_completion
+    
+    result = agent.run(task, model="gpt-4o-mini")
+    
+    assert result == {"date": "2023-10-01", "_tokens": 65}
+    
+    # Verify the system prompt contains grounding instructions
+    args, kwargs = agent.client.chat.completions.create.call_args
+    messages = kwargs['messages']
+    system_content = messages[0]['content']
+    
+    assert "explicitly quote or cite the source text" in system_content.lower()
