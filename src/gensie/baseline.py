@@ -49,23 +49,6 @@ def parse_robust_json(text: str) -> Dict[str, Any]:
         return {}
 
 
-def parse_env_bool(var_name: str, default: bool) -> bool:
-    """
-    Parses a boolean environment variable.
-    Returns True for "true" or "1" (case-insensitive), False for "false" or "0".
-    If the variable is not set, returns the default value.
-    """
-    val = os.getenv(var_name)
-    if val is None:
-        return default
-    val = val.lower().strip()
-    if val in ("true", "1"):
-        return True
-    if val in ("false", "0"):
-        return False
-    return default
-
-
 def compress_schema_to_ts(schema: Dict[str, Any], indent_level: int = 0) -> str:
     """
     Compresses a JSON schema into a concise TypeScript type representation.
@@ -409,11 +392,11 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
             base_url=os.getenv("OPENAI_BASE_URL"),
             api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
         )
-        self.use_ts = parse_env_bool("GENSIE_MIRA_USE_TS", False)
-        self.use_dialect = parse_env_bool("GENSIE_MIRA_USE_DIALECT", False)
-        self.use_null_p1 = parse_env_bool("GENSIE_MIRA_NULL_P1", False)
-        self.use_null_p2 = parse_env_bool("GENSIE_MIRA_NULL_P2", True)
-        self.reasoning_lang = os.getenv("GENSIE_MIRA_REASONING_LANG", "Spanish")
+        self.use_ts = False
+        self.use_dialect = False
+        self.use_null_p1 = False
+        self.use_null_p2 = True
+        self.reasoning_lang = "Spanish"
         
         # Tallies token usage for the current task; the server reads it to set
         # the X-GenSIE-Token-Usage response header. Reuse this in your own agent.
@@ -532,11 +515,11 @@ class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
         self.rag = GatedRAGModule()
         self.architect = ArchitectModule(self.client)
         # Optimal Invariants
-        self.use_ts = parse_env_bool("GENSIE_ARCANE_USE_TS", False)
-        self.use_dialect = parse_env_bool("GENSIE_ARCANE_USE_DIALECT", False)
-        self.use_null_p1 = parse_env_bool("GENSIE_ARCANE_NULL_P1", False)
-        self.use_null_p2 = parse_env_bool("GENSIE_ARCANE_NULL_P2", True)
-        self.reasoning_lang = os.getenv("GENSIE_ARCANE_REASONING_LANG", "Spanish")
+        self.use_ts = False
+        self.use_dialect = False
+        self.use_null_p1 = False
+        self.use_null_p2 = True
+        self.reasoning_lang = "Spanish"
         
         # Tallies token usage for the current task; the server reads it to set
         # the X-GenSIE-Token-Usage response header. Reuse this in your own agent.
@@ -672,14 +655,14 @@ class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
         self.architect = ArchitectModule(self.client)
         # Optimal Generalizer Configuration
         self.use_ts = False
-        self.use_null = parse_env_bool("GENSIE_USE_NULL", True)
-        self.use_null_p1 = parse_env_bool("GENSIE_VIGIL_NULL_P1", False)
-        self.use_null_p2 = parse_env_bool("GENSIE_VIGIL_NULL_P2", True)
+        self.use_null = True
+        self.use_null_p1 = False
+        self.use_null_p2 = True
         self.use_dialect = False
         
-        self.rag_k = int(os.getenv("GENSIE_RAG_K", "3"))
-        self.reasoning_lang = os.getenv("GENSIE_REASONING_LANG", "Spanish")
-        self.hint_count = int(os.getenv("GENSIE_HINT_COUNT", "3"))
+        self.rag_k = 3
+        self.reasoning_lang = "Spanish"
+        self.hint_count = 3
         
         # Tallies token usage for the current task; the server reads it to set
         # the X-GenSIE-Token-Usage response header. Reuse this in your own agent.

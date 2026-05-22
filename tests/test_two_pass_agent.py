@@ -67,28 +67,6 @@ def test_mira_agent_success(agent, sample_task):
     assert "Extract-or-Null Rule" in user_prompt_2
     assert "Analysis: The text is in Spanish" in user_prompt_2
 
-def test_mira_agent_custom_reasoning_lang(sample_task):
-    import os
-    from unittest.mock import patch
-    with patch.dict(os.environ, {"GENSIE_MIRA_REASONING_LANG": "French"}):
-        agent = MIRAAgent()
-        assert agent.reasoning_lang == "French"
-        
-        mock_response_1 = MagicMock()
-        mock_response_1.choices[0].message.content = "Analysis in French..."
-        
-        mock_response_2 = MagicMock()
-        mock_response_2.choices[0].message.content = '{"name": "Juan"}'
-        
-        agent.client.chat.completions.create = MagicMock(side_effect=[mock_response_1, mock_response_2])
-        
-        agent.run(sample_task, model="test-model")
-        
-        # Check Pass 1 call for French
-        call_args_1 = agent.client.chat.completions.create.call_args_list[0][1]
-        system_prompt_1 = call_args_1["messages"][0]["content"]
-        assert "French" in system_prompt_1
-
 def test_mira_agent_fallback_on_api_error(agent, sample_task):
     mock_response_1 = MagicMock()
     mock_response_1.choices[0].message.content = "Analysis..."
