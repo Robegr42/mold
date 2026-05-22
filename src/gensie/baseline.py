@@ -655,7 +655,6 @@ class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
         self.architect = ArchitectModule(self.client)
         # Optimal Generalizer Configuration
         self.use_ts = False
-        self.use_null = True
         self.use_null_p1 = False
         self.use_null_p2 = True
         self.use_dialect = False
