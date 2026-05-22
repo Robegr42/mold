@@ -11,3 +11,4 @@
     - [x] Conduct Mira-specific pass optimization for Null Invariant
     - [x] Standardize Mira initialization (parameterless __init__)
     - [x] Conduct Arcane-specific pass optimization for Null Invariant
+    - [x] Standardize pipeline defaults and remove environment overrides
