@@ -11,5 +11,4 @@
     - [x] Conduct Mira-specific pass optimization for Null Invariant
     - [x] Standardize Mira initialization (parameterless __init__)
     - [x] Conduct Arcane-specific pass optimization for Null Invariant
-    - [/] Revive legacy agents: EAGLE, SAGE, AURA (See plan: plans/revive-legacy-agents.md)
     - [x] Standardize pipeline defaults and remove environment overrides
