@@ -786,10 +786,9 @@ class OfficialParticipant(Participant):
         self.pipelines = {
             "baseline": BasicAgent(),
 
-            "mira": MIRAAgent(use_ts=False, use_null=False, use_dialect=False),
-            
-            "vigil": VIGILAgent(),
+            "mira": MIRAAgent(use_ts=False, use_null_p1=False, use_null_p2=True, use_dialect=False),
 
+            "vigil": VIGILAgent(),
             "arcane": ARCANEAgent(),
         }
 
