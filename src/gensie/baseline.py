@@ -388,7 +388,7 @@ class BasicAgent(GenSIEAgent):
     def __init__(self):
         self.client = OpenAI(
             base_url=os.getenv("OPENAI_BASE_URL"),
-            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+            api_key=os.getenv("OPENAI_API_KEY") or "sk-dummy",
         )
         # Tallies token usage for the current task; the server reads it to set
         # the X-GenSIE-Token-Usage response header. Reuse this in your own agent.
@@ -448,7 +448,7 @@ class MIRAAgent(GenSIEAgent, InvariantPromptMixin):
     def __init__(self):
         self.client = OpenAI(
             base_url=os.getenv("OPENAI_BASE_URL"),
-            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+            api_key=os.getenv("OPENAI_API_KEY") or "sk-dummy",
         )
         self.use_ts = False
         self.use_dialect = False
@@ -571,7 +571,7 @@ class ARCANEAgent(GenSIEAgent, InvariantPromptMixin):
     def __init__(self):
         self.client = OpenAI(
             base_url=os.getenv("OPENAI_BASE_URL"),
-            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+            api_key=os.getenv("OPENAI_API_KEY") or "sk-dummy",
         )
         self.rag = GatedRAGModule()
         self.architect = ArchitectModule(self.client)
@@ -713,7 +713,7 @@ class VIGILAgent(GenSIEAgent, InvariantPromptMixin):
         """Initializes the agent with Gated RAG, Architect module and optimal invariants."""
         self.client = OpenAI(
             base_url=os.getenv("OPENAI_BASE_URL"),
-            api_key=os.getenv("OPENAI_API_KEY", "sk-dummy"),
+            api_key=os.getenv("OPENAI_API_KEY") or "sk-dummy",
         )
         self.rag = GatedRAGModule()
         self.architect = ArchitectModule(self.client)
