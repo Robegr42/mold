@@ -37,4 +37,4 @@ EXPOSE 8000
 
 # Entrypoint must start the FastAPI server as per GenSIE spec
 # Using --host 0.0.0.0 is mandatory for container networking
-ENTRYPOINT ["gensie", "serve", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["uv", "run", "gensie", "serve", "--host", "0.0.0.0", "--port", "8000"]
