@@ -401,6 +401,11 @@ def rank(
     baseline_pipeline: str = typer.Option(
         "baseline", help="Pipeline name that identifies the official baseline report"
     ),
+    baseline_slug: str = typer.Option(
+        "baseline",
+        help="Filename slug of the official baseline (chunk before first '--' or '__'). "
+        "Used to disambiguate when a participant names their pipeline 'baseline'.",
+    ),
     plain: bool = typer.Option(
         False, "--plain", help="Output in plain Markdown format"
     ),
@@ -418,7 +423,11 @@ def rank(
         )
         raise typer.Exit(1)
 
-    result = compute_ranking(reports, baseline_pipeline=baseline_pipeline)
+    result = compute_ranking(
+        reports,
+        baseline_pipeline=baseline_pipeline,
+        baseline_slug=baseline_slug,
+    )
 
     if not result["models"]:
         console.print(
