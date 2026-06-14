@@ -22,7 +22,9 @@ from typing import Any, Dict, List, Optional
 import httpx
 import yaml
 from rich.console import Console
-from rich.progress import Progress
+from rich.live import Live
+
+from gensie.dashboard import DashboardState, _render, _poller
 
 console = Console()
 
@@ -93,13 +95,37 @@ def _verify_model(server_url: str, served_name: str, timeout_s: int = 10) -> boo
         return False
 
 
-def _compose_files(cfg: EvalConfig, team: TeamSpec) -> List[str]:
+def _write_env_override(server_url: str, host_port: int) -> Path:
+    """Generate a compose override that hardcodes the agent's OPENAI_BASE_URL.
+
+    Most team .env files default to http://host.docker.internal:1234/v1; the
+    team's docker-compose.yml interpolates ${OPENAI_BASE_URL} from the shell,
+    but that interpolation silently falls back to the .env value when the
+    shell var is missing (sudo stripping, etc.). Writing a literal override
+    here removes the interpolation hazard.
+    """
+    path = Path(f"/tmp/gensie-eval-env-{host_port}.yml")
+    path.write_text(
+        "services:\n"
+        "  agent:\n"
+        "    environment:\n"
+        f"      OPENAI_BASE_URL: \"{server_url}\"\n"
+        "      OPENAI_API_KEY: \"lm-studio\"\n"
+    )
+    return path
+
+
+def _compose_files(cfg: EvalConfig, team: TeamSpec, host_port: int) -> List[str]:
     """Return the -f flag list for `docker compose` for this team."""
     files = ["-f", "docker-compose.yml"]
     files.extend(["-f", str(cfg.runtime_dir / "extra-hosts.yml")])
     files.extend(["-f", str(cfg.runtime_dir / "extra-port.yml")])
     for ovr in team.overrides:
         files.extend(["-f", str(cfg.runtime_dir / ovr)])
+    # Last override: pin OPENAI_BASE_URL literally so the shell-interpolation
+    # path in the team's compose can't silently fall back to .env.
+    env_override = _write_env_override(cfg.server_url, host_port)
+    files.extend(["-f", str(env_override)])
     return files
 
 
@@ -113,7 +139,7 @@ def _compose_up(cfg: EvalConfig, team: TeamSpec, host_port: int, log_path: Path)
         "OPENAI_API_KEY": "lm-studio",
         "PARTICIPANT_PATH": "gensie.baseline.OfficialParticipant",
     }
-    files = _compose_files(cfg, team)
+    files = _compose_files(cfg, team, host_port)
     # Tear down any prior project with the same name.
     subprocess.run(
         ["docker", "compose", *files, "--project-name", proj, "down"],
@@ -239,8 +265,15 @@ def _run_one_team(
     status_lock: threading.Lock,
     reports_dir: Path,
     logs_dir: Path,
+    state: Optional[DashboardState] = None,
 ) -> None:
     """End-to-end for one (team, model): compose up, run all pipelines, compose down."""
+    tp = state.get_or_create(team.slug, model.id) if state else None
+    if tp:
+        with state.lock:
+            tp.status = "booting"
+            tp.container_name = f"ef-{team.slug}-{host_port}-agent-1"
+
     boot_log = logs_dir / f"{team.slug}--{model.id}.boot.log"
     if not _compose_up(cfg, team, host_port, boot_log):
         _emit_status(status_path, {
@@ -248,6 +281,11 @@ def _run_one_team(
             "thinking": "na", "report_tag": model.id, "status": "BOOT_FAIL",
             "err": "compose up failed",
         }, status_lock)
+        if tp:
+            with state.lock:
+                tp.status = "failed"
+                tp.err = "compose up failed"
+            state.increment_done()
         return
 
     if not _wait_for_info(host_port):
@@ -257,6 +295,11 @@ def _run_one_team(
             "err": "no /info in 120s",
         }, status_lock)
         _compose_down(cfg, team, host_port)
+        if tp:
+            with state.lock:
+                tp.status = "failed"
+                tp.err = "no /info in 120s"
+            state.increment_done()
         return
 
     pipelines = team.pipelines or _fetch_pipelines(host_port)
@@ -267,26 +310,40 @@ def _run_one_team(
             "err": "no pipelines reported",
         }, status_lock)
         _compose_down(cfg, team, host_port)
+        if tp:
+            with state.lock:
+                tp.status = "failed"
+                tp.err = "no pipelines"
+            state.increment_done()
         return
 
+    if tp:
+        with state.lock:
+            tp.pipelines_total = len(pipelines)
+
     for p in pipelines:
-        console.print(f"  [{team.slug}/{model.id}] {p}: starting")
+        if tp:
+            with state.lock:
+                tp.status = "running"
+                tp.current_pipeline = p
+                tp.pipeline_start_ts = time.time()
+                tp.processed = 0
+
         row = _run_one_pipeline(
             cfg, team, model, p, host_port, concurrency, limit, reports_dir, logs_dir,
         )
         _emit_status(status_path, row, status_lock)
-        if row["status"] == "PASS":
-            console.print(
-                f"  [{team.slug}/{model.id}] {p}: [green]PASS[/green] "
-                f"F1={row['f1']:.4f} wall={row['wall_s']}s"
-            )
-        else:
-            console.print(
-                f"  [{team.slug}/{model.id}] {p}: [red]{row['status']}[/red] "
-                f"{row.get('err', '')[:60]}"
-            )
+        f1 = row.get("f1") if row["status"] == "PASS" else None
+        if tp:
+            with state.lock:
+                tp.pipelines_done.append((p, row["status"], f1))
+            state.increment_done()
 
     _compose_down(cfg, team, host_port)
+    if tp:
+        with state.lock:
+            tp.status = "done"
+            tp.current_pipeline = None
 
 
 # ───────────────────────── Public entry point ─────────────────────────
@@ -334,35 +391,86 @@ def run_eval_full(
                 console.print(f"  - {t.slug} (pipelines: {t.pipelines or 'auto'})")
         return
 
+    # Compute the total target for the progress bar: every (team, model) cell.
+    target = 0
     for m in models:
-        console.print(f"\n[bold blue]── Phase: {m.id} (served as {m.served_name}) ──[/bold blue]")
-        if not _verify_model(cfg.server_url, m.served_name):
-            console.print(f"[red]Skipping phase {m.id}: model not ready at {cfg.server_url}[/red]")
-            continue
+        for t in teams:
+            if not m.only_teams or t.slug in m.only_teams:
+                # Each (team, model) cell counts as one unit; sub-pipeline
+                # progress is shown live in the per-team panel.
+                target += 1
+    state = DashboardState(
+        server_url=cfg.server_url,
+        concurrency=concurrency,
+        parallel_teams=parallel_teams,
+        output_dir=cfg.output_dir,
+    )
+    state.record_total(target)
+    # Pre-create pending team cells so the dashboard shows the full grid up front.
+    for m in models:
+        for t in teams:
+            if not m.only_teams or t.slug in m.only_teams:
+                state.get_or_create(t.slug, m.id)
 
-        phase_teams = [t for t in teams if not m.only_teams or t.slug in m.only_teams]
+    stop_poll = threading.Event()
+    poll_thread = threading.Thread(
+        target=_poller, args=(state, stop_poll), daemon=True,
+    )
+    poll_thread.start()
 
-        # Run up to parallel_teams threads concurrently.
-        sem = threading.Semaphore(parallel_teams)
-        threads = []
+    try:
+        with Live(_render(state), refresh_per_second=2, console=console) as live:
+            def _refresh():
+                while not stop_poll.is_set():
+                    live.update(_render(state))
+                    time.sleep(0.5)
 
-        def _runner(team: TeamSpec, host_port: int) -> None:
-            with sem:
-                _run_one_team(
-                    cfg, team, m, host_port, concurrency, limit,
-                    status_path, status_lock, reports_dir, logs_dir,
-                )
+            refresh_t = threading.Thread(target=_refresh, daemon=True)
+            refresh_t.start()
 
-        for i, team in enumerate(phase_teams):
-            host_port = cfg.base_port + (i % parallel_teams)
-            t = threading.Thread(target=_runner, args=(team, host_port), daemon=False)
-            t.start()
-            threads.append(t)
+            for m in models:
+                state.set_phase(m.id)
+                if not _verify_model(cfg.server_url, m.served_name):
+                    console.log(
+                        f"[red]Skipping phase {m.id}: model not ready at {cfg.server_url}[/red]"
+                    )
+                    # Mark every team for this model as failed.
+                    for t in teams:
+                        if not m.only_teams or t.slug in m.only_teams:
+                            tp = state.get_or_create(t.slug, m.id)
+                            with state.lock:
+                                tp.status = "failed"
+                                tp.err = "model not ready"
+                            state.increment_done()
+                    continue
 
-        for t in threads:
-            t.join()
+                phase_teams = [t for t in teams if not m.only_teams or t.slug in m.only_teams]
+                sem = threading.Semaphore(parallel_teams)
+                threads = []
 
-        console.print(f"[bold blue]── Phase {m.id} complete ──[/bold blue]")
+                def _runner(team: TeamSpec, host_port: int, mdl: ModelSpec) -> None:
+                    with sem:
+                        _run_one_team(
+                            cfg, team, mdl, host_port, concurrency, limit,
+                            status_path, status_lock, reports_dir, logs_dir,
+                            state=state,
+                        )
+
+                for i, team in enumerate(phase_teams):
+                    host_port = cfg.base_port + (i % parallel_teams)
+                    th = threading.Thread(
+                        target=_runner, args=(team, host_port, m), daemon=False,
+                    )
+                    th.start()
+                    threads.append(th)
+                for th in threads:
+                    th.join()
+
+            # Final render before exit
+            live.update(_render(state))
+    finally:
+        stop_poll.set()
+        poll_thread.join(timeout=2)
 
     console.print("\n[bold green]== eval-full complete ==[/bold green]")
     console.print(f"  status: {status_path}")

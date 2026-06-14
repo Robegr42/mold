@@ -235,7 +235,15 @@ def eval(
         console.print(f"[bold red]Error: {data} is not a directory.[/bold red]")
         raise typer.Exit(1)
 
-    json_files = list(data.rglob("*.json"))
+    # Filter out sidecar metadata that lives alongside task files
+    # (.review.json from human curation, .audit.json from ensemble checks,
+    # .grounding.json from the breadcrumb pass). Only base task files
+    # parse via Task.load — sidecars would all just FAIL and pollute counts.
+    _SIDECAR_SUFFIXES = (".review.json", ".audit.json", ".grounding.json")
+    json_files = sorted(
+        p for p in data.rglob("*.json")
+        if not any(str(p).endswith(s) for s in _SIDECAR_SUFFIXES)
+    )
     if limit:
         json_files = json_files[:limit]
 
